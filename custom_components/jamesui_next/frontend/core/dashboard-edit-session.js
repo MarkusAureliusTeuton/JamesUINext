@@ -72,6 +72,26 @@ export function createDashboardEditSession({ controller, configService, pageId, 
       };
       return page();
     },
+    configureWidget(instanceId, config) {
+      ensureActive();
+      if (busy) throw new Error("Dashboard editor is saving");
+      const instance = working.widget_instances[instanceId];
+      if (!instance) throw new TypeError("Unknown widget instance: " + instanceId);
+      if (!working.pages[pageId].elements.some((item) => item.kind === "widget" && item.ref_id === instanceId)) {
+        throw new TypeError("Widget does not belong to this dashboard");
+      }
+      if (!config || typeof config !== "object" || Array.isArray(config)) throw new TypeError("Widget config must be an object");
+      const nextConfig = structuredClone(config);
+      history.push(working);
+      working = {
+        ...working,
+        widget_instances: {
+          ...working.widget_instances,
+          [instanceId]: { ...instance, config: nextConfig },
+        },
+      };
+      return page();
+    },
     undo() {
       ensureActive();
       if (busy) throw new Error("Dashboard editor is saving");
@@ -97,6 +117,13 @@ export function createDashboardEditSession({ controller, configService, pageId, 
                 item.kind !== original.elements[index].kind)) {
             throw new Error("Dashboard changed externally during editing");
           }
+          const modified = Object.fromEntries(
+            Object.entries(working.widget_instances).filter(([id, instance]) =>
+              id in baseline.widget_instances && JSON.stringify(instance) !== JSON.stringify(baseline.widget_instances[id])));
+          if (Object.keys(modified).some((id) =>
+            JSON.stringify(latest.widget_instances[id]) !== JSON.stringify(baseline.widget_instances[id]))) {
+            throw new Error("Widget configuration changed externally");
+          }
           const added = Object.fromEntries(
             Object.entries(working.widget_instances).filter(([id]) =>
               !(id in baseline.widget_instances)));
@@ -105,7 +132,7 @@ export function createDashboardEditSession({ controller, configService, pageId, 
           }
           return {
             ...latest,
-            widget_instances: { ...latest.widget_instances, ...added },
+            widget_instances: { ...latest.widget_instances, ...added, ...modified },
             pages: { ...latest.pages,
               [pageId]: { ...latest.pages[pageId],
                 elements: structuredClone(working.pages[pageId].elements) } },
