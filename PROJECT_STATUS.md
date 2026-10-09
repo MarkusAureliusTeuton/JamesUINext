@@ -135,3 +135,10 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Ein/Aus-Buttons können im Dashboard-Einstellungsdialog unterschiedliche Texte für aktive und inaktive Zustände erhalten; die bereits vorhandene Widget-Darstellung verwendet diese `presentation`-Werte.
 - Bearbeiten vorhandener Buttons bewahrt Icons, Timeout, andere Präsentationseinstellungen und die gewählte Widget-Größe. Explizit geleerte Statusbeschriftungen entfernen nur den jeweiligen Text.
 - Regressionstests ergänzt; GitHub Actions grün. Noch offen: konfigurierbare Warn-/Fehler-Zuordnungen, komplexere Action-Daten und echte Home-Assistant-/Tablet-Abnahme.
+
+## Block 13 – Warnzustand für Dynamic Buttons (2026-10-09)
+
+- Toggle-Buttons können im Einstellungsdialog einen HA-Wert als `warning`-Zwischenzustand sowie einen individuellen Warntext festlegen. Warnungen erhalten eine eigene, designsystembasierte Markierung; beliebige sonstige Zwischenzustände werden nicht pauschal hervorgehoben.
+- Vorhandene Statuszuordnungen bleiben beim Bearbeiten bestehen; doppelt/überschneidend zugeordnete Zustandswerte werden durch die Control-State-Schemavalidierung abgelehnt.
+- Buttonstatusmodell, Widget-Attribut, CSS, Dialog und Regressionstests wurden angepasst; letzter CI-Lauf erfolgreich.
+- Offen: weitere individuelle Statusoptionen, strukturierte HA-Service-Daten, vollständige End-to-End-Tests mit echtem HA und Tablet.
