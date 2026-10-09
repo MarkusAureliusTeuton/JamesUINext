@@ -28,3 +28,12 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Gemeinsame Kalender-/Aufgabenprovider verwenden die deduplizierte Vereinigung der konfigurierten Quellen aller Agenda-Instanzen.
 - Regressionstests für Datenquellen, unabhängige Instanzen, Undo und Konflikte erfolgreich.
 - Noch offen: Bearbeitungsdialog für bereits vorhandene Widgets, Aktualisierung laufender Provider nach Konfigurationsänderungen, vollständige Datenquellenverwaltung sowie Live-Abnahme in Home Assistant.
+
+## Block: Widget-Einstellungsdialog
+
+- Agenda-Widget erhält im Dashboard-Bearbeitungsmodus ein Einstellungs-Zahnrad.
+- Dialog erlaubt Änderung der Kalender- und Aufgabenquellen einer vorhandenen Widgetinstanz.
+- Eingaben werden validiert; nicht bearbeitete Darstellungseinstellungen bleiben erhalten; Abbrechen speichert nichts.
+- Änderungen werden über die bereits vorhandene transaktionale Editor-Sitzung/Undo an „Fertig“ übergeben.
+- Neue Dialogtests und die erweiterte CI sind erfolgreich.
+- Noch offen: zuverlässige Live-Aktualisierung gemounteter Widgetinstanzen und Provider nach Speichern, ausführliche Design-/Accessibility-Prüfung, andere Widgettypen.
