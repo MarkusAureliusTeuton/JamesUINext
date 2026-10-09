@@ -60,12 +60,17 @@ export function createJamesUINextPreview({ document = globalThis.document } = {}
         mounted = true;
         return true;
       } catch (error) {
-        // Partial startup must not leave mounted widgets or providers behind.
+        // Partial startup must not leave mounted widgets, shell or providers behind.
+        if (!disposed) {
+          disposed = true;
+          ++startupGeneration;
+        }
         routes.destroy();
         providerUpdater?.destroy();
         providerUpdater = null;
         stopProviders?.();
         stopProviders = null;
+        core.destroy();
         throw error;
       }
     },
