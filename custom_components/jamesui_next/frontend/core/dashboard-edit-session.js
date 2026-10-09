@@ -120,7 +120,7 @@ export function createDashboardEditSession({ controller, configService, pageId, 
       const elements = working.pages[pageId].elements.filter(item => item.id !== elementId);
       const instances = { ...working.widget_instances };
       if (target.kind === "widget") {
-        const usedElsewhere = Object.values(working.pages).some((other, id) =>
+        const usedElsewhere = Object.entries(working.pages).some(([id, other]) =>
           id !== pageId && other?.elements?.some(item => item.kind === "widget" && item.ref_id === target.ref_id));
         const usedHere = elements.some(item => item.kind === "widget" && item.ref_id === target.ref_id);
         if (!usedElsewhere && !usedHere && working.pages[pageId].hero_widget_id !== target.ref_id) delete instances[target.ref_id];
