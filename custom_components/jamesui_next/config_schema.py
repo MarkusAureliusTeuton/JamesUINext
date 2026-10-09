@@ -79,3 +79,19 @@ def validate_config(value: Mapping[str, Any]) -> dict[str, Any]:
             _fail(section, "must be an object")
         validated[section] = _copy_json_value(section_value, section)
     return validated
+
+def initial_dashboard_config() -> dict[str, Any]:
+    """Standalone first-run dashboard; never imports configuration from r11."""
+    config = empty_config()
+    config["layouts"]["main"] = {"kind": "hero-deck", "scroll": "fixed", "hero_ratio": 0.42}
+    config["widget_instances"]["home_weather"] = {
+        "module_id": "widget.weather-today",
+        "config": {},
+    }
+    config["pages"]["home"] = {
+        "kind": "dashboard",
+        "layout_id": "main",
+        "hero_widget_id": "home_weather",
+        "elements": [],
+    }
+    return validate_config(config)
