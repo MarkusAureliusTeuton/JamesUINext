@@ -149,3 +149,9 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Leere Eingaben erzeugen keine zusätzliche `data`-Eigenschaft und bleiben zu bisherigen Aktionen kompatibel.
 - Neue Regressionstests für strukturierte Parameter sowie fehlerhafte JSON-Werte; nach Korrektur des Kompatibilitätsfalls ist die CI wieder grün.
 - Weiterhin offen: vollständige End-to-End-Tests mit Home Assistant, Dialog-/Tablet-Bedienabnahme und umfassender Block-13-Review.
+
+## Block 13 – Integrationscheck Dashboard-Editiersitzung
+
+- Integrationstests für den vollständigen Speicherpfad hinzugefügt: Widget hinzufügen, zentralen Toggle definieren, HA-Control-State-Quelle anlegen, Undo und eine einzige atomare Config-Service-Speicherung.
+- Zusätzlich geprüft: Entfernen einer Widget-Button-Zuordnung lässt zentrale, eventuell anderweitig genutzte Button-Definitionen intakt.
+- Automatisierte GitHub-CI für diese Tests erfolgreich. Reale Home-Assistant-Serviceaufrufe, Status-Livewechsel und Tablet-Touchbedienung sind weiterhin nicht als Ende-zu-Ende-Test nachgewiesen; kein Release-Gate bestanden.
