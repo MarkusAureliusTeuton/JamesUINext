@@ -103,3 +103,9 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Async-Imports und verspätete Mounts werden bei Entfernung des Panels verworfen. Der Preview-Bootstrap bricht bei Modul-/Configfehlern sauber ab und räumt Provider, Shell und HA-Subscriptions auf.
 - Regressionstests für verspätete HA-Kontextübergabe und vorzeitiges Schließen des Panels sind grün; CI erfolgreich.
 - **Weiterhin keine Tablet-Freigabe:** Funktionsumfang des Dashboard-Editors, dynamische Buttons (Konfiguration und echte HA-Aktionen), HA-End-to-End-Tests und Tablet-Fully-Kiosk-Abnahme sind noch nicht vollständig nachgewiesen.
+
+## Dynamic Buttons – Instanzintegration
+
+- `widget.dynamic-buttons`-Instanzen erhalten beim Mounten nun korrekt aufgelöste Button-Definitionen aus `dynamic_buttons` (zuvor war diese Auflösung nur für direkte Grid-Button-Elemente vorhanden).
+- Neue Regressionstests prüfen das Laden mit einer zentralen HA-Aktionsdefinition und die Behandlung fehlender Definitionen; CI erfolgreich.
+- **Noch offen:** eine vollständige Oberfläche zum Erstellen/Bearbeiten zentraler Button-Definitionen und zur Zuordnung von Buttons zu Widgetinstanzen sowie echte HA-Aktions-/Status- und Tablet-Tests. Keine Tablet-Freigabe.
