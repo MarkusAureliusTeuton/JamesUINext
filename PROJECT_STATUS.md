@@ -37,3 +37,11 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Änderungen werden über die bereits vorhandene transaktionale Editor-Sitzung/Undo an „Fertig“ übergeben.
 - Neue Dialogtests und die erweiterte CI sind erfolgreich.
 - Noch offen: zuverlässige Live-Aktualisierung gemounteter Widgetinstanzen und Provider nach Speichern, ausführliche Design-/Accessibility-Prüfung, andere Widgettypen.
+
+## Live-Aktualisierung nach Widget-Speicherung
+
+- Nach erfolgreichem Speichern werden aktive Kalender-/Aufgabenprovider mit der neu berechneten, deduplizierten Quellenliste aktualisiert, ohne Dashboard-Neustart.
+- Das Dashboard-Raster verwendet einen Konfigurations-Fingerprint und erstellt nur tatsächlich geänderte Widget-Hosts neu; unveränderte bleiben bestehen.
+- Editiergriffe und Einstellungsbuttons verschwinden nach Abschluss des Bearbeitungsmodus.
+- Erweiterte Provider- und Grid-Regressionstests in CI erfolgreich.
+- Noch offen: dynamisches Starten bisher inaktiver Hausprovider, Hintergrundbilder, vollständige Modulkonfiguration sowie Tablet-/HA-End-to-End-Abnahme.
