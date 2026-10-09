@@ -126,7 +126,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     const hosts = createDashboardWidgetHosts({
       moduleLoader,
       getConfig: (id) => (editor?.active ? editor.workingConfig() : getConfig()).widget_instances[id],
-      getButtonDefinitions: () => getConfig().dynamic_buttons,
+      getButtonDefinitions: () => (editor?.active ? editor.workingConfig() : getConfig()).dynamic_buttons,
     });
     grid = createDashboardGrid({ document, createItemHost: hosts });
     gridRoot = grid.mount(gridHost);
@@ -184,7 +184,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     const controller = createDashboardController({ configService });
     editor = createDashboardEditSession({ controller, configService, pageId });
     const preview = (next) => {
-      const config = editor?.active ? { ...editor.workingConfig(), dynamic_buttons: getConfig().dynamic_buttons } : getConfig();
+      const config = editor?.active ? editor.workingConfig() : getConfig();
       grid.render(withWidgetKeys(next.elements, config), { scroll: next.layout.scroll });
       showHandles();
       toolbar?.refresh();
@@ -222,20 +222,8 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     buttonSettings = createDashboardButtonSettingsDialog({
       document,
       onSave: async (id, change) => {
-        const current = editor.workingConfig();
-        const nextSources = (current.module_settings["provider.control-state"]?.sources ?? [])
-          .filter((source) => source.id !== change.instanceConfig.buttons.at(-1)?.button_id);
-        if (change.stateSource) nextSources.push(change.stateSource);
-        editor.configureWidget(id, change.instanceConfig);
-        await configService.update((latest) => ({
-          ...latest,
-          dynamic_buttons: change.definitions,
-          module_settings: { ...latest.module_settings,
-            "provider.control-state": { sources: nextSources },
-          },
-        }));
-        if (onConfigCommitted) await onConfigCommitted(getConfig());
-        preview(editor.snapshot());
+        const next = editor.configureDynamicButtons(id, change);
+        preview(next);
       },
     });
     target.appendChild(buttonSettings.root);
