@@ -129,3 +129,9 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Trigger-Buttons können in der Dashboard-Oberfläche `entity.toggle`, `scene.activate` und `ha.service` auswählen. Für HA-Services werden Domain, Servicename und Ziel-Entität erfasst; Szenen müssen `scene.*` verwenden.
 - Die Aktionstypen nutzen die bereits registrierten zentralen HA-Aktionsprovider. Eingaben werden vor der Übernahme validiert; Tests für gültige und ungültige Szenen-/Serviceaktionen ergänzen die vorhandenen Dynamic-Buttons-Tests. CI grün.
 - **Nicht vollständig**: Freie Aktionen jenseits dieser drei nativen Typen, komplexe Service-Daten, Zustands-/Farbkonfiguration, gezieltes Löschen unbenutzter zentraler Definitionen und HA-/Tablet-End-to-End-Abnahme sind noch offen.
+
+## Block 13 – Konfigurierbare Statusbeschriftungen
+
+- Ein/Aus-Buttons können im Dashboard-Einstellungsdialog unterschiedliche Texte für aktive und inaktive Zustände erhalten; die bereits vorhandene Widget-Darstellung verwendet diese `presentation`-Werte.
+- Bearbeiten vorhandener Buttons bewahrt Icons, Timeout, andere Präsentationseinstellungen und die gewählte Widget-Größe. Explizit geleerte Statusbeschriftungen entfernen nur den jeweiligen Text.
+- Regressionstests ergänzt; GitHub Actions grün. Noch offen: konfigurierbare Warn-/Fehler-Zuordnungen, komplexere Action-Daten und echte Home-Assistant-/Tablet-Abnahme.
