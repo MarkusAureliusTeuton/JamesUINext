@@ -111,7 +111,7 @@ export function createDashboardEditSession({ controller, configService, pageId, 
         };
         return page();
       }
-      const sourceId = change.instanceConfig.buttons.at(-1)?.button_id;
+      const sourceId = change.buttonId;
       const sources = (working.module_settings["provider.control-state"]?.sources ?? [])
         .filter((source) => source.id !== sourceId);
       if (change.stateSource) sources.push(change.stateSource);
