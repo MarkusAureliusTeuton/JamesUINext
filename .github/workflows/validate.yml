@@ -54,6 +54,7 @@ jobs:
       - name: Test Next Block 14 dashboard interactions
         run: |
           node --experimental-default-type=module --test \
+            tests/jamesui-next-weather-hero.test.js \
             tests/jamesui-next-weather-settings.test.js \
             tests/jamesui-next-widget-settings-dialog.test.js \
             tests/jamesui-next-widget-configuration.test.js \
