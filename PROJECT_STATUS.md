@@ -142,3 +142,10 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Vorhandene Statuszuordnungen bleiben beim Bearbeiten bestehen; doppelt/überschneidend zugeordnete Zustandswerte werden durch die Control-State-Schemavalidierung abgelehnt.
 - Buttonstatusmodell, Widget-Attribut, CSS, Dialog und Regressionstests wurden angepasst; letzter CI-Lauf erfolgreich.
 - Offen: weitere individuelle Statusoptionen, strukturierte HA-Service-Daten, vollständige End-to-End-Tests mit echtem HA und Tablet.
+
+## Block 13 – Strukturierte HA-Serviceparameter
+
+- Trigger-Buttons vom Typ `ha.service` besitzen nun ein optionales Eingabefeld für JSON-Servicedaten. Der Editor validiert die JSON-Syntax und erwartet ein Objekt; beim erneuten Bearbeiten werden die bisherigen Parameter angezeigt.
+- Leere Eingaben erzeugen keine zusätzliche `data`-Eigenschaft und bleiben zu bisherigen Aktionen kompatibel.
+- Neue Regressionstests für strukturierte Parameter sowie fehlerhafte JSON-Werte; nach Korrektur des Kompatibilitätsfalls ist die CI wieder grün.
+- Weiterhin offen: vollständige End-to-End-Tests mit Home Assistant, Dialog-/Tablet-Bedienabnahme und umfassender Block-13-Review.
