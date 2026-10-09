@@ -1,0 +1,54 @@
+name: Validate JamesUINext
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python syntax
+        run: python -m compileall -q custom_components/jamesui_next
+      - name: Validate JSON manifests
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for file in Path('custom_components/jamesui_next').rglob('*.json'):
+              json.loads(file.read_text(encoding='utf-8'))
+          json.loads(Path('hacs.json').read_text(encoding='utf-8'))
+          PY
+      - name: Check Next integration isolation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          base=Path('custom_components/jamesui_next')
+          assert base.is_dir()
+          assert not Path('custom_components/jamesui').exists()
+          manifest=json.loads((base/'manifest.json').read_text())
+          assert manifest['domain']=='jamesui_next'
+          constants=(base/'const.py').read_text()
+          assert 'DOMAIN = "jamesui_next"' in constants
+          assert 'PANEL_URL = "jamesui-next"' in constants
+          assert 'CONFIG_STORE_KEY = "jamesui_next.config"' in (base/'config_store.py').read_text()
+          assert 'jamesui_next/config/get' in (base/'api.py').read_text()
+          assert 'jamesui_next/config/replace' in (base/'api.py').read_text()
+          assert not any((base/'frontend').glob('jamesui-v11*'))
+          assert (base/'frontend/jamesui-next-entry.js').exists()
+          assert (base/'frontend/jamesui-next-preview.js').exists()
+          PY
+      - name: Validate JavaScript syntax
+        run: find custom_components/jamesui_next/frontend -name '*.js' -print0 | xargs -0 -n1 node --check
+      - name: Smoke-test modular preview imports
+        run: |
+          node --experimental-default-type=module --input-type=module -e '
+            import {createJamesUINextPreview} from "./custom_components/jamesui_next/frontend/jamesui-next-preview.js";
+            import {createDashboardPageConfig,validateDashboardPage} from "./custom_components/jamesui_next/frontend/core/dashboard-config.js";
+            if(typeof createJamesUINextPreview !== "function") process.exit(1);
+            const value=createDashboardPageConfig({pageId:"home",layoutId:"main"});
+            validateDashboardPage({pages:{home:value.page},layouts:{main:value.layout},widget_instances:{},dynamic_buttons:{}}, "home");
+          '
