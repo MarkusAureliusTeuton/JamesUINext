@@ -58,11 +58,13 @@ export function createDashboardEditSession({ controller, configService, pageId, 
       while (elements.some((item) => item.column < columnSpan &&
           item.row < row + rowSpan && item.row + item.row_span > row)) row += 1;
       if (maxRows !== null && row + rowSpan > maxRows) return null;
+      const initialConfig = typeof config === "function" ? config(id) : config;
+      if (!initialConfig || typeof initialConfig !== "object" || Array.isArray(initialConfig)) throw new TypeError("Widget config must be an object");
       history.push(working);
       working = {
         ...working,
         widget_instances: { ...working.widget_instances,
-          [id]: { module_id: moduleId, config: structuredClone(config) } },
+          [id]: { module_id: moduleId, config: structuredClone(initialConfig) } },
         pages: { ...working.pages,
           [pageId]: { ...working.pages[pageId], elements: [
             ...working.pages[pageId].elements,
