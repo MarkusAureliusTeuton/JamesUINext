@@ -113,7 +113,8 @@ export function createWeatherTodayWidget(initialContext, initialConfig, runtime)
 
     if (model.backgroundAsset) {
       if (background.getAttribute("src") !== model.backgroundAsset) {
-        background.hidden = false;
+        // Hide the previous scene until the new image is loaded.
+        background.hidden = true;
         background.setAttribute("src", model.backgroundAsset);
       }
     } else {
