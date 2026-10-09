@@ -20,3 +20,11 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Dashboard-Navigation nutzt isolierten Route-Host mit Teardown beim Seitenwechsel; Regressionstests ergänzt.
 - Freigabe weiter ausstehend: konfigurierbare Module und Datenquellen, echte HA-Integration, Hintergrundbilder, asynchrones Routing und Tablet-Abnahme.
 - Details: docs/ARCHITECTURE_AUDIT.md.
+
+## Widget-Konfiguration – laufender Block
+
+- Kalender- und Aufgabenquellen können beim Hinzufügen einer Agenda-Widgetinstanz unabhängig eingegeben werden. Eingaben werden mit der kanonischen Agenda-Konfigurationsvalidierung geprüft.
+- Das Editiermodell unterstützt unabhängige Widget-Konfigurationsänderungen mit Undo, einem transaktionalen Speichervorgang und Erkennung konkurrierender Änderungen.
+- Gemeinsame Kalender-/Aufgabenprovider verwenden die deduplizierte Vereinigung der konfigurierten Quellen aller Agenda-Instanzen.
+- Regressionstests für Datenquellen, unabhängige Instanzen, Undo und Konflikte erfolgreich.
+- Noch offen: Bearbeitungsdialog für bereits vorhandene Widgets, Aktualisierung laufender Provider nach Konfigurationsänderungen, vollständige Datenquellenverwaltung sowie Live-Abnahme in Home Assistant.
