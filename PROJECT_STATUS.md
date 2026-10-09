@@ -71,3 +71,9 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Fehlende Hintergrundbilder erzeugen jetzt einen sicheren CSS-Fallback statt einer defekten Bilddarstellung.
 - **Blocker:** Die acht fotorealistischen WebP-Szenen fehlen weiterhin unter `frontend/assets/alpine/`. Die GitHub-Textanbindung kann alte Binärdateien nicht auslesen; dies muss vor Tablet-Freigabe gelöst und getestet werden.
 - Weiter offen: alle Wetter- und Mondzustände in echten HA-Daten, Responsive-Design/Tablet und vollständige Abnahme.
+
+## Wetter-Hero – Szenenauswahl und Regressionen
+
+- Regressionstests für vollständige 8-Szenen-URL-Zuordnung im eigenen Next-Namensraum, Tag/Nacht-Auswahl über Atmosphären-Capability, Mondphasen-Icon und Offline-Platzhalter ergänzt.
+- GitHub Actions für JS-Tests grün.
+- **Achtung:** Die acht WebP-Dateien fehlen weiterhin und sind für die Dashboard-Freigabe zwingend. Der verwendete GitHub-Connector liefert Binär-Blobs des alten Repositories nicht als lesbare Daten. Die Tests prüfen die **Referenzen und Logik**, nicht die Präsenz der Bilddateien oder ihre Tablet-Darstellung.
