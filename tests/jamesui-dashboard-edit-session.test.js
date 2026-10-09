@@ -93,3 +93,39 @@ test("Block 14 catalog widgets are independent, undoable and saved atomically", 
   assert.equal(saved.widget_instances[ref].config.calendar, "family");
   assert.equal(getWrites(), 1);
 });
+
+test("Next widget configuration is independent, undoable and committed once", async () => {
+  const { configService, editor, getWrites } = setup();
+  await configService.load();
+  editor.enter();
+  editor.configureWidget("agenda", { instance_id: "agenda", calendar_enabled: true, tasks_enabled: false, calendars: [{ entity_id: "calendar.family" }], task_lists: [] });
+  assert.equal(getWrites(), 0);
+  assert.equal(editor.workingConfig().widget_instances.agenda.config.calendars[0].entity_id, "calendar.family");
+  editor.undo();
+  assert.equal(editor.workingConfig().widget_instances.agenda.config, undefined);
+  editor.configureWidget("agenda", { instance_id: "agenda", calendar_enabled: false, tasks_enabled: true, calendars: [], task_lists: [{ entity_id: "todo.family" }] });
+  await editor.save();
+  assert.equal(getWrites(), 1);
+  assert.equal(configService.snapshot().widget_instances.agenda.config.task_lists[0].entity_id, "todo.family");
+  assert.equal(configService.snapshot().pages.start.elements.length, 2);
+});
+
+test("Next widget configuration refuses unknown or foreign instances", async () => {
+  const { configService, editor } = setup();
+  await configService.load();
+  editor.enter();
+  assert.throws(() => editor.configureWidget("absent", {}), /Unknown widget/);
+  assert.equal(editor.canUndo, false);
+});
+
+test("Next edit session detects simultaneous modification of the same widget", async () => {
+  const { configService, editor } = setup();
+  await configService.load();
+  editor.enter();
+  editor.configureWidget("agenda", { instance_id: "agenda", calendar_enabled: false, tasks_enabled: true, calendars: [], task_lists: [{ entity_id: "todo.personal" }] });
+  const remote = configService.snapshot();
+  remote.widget_instances.agenda.config = { source: "external" };
+  await configService.replace(remote);
+  await assert.rejects(editor.save(), /configuration changed externally/);
+  assert.equal(configService.snapshot().widget_instances.agenda.config.source, "external");
+});
