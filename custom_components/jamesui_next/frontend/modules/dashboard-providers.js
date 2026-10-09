@@ -66,3 +66,21 @@ export async function startDashboardProviders(loader, config) {
     for (const id of started.reverse()) loader.destroy(id);
   };
 }
+
+export function createDashboardProviderUpdater(loader, initialConfig) {
+  if (!loader || typeof loader.update !== "function") throw new TypeError("Provider updater requires Module Loader");
+  let settings = resolveDashboardProviderSettings(initialConfig);
+  return Object.freeze({
+    update(nextConfig) {
+      const next = resolveDashboardProviderSettings(nextConfig);
+      for (const [manifest] of PROVIDERS) {
+        const id = manifest.id;
+        if (next[id] === undefined || !loader.isLoaded?.(id)) continue;
+        if (JSON.stringify(next[id]) === JSON.stringify(settings[id])) continue;
+        if (!loader.update(id, next[id])) throw new Error("Provider update failed: " + id);
+      }
+      settings = next;
+      return true;
+    },
+  });
+}
