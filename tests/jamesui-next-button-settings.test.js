@@ -110,3 +110,24 @@ test("toggle buttons preserve independently configured active and inactive label
   assert.equal(changed.definitions.heating.presentation.inactive.text,"Automatik aus");
   assert.equal(changed.stateSource.entity_id,"switch.heating");
 });
+
+test("editing status labels preserves existing presentation icons, timeout and size", () => {
+  const definitions = {
+    lamp: {
+      name:"Lampe",mode:"toggle",icon:null,timeout_ms:9000,state_source_id:"lamp",
+      activate_action:{type:"ha.service",domain:"homeassistant",service:"turn_on",target:{entity_id:"switch.lamp"}},
+      deactivate_action:{type:"ha.service",domain:"homeassistant",service:"turn_off",target:{entity_id:"switch.lamp"}},
+      presentation:{active:{text:"Alt",icon:"weather.sunny"},inactive:{text:"Aus"},intermediate:{}},
+    },
+  };
+  const result=buildDashboardButtonChange({
+    instanceId:"panel",instanceConfig:{buttons:[{id:"use-lamp",button_id:"lamp",size:"wide"}]},
+    definitions,id:"lamp",name:"Lampe",mode:"toggle",entityId:"switch.lamp",
+    activeText:"An",inactiveText:"Aus",
+  });
+  assert.equal(result.definitions.lamp.timeout_ms,9000);
+  assert.equal(result.definitions.lamp.presentation.active.icon,"weather.sunny");
+  assert.equal(result.definitions.lamp.presentation.active.text,"An");
+  assert.equal(result.instanceConfig.buttons[0].size,"wide");
+  assert.equal(definitions.lamp.presentation.active.text,"Alt");
+});
