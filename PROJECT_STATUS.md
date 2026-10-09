@@ -56,3 +56,10 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 ## Verbindliche Freigabeentscheidung – Dashboard 1.0
 
 **Freigabe ausstehend, noch keine Tablet-Testversion.** Vor Weiterentwicklung anderer Funktionsseiten werden ausschließlich die Blöcke 1–13, die notwendige Block-14-Konfiguration und bereits vorgezogene Grundlagen zu einer abgeschlossenen Startseite konsolidiert. Pflichtumfang: kompletter HA-Core, Background-Anwendung, Wetter und lokale Szenengrafiken, Kalender/Aufgaben, Haus-Quickinfos, Dynamic Buttons, Grid, Editieroberfläche, Geräteeinstellungen und Modul-/Aktionsschnittstellen. Zusätzliche Licht-/Klima-/Tür-/Kamera-/Medien-Unterseiten sind explizit nicht Teil dieser Abnahme. Details und testbare Freigabekriterien: [docs/DASHBOARD_1_0_RELEASE_GATE.md](docs/DASHBOARD_1_0_RELEASE_GATE.md).
+
+## Architektur-Audit: erste verbindliche Korrekturen (2026-10-09)
+
+- CI validiert jetzt JavaScript-Importgrenzen und blockiert direkte Abhängigkeiten zu alten r11-Runtime-URLs/Dateipfaden über `scripts/check_frontend_boundaries.py`.
+- Neue Installationen erhalten eine eigenständige, validierte `home`-Dashboardkonfiguration samt `widget.weather-today` als Hero und 42-%-Hero-Deck. Keine r11-Migration oder altes Storage beteiligt.
+- Pure Python-Regressionsprüfung des Erststarts ist eingerichtet und CI-grün.
+- Dies ist **keine** vollständige Freigabe: acht fotorealistische WebP-Bilder fehlen, reale Wetter-/Kalender-/Button-Konfiguration und Funktionsprüfung sowie HA-/Tablet-Integration weiterhin offen.
