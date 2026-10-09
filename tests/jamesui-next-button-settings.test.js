@@ -75,3 +75,27 @@ test("editing the first button preserves second button assignment", () => {
   assert.equal(changes.stateSource.id,"first");
   assert.deepEqual(changes.instanceConfig.buttons.map(x=>x.button_id),["first","second"]);
 });
+
+test("scene activation uses the existing HA action provider", () => {
+  const changed = buildDashboardButtonChange({
+    instanceId:"panel", instanceConfig:{buttons:[]}, definitions:{},
+    id:"evening", name:"Abend", mode:"trigger",
+    entityId:"scene.evening", actionType:"scene.activate",
+  });
+  assert.deepEqual(changed.definitions.evening.action,
+    {type:"scene.activate",entity_id:"scene.evening"});
+  assert.throws(() => buildDashboardButtonChange({
+    instanceId:"panel",instanceConfig:{buttons:[]},definitions:{},
+    id:"bad",name:"Falsch",mode:"trigger",entityId:"light.hall",actionType:"scene.activate",
+  }), /Szene/);
+});
+
+test("service action validates domain and service before committing", () => {
+  const base={instanceId:"panel",instanceConfig:{buttons:[]},definitions:{},
+    id:"lamp",name:"Licht",mode:"trigger",entityId:"light.hall",actionType:"ha.service"};
+  const changed=buildDashboardButtonChange({...base,serviceDomain:"light",serviceName:"turn_on"});
+  assert.deepEqual(changed.definitions.lamp.action,{
+    type:"ha.service",domain:"light",service:"turn_on",target:{entity_id:"light.hall"},
+  });
+  assert.throws(()=>buildDashboardButtonChange({...base,serviceDomain:"light",serviceName:"turn on"}),/Service/);
+});
