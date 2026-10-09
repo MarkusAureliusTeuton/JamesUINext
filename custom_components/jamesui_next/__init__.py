@@ -13,7 +13,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .api import async_register_websocket_commands
-from .config_migrations import LEGACY_OPTION_KEYS, migrate_legacy_options
+from .config_schema import empty_config
 from .config_service import JamesUIConfigService
 from .config_store import JamesUIConfigStore
 from .const import (
@@ -24,8 +24,6 @@ from .const import (
     PANEL_ICON,
     PANEL_TITLE,
     PANEL_URL,
-    PREVIEW_PANEL_URL,
-    PREVIEW_PANEL_ELEMENT,
     STATIC_URL,
     VERSION,
 )
@@ -46,14 +44,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     config_store = JamesUIConfigStore(hass)
     config_service = JamesUIConfigService(config_store)
-    await config_service.async_initialize(migrate_legacy_options(entry.options))
+    await config_service.async_initialize(empty_config())
     domain_data[entry.entry_id]["config"] = config_service
-
-    options = dict(entry.options)
-    for key in LEGACY_OPTION_KEYS:
-        options.pop(key, None)
-    if options != dict(entry.options):
-        hass.config_entries.async_update_entry(entry, options=options)
 
     try:
         await hass.http.async_register_static_paths(
@@ -82,23 +74,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             require_admin=False,
         )
 
-    if PREVIEW_PANEL_URL not in hass.data.get("frontend_panels", {}):
-        async_register_built_in_panel(
-            hass,
-            component_name="custom",
-            sidebar_title=None,
-            sidebar_icon=None,
-            frontend_url_path=PREVIEW_PANEL_URL,
-            config={
-                "_panel_custom": {
-                    "name": PREVIEW_PANEL_ELEMENT,
-                    "embed_iframe": False,
-                    "trust_external": False,
-                    "js_url": f"{STATIC_URL}/jamesui-1-preview-entry.js?v={FRONTEND_REVISION}",
-                }
-            },
-            require_admin=True,
-        )
 
     return True
 
@@ -107,8 +82,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a JamesUI config entry."""
     if PANEL_URL in hass.data.get("frontend_panels", {}):
         async_remove_panel(hass, PANEL_URL)
-    if PREVIEW_PANEL_URL in hass.data.get('frontend_panels', {}):
-        async_remove_panel(hass, PREVIEW_PANEL_URL)
 
     domain_data = hass.data.get(DOMAIN, {})
     domain_data.pop(entry.entry_id, None)
