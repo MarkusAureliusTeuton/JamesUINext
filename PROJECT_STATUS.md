@@ -77,3 +77,9 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Regressionstests für vollständige 8-Szenen-URL-Zuordnung im eigenen Next-Namensraum, Tag/Nacht-Auswahl über Atmosphären-Capability, Mondphasen-Icon und Offline-Platzhalter ergänzt.
 - GitHub Actions für JS-Tests grün.
 - **Achtung:** Die acht WebP-Dateien fehlen weiterhin und sind für die Dashboard-Freigabe zwingend. Der verwendete GitHub-Connector liefert Binär-Blobs des alten Repositories nicht als lesbare Daten. Die Tests prüfen die **Referenzen und Logik**, nicht die Präsenz der Bilddateien oder ihre Tablet-Darstellung.
+
+## Vollständige Asset-Übernahme – 2026-10-09
+
+- Kompletter Stand `frontend/assets/` aus der freigegebenen `JamesUI`-Entwicklungsbranch nach `custom_components/jamesui_next/frontend/assets/` übertragen: **38 Dateien**, darunter 28 SVG-Wettersymbole, acht WebP-Alpenhintergründe und zwei TXT-Begleitdateien.
+- Der Kopierlauf `Import JamesUI weather assets` in GitHub Actions war erfolgreich; acht WebP-Dateien wurden mit Dateigröße und SHA-256 überprüft. Die `Validate JamesUINext`-CI prüft die Bildintegrität nun dauerhaft.
+- **Der bisherige Blocker „8 Hintergrundbilder fehlen“ ist erledigt.** Die Wetterdarstellung muss dennoch noch mit echten HA-Daten und auf dem Tablet abgenommen werden.
