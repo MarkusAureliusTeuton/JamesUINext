@@ -45,6 +45,8 @@ jobs:
           assert len(list((base/'frontend/assets/weather').glob('*.svg'))) == 28
           assert not (base/'frontend/jamesui-panel.js').exists()
           PY
+      - name: Audit frontend imports and r11 dependencies
+        run: python scripts/check_frontend_boundaries.py
       - name: Validate JavaScript syntax
         run: find custom_components/jamesui_next/frontend -name '*.js' -print0 | xargs -0 -n1 node --check
       - name: Test Next Block 14 dashboard interactions
