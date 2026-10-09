@@ -1,3 +1,4 @@
+import { createDashboardRouteHost } from "./modules/dashboard-route-host.js";
 import { registerDashboardProviders, startDashboardProviders } from "./modules/dashboard-providers.js";
 import { createJamesUICore } from "./core/index.js";
 import { createDashboardPageComposer } from "./core/dashboard-page-composer.js";
@@ -25,6 +26,7 @@ export function createJamesUINextPreview({ document = globalThis.document } = {}
     });
   }
   registerDashboardProviders(core.moduleRegistry);
+  const routes = createDashboardRouteHost({ core, composer, getConfig: () => core.config.snapshot() });
   let stopProviders = null;
   let mounted = false;
   return Object.freeze({
@@ -37,16 +39,12 @@ export function createJamesUINextPreview({ document = globalThis.document } = {}
       }
       stopProviders = await startDashboardProviders(core.moduleLoader, config);
       core.mount(target);
-      const page = target.querySelector('[data-role="page-region"]') ??
-        target.querySelector("main");
-      if (!page) throw new Error("Preview shell has no page host");
-      await composer.mount(page, "home");
-      if (config.pages.home.elements.length === 0) composer.enterEdit();
+      await routes.mount(target);
       mounted = true;
       return true;
     },
     destroy() {
-      composer.destroy();
+      routes.destroy();
       stopProviders?.();
       stopProviders = null;
       core.destroy();
