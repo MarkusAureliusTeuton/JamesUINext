@@ -111,8 +111,15 @@ export function createWeatherTodayWidget(initialContext, initialConfig, runtime)
       now: runtime.now(),
     });
 
-    if (model.backgroundAsset) background.setAttribute("src", model.backgroundAsset);
-    else background.removeAttribute("src");
+    if (model.backgroundAsset) {
+      if (background.getAttribute("src") !== model.backgroundAsset) {
+        background.hidden = false;
+        background.setAttribute("src", model.backgroundAsset);
+      }
+    } else {
+      background.removeAttribute("src");
+      background.hidden = true;
+    }
 
     updateIconHost(currentIcon, model.condition.iconId, "hero");
     temperatureNode.textContent = model.temperature;
@@ -191,6 +198,8 @@ export function createWeatherTodayWidget(initialContext, initialConfig, runtime)
     background.setAttribute("data-jui-weather-background", "");
     background.setAttribute("alt", "");
     background.setAttribute("aria-hidden", "true");
+    background.addEventListener("error", () => { background.hidden = true; });
+    background.addEventListener("load", () => { background.hidden = false; });
 
     const shade = createElement(document, "div", "data-jui-weather-shade");
     const content = createElement(document, "div", "data-jui-weather-content");
