@@ -29,11 +29,13 @@ Eigenständige Unterseiten für Heizung/Klima, Licht/Geräte, Medien, Tür, Kame
 
 ## Bereits bekannte Blocker
 
-- Acht lokale WebP-Hintergründe fehlen im Next-Repository; sie dürfen **nicht** aus dem alten `/jamesui_static`-Pfad geladen werden.
+- **Erledigt:** Alle acht lokalen WebP-Hintergründe sind im Next-Repository und werden über SHA-256 in CI geprüft; keine Nutzung von `/jamesui_static`.
 - Vollständige Dashboard-Konfigurationsoberfläche für Wetter-, Haus- und Button-Funktionen noch nicht bestätigt.
 - Korrekte Registrierung und Laufzeitprüfung aller benötigten Aktionsmodule, Datenprovider und Widget-Instanzen offen.
 - Echte Home-Assistant-Integrationstests und die Bedien-/Darstellungsprüfung auf dem Tablet offen.
 - Die aktuelle `main`-CI ist ein Modul-/Syntax-/Regressionscheck, **keine Dashboard-Freigabe**.
+
+Aktuelle, quellenbasierte Soll-/Ist- und Blocker-Matrix: [DASHBOARD_1_0_ACTUAL_STATUS_AUDIT.md](DASHBOARD_1_0_ACTUAL_STATUS_AUDIT.md).
 
 ## Reihenfolge
 
