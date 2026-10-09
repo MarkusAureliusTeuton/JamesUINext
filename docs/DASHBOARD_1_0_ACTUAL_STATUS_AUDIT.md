@@ -42,3 +42,12 @@ Die letzte vor dem Audit geprüfte `Validate JamesUINext`-CI war erfolgreich; ei
 
 ## Hinweis auf veraltete Statusdokumentation
 `docs/DASHBOARD_1_0_RELEASE_GATE.md` nennt unter „bereits bekannte Blocker“ noch fehlende acht WebP-Dateien. Diese Aussage ist überholt; die vollständige Übernahme wird bereits in `PROJECT_STATUS.md` und `docs/ARCHITECTURE_AUDIT.md` bestätigt.
+
+## Umsetzung P0 Nr. 1–3 (2026-10-09)
+
+1. **Aufgabenaktionen im Bootstrap angeschlossen:** `action.task-update` ist nun im Modulregister erfasst, wird vor den Dashboard-Providern geladen und gemountet und bei Fehler oder Abbau entladen. Die bereits vorhandene Agenda-Bearbeitung kann damit die registrierte `task.update`-Aktion aufrufen. Echtes HA-Todo-Update noch praktisch prüfen.
+2. **Haus-Quickinfo-Konfiguration angeschlossen:** Das Zahnrad für `widget.house-quick` öffnet einen Einstellungsdialog für die Widget-Buttons und alle vier Hausprovider. Die Eingaben werden mit den bereits vorhandenen Modul-Schemas geprüft, inklusive Zuordnung von Heizzonen/Energiequellen und Energieschwellen. Widget und Provider-Einstellungen werden transaktional über die Editiersitzung mit Undo gespeichert; der Provider-Updater erhält die neuen Werte. **UX-Einschränkung:** Der Dialog bietet zunächst technische, validierte JSON-Felder, keine komfortablen feldweisen Formularassistenten.
+3. **Ganze Elemente entfernen:** Im Dashboard-Bearbeitungsmodus gibt es pro Element eine Entfernen-Schaltfläche. Das Entfernen ist rückgängig zu machen, wird erst mit „Fertig“ gespeichert und bereinigt Widgetinstanzen nur, wenn sie weder auf anderen Seiten noch als Hero verwendet werden. Globale Button-Definitionen werden nicht versehentlich gelöscht. Eine Regression hat einen Fehler bei der Prüfung seitenübergreifender Verwendungen aufgedeckt; korrigiert.
+4. **Tests:** Neue Editor-Tests für Entfernen, Undo, Hausstatus-Transaktion und Schema-/Schwellenvalidierung in GitHub Actions grün. Die erfolgreiche CI ist keine Tablet-Abnahme.
+
+**Rest:** P0 Nr. 4 (Navigation von nicht implementierten Seiten) bleibt offen. Danach Installations-/End-to-End-/Tablet-Abnahme. Die obenstehende P0-Liste dokumentiert den ursprünglichen Auditzustand; dieser Abschnitt enthält den aktuellen Umsetzungsnachweis.
