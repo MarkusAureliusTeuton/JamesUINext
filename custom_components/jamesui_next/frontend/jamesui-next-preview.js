@@ -1,5 +1,5 @@
 import { createDashboardRouteHost } from "./modules/dashboard-route-host.js";
-import { registerDashboardProviders, startDashboardProviders } from "./modules/dashboard-providers.js";
+import { registerDashboardProviders, startDashboardProviders, createDashboardProviderUpdater } from "./modules/dashboard-providers.js";
 import { createJamesUICore } from "./core/index.js";
 import { createDashboardPageComposer } from "./core/dashboard-page-composer.js";
 import { MANIFEST as WEATHER } from "./modules/widget.weather-today/manifest.js";
@@ -10,9 +10,11 @@ import { MANIFEST as BUTTONS } from "./modules/widget.dynamic-buttons/manifest.j
 // Explicit opt-in preview. Neither the r11 panel nor its bootstrap imports this.
 export function createJamesUINextPreview({ document = globalThis.document } = {}) {
   const core = createJamesUICore({ document });
+  let providerUpdater = null;
   const composer = createDashboardPageComposer({
     document, moduleLoader: core.moduleLoader, moduleRegistry: core.moduleRegistry,
     configService: core.config, getConfig: () => core.config.snapshot(),
+    onConfigCommitted: (config) => providerUpdater?.update(config),
   });
   const registered = [
     [WEATHER, "./modules/widget.weather-today/index.js"],
@@ -38,6 +40,7 @@ export function createJamesUINextPreview({ document = globalThis.document } = {}
         throw new Error("No configured JamesUI 1.0 dashboard. Existing r11 data is not auto-migrated.");
       }
       stopProviders = await startDashboardProviders(core.moduleLoader, config);
+      providerUpdater = createDashboardProviderUpdater(core.moduleLoader, config);
       core.mount(target);
       await routes.mount(target);
       mounted = true;
@@ -47,6 +50,7 @@ export function createJamesUINextPreview({ document = globalThis.document } = {}
       routes.destroy();
       stopProviders?.();
       stopProviders = null;
+      providerUpdater = null;
       core.destroy();
       mounted = false;
     },
