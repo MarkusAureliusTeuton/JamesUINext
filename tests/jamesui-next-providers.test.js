@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { registerDashboardProviders, startDashboardProviders } from "../custom_components/jamesui_next/frontend/modules/dashboard-providers.js";
+import { registerDashboardProviders, startDashboardProviders, resolveDashboardProviderSettings } from "../custom_components/jamesui_next/frontend/modules/dashboard-providers.js";
 
 test("dashboard registers all provider manifests with independent Next paths", () => {
   const entries = [];
@@ -45,4 +45,22 @@ test("provider startup failure rolls back previously mounted providers", async (
   };
   await assert.rejects(startDashboardProviders(loader, {module_settings:{}}), /provider.calendar/);
   assert.deepEqual(destroyed, ["provider.weather"]);
+});
+
+test("independent agenda instances contribute deduplicated sources to providers", () => {
+  const settings = resolveDashboardProviderSettings({
+    module_settings: { "provider.calendar": { source_entity_ids: ["calendar.team"] } },
+    widget_instances: {
+      one: { module_id: "widget.calendar-agenda", config: {
+        calendar_enabled: true, tasks_enabled: false, calendars: [{entity_id: "calendar.family"}], task_lists: [],
+      }},
+      two: { module_id: "widget.calendar-agenda", config: {
+        calendar_enabled: true, tasks_enabled: true,
+        calendars: [{entity_id: "calendar.team"},{entity_id: "calendar.family"}],
+        task_lists: [{entity_id: "todo.shopping"}],
+      }},
+    },
+  });
+  assert.deepEqual(settings["provider.calendar"].source_entity_ids, ["calendar.team", "calendar.family"]);
+  assert.deepEqual(settings["provider.tasks"].source_entity_ids, ["todo.shopping"]);
 });
