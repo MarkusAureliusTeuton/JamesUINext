@@ -1,3 +1,4 @@
+import { createWidgetSettingsDialog } from "../modules/dashboard-widget-settings-dialog.js";
 import { buildAgendaInstanceConfig } from "../modules/dashboard-widget-configuration.js";
 import { createDashboardCatalog, createDashboardCatalogView } from "../modules/dashboard-catalog.js";
 import { createDashboardController } from "./dashboard-controller.js";
@@ -23,10 +24,13 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
   let hero = null;
   let pageId = null;
   let generation = 0;
-  let editor = null, toolbar = null, touch = null, unbindTouch = null, gridRoot = null, catalogView = null;
+  let editor = null, toolbar = null, touch = null, unbindTouch = null, gridRoot = null, catalogView = null, settingsDialog = null;
 
   function destroy() {
     generation += 1;
+    settingsDialog?.close();
+    if (settingsDialog?.root?.parentNode) settingsDialog.root.parentNode.removeChild(settingsDialog.root);
+    settingsDialog = null;
     unbindTouch?.(); unbindTouch = null;
     touch?.destroy(); touch = null;
     if (toolbar?.root?.parentNode) toolbar.root.parentNode.removeChild(toolbar.root);
@@ -121,8 +125,10 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     if (!gridRoot) return;
     for (const element of gridRoot.querySelectorAll("[data-jui-dashboard-item]")) {
       const existing = element.querySelector("[data-jui-editor-resize]");
+      const settings = element.querySelector("[data-jui-editor-settings]");
       if (!editor?.active) {
         if (existing?.parentNode) existing.parentNode.removeChild(existing);
+        if (settings?.parentNode) settings.parentNode.removeChild(settings);
       } else if (!existing) {
         const handle = document.createElement("button");
         handle.setAttribute("type", "button");
@@ -135,6 +141,20 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
         handle.style.zIndex = "3";
         element.style.position = "relative";
         element.appendChild(handle);
+      }
+      if (editor?.active && !settings) {
+        const elementId = element.getAttribute("data-jui-dashboard-item");
+        const item = editor.snapshot().elements.find((entry) => entry.id === elementId);
+        const definition = item?.kind === "widget" ? editor.workingConfig().widget_instances[item.ref_id] : null;
+        if (definition?.module_id === "widget.calendar-agenda") {
+          const button = document.createElement("button");
+          button.setAttribute("type", "button");
+          button.setAttribute("data-jui-editor-settings", "");
+          button.setAttribute("aria-label", "Widget-Einstellungen");
+          button.textContent = "⚙";
+          button.addEventListener("click", () => settingsDialog?.open(item.ref_id, definition.config ?? {}));
+          element.appendChild(button);
+        }
       }
     }
   }
@@ -153,6 +173,11 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
       onAdd: () => catalogView?.open(),
     });
     target.appendChild(toolbar.root);
+    settingsDialog = createWidgetSettingsDialog({ document, onSave: (id, config) => {
+      const next = editor.configureWidget(id, config);
+      preview(next);
+    } });
+    target.appendChild(settingsDialog.root);
     if (moduleRegistry) {
       catalogView = createDashboardCatalogView({ document, catalog: createDashboardCatalog({ moduleRegistry }), onSelect: (moduleId, sources) => {
         const config = moduleId === "widget.calendar-agenda"
