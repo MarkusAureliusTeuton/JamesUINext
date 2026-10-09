@@ -50,6 +50,7 @@ jobs:
       - name: Test Next Block 14 dashboard interactions
         run: |
           node --experimental-default-type=module --test \
+            tests/jamesui-next-route-host.test.js \
             tests/jamesui-next-providers.test.js \
             tests/jamesui-grid-placement.test.js \
             tests/jamesui-dashboard-config.test.js \
