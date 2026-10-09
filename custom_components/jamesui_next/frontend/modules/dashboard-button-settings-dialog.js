@@ -1,9 +1,10 @@
+import { validateControlStateConfig } from "./provider.control-state/config.js";
 import { validateDynamicButtonDefinitions, validateDynamicButtonInstanceConfig } from "./widget.dynamic-buttons/config.js";
 
 const ENTITY = /^[a-z0-9_]+\.[a-z0-9_]+$/;
 const ID = /^[a-z0-9_-]+$/;
 
-export function buildDashboardButtonChange({ instanceId, instanceConfig, definitions, id, name, mode, entityId, size = "normal", actionType = "entity.toggle", serviceDomain = "", serviceName = "", activeText = "", inactiveText = "", warningValue = "", warningText = "" }) {
+export function buildDashboardButtonChange({ instanceId, instanceConfig, definitions, id, name, mode, entityId, size = "normal", actionType = "entity.toggle", serviceDomain = "", serviceName = "", activeText = "", inactiveText = "", warningValue = "", warningText = "", sources = [] }) {
   if (!ID.test(id ?? "")) throw new TypeError("Button-ID muss aus Kleinbuchstaben, Zahlen, _ oder - bestehen");
   if (typeof name !== "string" || !name.trim()) throw new TypeError("Buttonname fehlt");
   if (!ENTITY.test(entityId ?? "")) throw new TypeError("Ungültige Home-Assistant-Entität");
@@ -42,14 +43,22 @@ export function buildDashboardButtonChange({ instanceId, instanceConfig, definit
     ? existing.map(item => item.button_id === id ? { ...item } : item)
     : [...existing, { id: `${instanceId}-${id}`, button_id: id, size }] };
   validateDynamicButtonInstanceConfig(nextInstance);
+  const previousSource = sources.find(source => source.id === id);
+  const stateSource = mode === "toggle" ? {
+    ...previousSource, id, entity_id: entityId,
+    active_values: previousSource?.active_values ?? ["on"],
+    inactive_values: previousSource?.inactive_values ?? ["off"],
+    intermediate: [
+      ...(previousSource?.intermediate ?? []).filter(entry => entry.id !== "warning"),
+      ...(warningValue.trim() ? [{ id: "warning", values: [warningValue.trim()] }] : []),
+    ],
+  } : null;
+  if (stateSource) validateControlStateConfig({ sources: [stateSource] });
   return {
     definitions: nextDefinitions,
     instanceConfig: nextInstance,
     buttonId: id,
-    stateSource: mode === "toggle" ? {
-      id, entity_id: entityId, active_values: ["on"], inactive_values: ["off"],
-      ...(warningValue.trim() ? { intermediate: [{ id: "warning", values: [warningValue.trim()] }] } : {}),
-    } : null,
+    stateSource,
   };
 }
 
