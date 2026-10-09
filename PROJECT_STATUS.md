@@ -155,3 +155,10 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Integrationstests für den vollständigen Speicherpfad hinzugefügt: Widget hinzufügen, zentralen Toggle definieren, HA-Control-State-Quelle anlegen, Undo und eine einzige atomare Config-Service-Speicherung.
 - Zusätzlich geprüft: Entfernen einer Widget-Button-Zuordnung lässt zentrale, eventuell anderweitig genutzte Button-Definitionen intakt.
 - Automatisierte GitHub-CI für diese Tests erfolgreich. Reale Home-Assistant-Serviceaufrufe, Status-Livewechsel und Tablet-Touchbedienung sind weiterhin nicht als Ende-zu-Ende-Test nachgewiesen; kein Release-Gate bestanden.
+
+## Block 13 – Simulierte Home-Assistant-End-to-End-Tests
+
+- Neue Tests `tests/jamesui-next-button-ha-integration.test.js` verbinden das echte Dynamic-Buttons-Widget mit der Action Registry, HA-Aktionsprovidern und dem Home-Assistant-Adapter im simulierten HA-Kontext.
+- Geprüft: `homeassistant.turn_on/turn_off` mit korrekter Ziel-Entität, Pending bis zu einem neueren bestätigenden Status, Fehlerfeedback bei zurückgewiesenem HA-Service, Unterdrückung von Doppelklicks während Pending und Fehler bei unerwartetem Terminalzustand.
+- Shared Fake DOM um browserübliches `Element.remove()` erweitert; alle Tests und GitHub-CI nach dieser Korrektur erfolgreich (Run 37989288520).
+- Die Tests ersetzen **keine** echten HA-/Tablet-Praxistests. Aktuelle Freigabe weiterhin offen.
