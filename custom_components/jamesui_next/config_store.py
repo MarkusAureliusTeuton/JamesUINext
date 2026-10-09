@@ -7,7 +7,6 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
 
-from .config_migrations import migrate_stored_config
 from .config_schema import CONFIG_SCHEMA_VERSION
 
 
@@ -31,5 +30,5 @@ class JamesUIConfigStore(Store[dict[str, Any]]):
         old_minor_version: int,
         old_data: dict[str, Any],
     ) -> dict[str, Any]:
-        """Migrate stored config through the explicit JamesUI migration chain."""
-        return migrate_stored_config(old_major_version, old_data)
+        """Fresh Next namespace has no legacy storage schema to migrate."""
+        raise ValueError(f"Unsupported JamesUI Next storage version: {old_major_version}")
