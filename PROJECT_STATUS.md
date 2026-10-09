@@ -45,3 +45,10 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Editiergriffe und Einstellungsbuttons verschwinden nach Abschluss des Bearbeitungsmodus.
 - Erweiterte Provider- und Grid-Regressionstests in CI erfolgreich.
 - Noch offen: dynamisches Starten bisher inaktiver Hausprovider, Hintergrundbilder, vollständige Modulkonfiguration sowie Tablet-/HA-End-to-End-Abnahme.
+
+## Provider-Lebenszyklus – dynamischer Start und Stopp
+
+- Der Provider-Updater gleicht konfigurierte und tatsächlich geladene Module nach Speichern ab: neue optionale Provider werden asynchron geladen und gemountet, geänderte Instanzen aktualisiert, entfernte Provider zerstört.
+- Aufeinanderfolgende Änderungen sind serialisiert; fehlgeschlagene Starts werden bereinigt. Beim Entladen der Next-Oberfläche werden dynamisch gestartete Provider ebenfalls abgebaut.
+- Regressionstests für Live-Updates, Start, Stopp und fehlgeschlagene Mounts erfolgreich; GitHub Actions grün.
+- Offen: Bearbeitungsoberflächen für Haus-Provider, transparente Laufzeitfehler/Retry, umfassende Home-Assistant- und Tablet-Abnahme.
