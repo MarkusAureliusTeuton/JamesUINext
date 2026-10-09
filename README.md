@@ -4,9 +4,11 @@ Eigenständige, modulare JamesUI-1.0-Integration für Home Assistant. Sie läuft
 
 ## Entwicklungsstand
 
-Die neue Basis umfasst Core, Module, Designsystem, Wetter, Kalender, Hausstatus, Dynamic Buttons sowie Block-14-Dashboard und Layouteditor. Die Oberfläche ist weiterhin ein Entwicklungsstand. Die initiale Startseite ist absichtlich leer, bis Widget- und Button-Konfigurationen vollständig durchgängig unterstützt werden.
+Die modulare Basis umfasst Core, Designsystem, Wetter, Kalender, Hausstatus, Dynamic Buttons, Dashboard und Editor. Die Komponenten sind noch **nicht vollständig integriert und nicht zur Tablet-Abnahme freigegeben**. Es fehlen insbesondere Hintergrundbilder, vollständige Einstellungen sowie Live-/HA-Integrationstests. Freigabekriterien: [Dashboard 1.0 Release Gate](docs/DASHBOARD_1_0_RELEASE_GATE.md).
 
-## Installation zum Testen
+## Geplante Installation nach Dashboard-Freigabe
+
+**Noch nicht installieren: Die folgenden Schritte sind erst für die freigegebene Dashboard-Version vorgesehen.**
 
 1. In HACS das Repository `https://github.com/MarkusAureliusTeuton/JamesUINext` als **benutzerdefiniertes Repository** vom Typ **Integration** hinzufügen.
 2. `JamesUI Next` über HACS herunterladen.
