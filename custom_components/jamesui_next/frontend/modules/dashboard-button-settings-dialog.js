@@ -62,6 +62,17 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
     mode.appendChild(option);
   }
   root.appendChild(mode);
+  const createNew = document.createElement("button");
+  createNew.setAttribute("type", "button");
+  createNew.textContent = "Neuen Button hinzufügen";
+  createNew.addEventListener("click", () => {
+    fields.id.value = "";
+    fields.name.value = "";
+    fields.entityId.value = "";
+    mode.value = "trigger";
+    error.textContent = "";
+  });
+  root.appendChild(createNew);
   const error = document.createElement("p");
   error.setAttribute("role","alert");
   root.appendChild(error);
