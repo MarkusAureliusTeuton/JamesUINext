@@ -68,19 +68,51 @@ export async function startDashboardProviders(loader, config) {
 }
 
 export function createDashboardProviderUpdater(loader, initialConfig) {
-  if (!loader || typeof loader.update !== "function") throw new TypeError("Provider updater requires Module Loader");
+  if (!loader || ["load", "mount", "update", "destroy", "isLoaded"].some((method) => typeof loader[method] !== "function")) {
+    throw new TypeError("Provider updater requires Module Loader lifecycle");
+  }
   let settings = resolveDashboardProviderSettings(initialConfig);
-  return Object.freeze({
-    update(nextConfig) {
-      const next = resolveDashboardProviderSettings(nextConfig);
-      for (const [manifest] of PROVIDERS) {
-        const id = manifest.id;
-        if (next[id] === undefined || !loader.isLoaded?.(id)) continue;
-        if (JSON.stringify(next[id]) === JSON.stringify(settings[id])) continue;
-        if (!loader.update(id, next[id])) throw new Error("Provider update failed: " + id);
+  let chain = Promise.resolve();
+  let destroyed = false;
+  const managed = new Set();
+
+  async function apply(nextConfig) {
+    if (destroyed) throw new Error("Provider updater is destroyed");
+    const next = resolveDashboardProviderSettings(nextConfig);
+    for (const [manifest] of PROVIDERS) {
+      const id = manifest.id;
+      const previous = settings[id];
+      const options = next[id];
+      if (options === undefined && !EMPTY_CONFIG_PROVIDERS.has(id)) {
+        if (loader.isLoaded(id)) loader.destroy(id);
+        managed.delete(id);
+        continue;
       }
-      settings = next;
-      return true;
+      if (!loader.isLoaded(id)) {
+        const loaded = await loader.load(id, { config: options ?? {} });
+        if (!loaded || destroyed || !loader.mount(id, null)) {
+          if (loaded) loader.destroy(id);
+          throw new Error("Provider failed to start: " + id);
+        }
+        managed.add(id);
+      } else if (JSON.stringify(previous) !== JSON.stringify(options)) {
+        if (!loader.update(id, options ?? {})) throw new Error("Provider update failed: " + id);
+      }
+    }
+    settings = next;
+    return true;
+  }
+
+  return Object.freeze({
+    update(config) {
+      const task = chain.then(() => apply(config));
+      chain = task.catch(() => {});
+      return task;
+    },
+    destroy() {
+      destroyed = true;
+      for (const id of managed) loader.destroy(id);
+      managed.clear();
     },
   });
 }
