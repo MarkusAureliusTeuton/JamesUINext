@@ -64,7 +64,8 @@ export function createDashboardGrid({ document, createItemHost = () => {} } = {}
     for (const item of elements) {
       const bounds = geometry.find((element) => element.id === item.id);
       let entry = activeItems.get(item.id);
-      if (entry && (entry.kind !== item.kind || entry.refId !== item.ref_id)) {
+      const configKey = typeof item.config_key === "string" ? item.config_key : null;
+      if (entry && (entry.kind !== item.kind || entry.refId !== item.ref_id || entry.configKey !== configKey)) {
         entry.dispose?.();
         if (entry.node.parentNode) entry.node.parentNode.removeChild(entry.node);
         activeItems.delete(item.id);
@@ -77,7 +78,7 @@ export function createDashboardGrid({ document, createItemHost = () => {} } = {}
         if (dispose !== null && typeof dispose !== "function") {
           throw new TypeError("createItemHost must return a cleanup function or null");
         }
-        entry = { node, dispose, kind: item.kind, refId: item.ref_id };
+        entry = { node, dispose, kind: item.kind, refId: item.ref_id, configKey };
         activeItems.set(item.id, entry);
         root.appendChild(node);
       }
