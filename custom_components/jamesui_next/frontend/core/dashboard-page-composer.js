@@ -1,3 +1,4 @@
+import { buildAgendaInstanceConfig } from "../modules/dashboard-widget-configuration.js";
 import { createDashboardCatalog, createDashboardCatalogView } from "../modules/dashboard-catalog.js";
 import { createDashboardController } from "./dashboard-controller.js";
 import { createDashboardEditSession } from "./dashboard-edit-session.js";
@@ -153,8 +154,12 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     });
     target.appendChild(toolbar.root);
     if (moduleRegistry) {
-      catalogView = createDashboardCatalogView({ document, catalog: createDashboardCatalog({ moduleRegistry }), onSelect: (moduleId) => {
-        const next = editor.addWidget(moduleId);
+      catalogView = createDashboardCatalogView({ document, catalog: createDashboardCatalog({ moduleRegistry }), onSelect: (moduleId, sources) => {
+        const config = moduleId === "widget.calendar-agenda"
+          ? (id) => buildAgendaInstanceConfig(id, sources)
+          : moduleId === "widget.house-quick" || moduleId === "widget.dynamic-buttons"
+            ? { buttons: [] } : {};
+        const next = editor.addWidget(moduleId, { config });
         if (next) preview(next);
       } });
       target.appendChild(catalogView.root);
