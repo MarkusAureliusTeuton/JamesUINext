@@ -26,6 +26,7 @@ export function buildDashboardButtonChange({ instanceId, instanceConfig, definit
   return {
     definitions: nextDefinitions,
     instanceConfig: nextInstance,
+    buttonId: id,
     stateSource: mode === "toggle" ? {
       id, entity_id: entityId, active_values: ["on"], inactive_values: ["off"],
     } : null,
