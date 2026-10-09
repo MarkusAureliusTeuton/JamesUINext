@@ -44,7 +44,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     config_store = JamesUIConfigStore(hass)
     config_service = JamesUIConfigService(config_store)
-    await config_service.async_initialize(empty_config())
+    initial = empty_config()
+    initial["layouts"]["main"] = {"kind": "hero-deck", "scroll": "fixed", "hero_ratio": 0.42}
+    initial["pages"]["home"] = {"kind": "dashboard", "layout_id": "main", "elements": []}
+    await config_service.async_initialize(initial)
     domain_data[entry.entry_id]["config"] = config_service
 
     try:
