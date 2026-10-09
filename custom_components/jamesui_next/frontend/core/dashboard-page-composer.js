@@ -13,11 +13,15 @@ import { validateDashboardPage } from "./dashboard-config.js";
 
 // Page composition owns one layout instance, one grid and the weather hero.
 // Its DOM is independent of the persistent Core shell and navigation.
-export function createDashboardPageComposer({ document, moduleLoader, getConfig, configService = null, moduleRegistry = null } = {}) {
+export function createDashboardPageComposer({ document, moduleLoader, getConfig, configService = null, moduleRegistry = null, onConfigCommitted = null } = {}) {
   if (!document || typeof document.createElement !== "function") throw new TypeError("Dashboard composer requires document");
   if (!moduleLoader || typeof moduleLoader.load !== "function") throw new TypeError("Dashboard composer requires Module Loader");
   if (typeof getConfig !== "function") throw new TypeError("Dashboard composer requires getConfig");
 
+  const withWidgetKeys = (elements, config) => elements.map((item) => ({
+    ...item,
+    config_key: item.kind === "widget" ? JSON.stringify(config.widget_instances?.[item.ref_id] ?? null) : null,
+  }));
   let target = null;
   let layout = null;
   let grid = null;
@@ -115,7 +119,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     });
     grid = createDashboardGrid({ document, createItemHost: hosts });
     gridRoot = grid.mount(gridHost);
-    grid.render(page.elements, { scroll: page.layout.scroll });
+    grid.render(withWidgetKeys(page.elements, config), { scroll: page.layout.scroll });
     if (configService) attachEditor();
     return true;
   }
@@ -164,12 +168,13 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     const controller = createDashboardController({ configService });
     editor = createDashboardEditSession({ controller, configService, pageId });
     const preview = (next) => {
-      grid.render(next.elements, { scroll: next.layout.scroll });
+      grid.render(withWidgetKeys(next.elements, editor?.active ? editor.workingConfig() : getConfig()), { scroll: next.layout.scroll });
       showHandles();
       toolbar?.refresh();
     };
     toolbar = createDashboardEditorToolbar({
       document, session: editor, onChange: preview,
+      onCommitted: async () => { if (onConfigCommitted) await onConfigCommitted(getConfig()); },
       onAdd: () => catalogView?.open(),
     });
     target.appendChild(toolbar.root);
