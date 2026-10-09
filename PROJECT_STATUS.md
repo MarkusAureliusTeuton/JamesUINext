@@ -63,3 +63,11 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Neue Installationen erhalten eine eigenständige, validierte `home`-Dashboardkonfiguration samt `widget.weather-today` als Hero und 42-%-Hero-Deck. Keine r11-Migration oder altes Storage beteiligt.
 - Pure Python-Regressionsprüfung des Erststarts ist eingerichtet und CI-grün.
 - Dies ist **keine** vollständige Freigabe: acht fotorealistische WebP-Bilder fehlen, reale Wetter-/Kalender-/Button-Konfiguration und Funktionsprüfung sowie HA-/Tablet-Integration weiterhin offen.
+
+## Wettermodul – Konfiguration und sichere Bild-Fallbacks (2026-10-09)
+
+- Wetter-Einstellungen über den Dashboard-Editor: weather-Entität sowie optionale Außentemperatur-, Mondphasen- und Helligkeitssensoren. Validierung vor Übernahme, Speicherung über kanonischen Config Service, aktiver Provider wird danach aktualisiert.
+- Tests für gültige Einstellungen, ungültige Entitäten, Fehler beim Speichern und Abbrechen in CI.
+- Fehlende Hintergrundbilder erzeugen jetzt einen sicheren CSS-Fallback statt einer defekten Bilddarstellung.
+- **Blocker:** Die acht fotorealistischen WebP-Szenen fehlen weiterhin unter `frontend/assets/alpine/`. Die GitHub-Textanbindung kann alte Binärdateien nicht auslesen; dies muss vor Tablet-Freigabe gelöst und getestet werden.
+- Weiter offen: alle Wetter- und Mondzustände in echten HA-Daten, Responsive-Design/Tablet und vollständige Abnahme.
