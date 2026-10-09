@@ -1,0 +1,52 @@
+name: Import JamesUI weather assets
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/import-weather-assets.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  import-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out JamesUINext
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Check out public JamesUI assets source
+        uses: actions/checkout@v4
+        with:
+          repository: MarkusAureliusTeuton/JamesUI
+          ref: feat/jamesui-1-0-block-14-start-configuration
+          path: source-assets
+          persist-credentials: false
+
+      - name: Copy entire frontend assets directory
+        run: |
+          set -euo pipefail
+          source="source-assets/custom_components/jamesui/frontend/assets"
+          target="custom_components/jamesui_next/frontend/assets"
+          test -d "$source"
+          mkdir -p "$target"
+          cp -a "$source/." "$target/"
+          rm -rf source-assets
+
+      - name: Verify original image content
+        run: python scripts/verify_alpine_assets.py
+
+      - name: Commit imported assets to Next
+        run: |
+          set -euo pipefail
+          git add custom_components/jamesui_next/frontend/assets
+          if git diff --cached --quiet; then
+            echo "All source assets are already present."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "assets: import complete standalone frontend assets directory"
+          git push origin HEAD:main
