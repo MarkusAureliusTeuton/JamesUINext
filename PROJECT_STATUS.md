@@ -83,3 +83,9 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Kompletter Stand `frontend/assets/` aus der freigegebenen `JamesUI`-Entwicklungsbranch nach `custom_components/jamesui_next/frontend/assets/` übertragen: **38 Dateien**, darunter 28 SVG-Wettersymbole, acht WebP-Alpenhintergründe und zwei TXT-Begleitdateien.
 - Der Kopierlauf `Import JamesUI weather assets` in GitHub Actions war erfolgreich; acht WebP-Dateien wurden mit Dateigröße und SHA-256 überprüft. Die `Validate JamesUINext`-CI prüft die Bildintegrität nun dauerhaft.
 - **Der bisherige Blocker „8 Hintergrundbilder fehlen“ ist erledigt.** Die Wetterdarstellung muss dennoch noch mit echten HA-Daten und auf dem Tablet abgenommen werden.
+
+## Wetterdarstellung – vollständige Szenenmatrix
+
+- Nach Übernahme aller 38 Assets ist die Zuordnung sämtlicher unterstützter HA-Wetterzustände für Tag, Golden Hour, Dämmerung und Nacht durch neue Tests abgesichert.
+- Der Wetter-Hero blendet das vorherige Bild beim Szenenwechsel aus, bis das neue geladen ist; dadurch bleiben keine veralteten Motive sichtbar.
+- Stand der letzten CI: erfolgreich. Noch offen: tatsächliche HA-Live-Daten, visuelle Tablet-Abnahme sowie umfassende Interaktionstests für die Vorhersage.
