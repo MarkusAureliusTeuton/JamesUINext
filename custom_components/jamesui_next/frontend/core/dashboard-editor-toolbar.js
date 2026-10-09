@@ -1,6 +1,6 @@
 // Minimal page-local edit toolbar. Gesture-driven drag/resize are attached
 // separately; this layer never invokes Home Assistant directly.
-export function createDashboardEditorToolbar({ document, session, onChange, onAdd } = {}) {
+export function createDashboardEditorToolbar({ document, session, onChange, onAdd, onCommitted = null } = {}) {
   if (!document || typeof document.createElement !== "function") throw new TypeError("editor toolbar requires document");
   if (!session || typeof session.enter !== "function" || typeof session.finish !== "function") {
     throw new TypeError("editor toolbar requires edit session");
@@ -31,7 +31,10 @@ export function createDashboardEditorToolbar({ document, session, onChange, onAd
     refresh();
     try {
       const page = await session.save();
-      if (page) onChange(page);
+      if (page) {
+        if (onCommitted) await onCommitted(page);
+        onChange(page);
+      }
       session.finish();
       root.hidden = true;
     } catch {
