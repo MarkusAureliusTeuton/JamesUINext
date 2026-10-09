@@ -173,3 +173,41 @@ test("Block 13 button removal keeps shared definitions and state sources intact"
   assert.deepEqual(configService.snapshot().widget_instances[id].config.buttons, []);
   assert.ok(configService.snapshot().dynamic_buttons.scene);
 });
+
+test("removing a widget is undoable and cleans an otherwise unreferenced instance", async () => {
+  const { configService, editor, getWrites } = setup();
+  await configService.load();
+  editor.enter();
+  editor.removeElement("a");
+  assert.equal(editor.snapshot().elements.length,1);
+  assert.equal(editor.workingConfig().widget_instances.agenda,undefined);
+  assert.equal(getWrites(),0);
+  editor.undo();
+  assert.ok(editor.workingConfig().widget_instances.agenda);
+  editor.removeElement("a");
+  await editor.save();
+  assert.equal(getWrites(),1);
+  assert.equal(configService.snapshot().widget_instances.agenda,undefined);
+  assert.equal(configService.snapshot().dynamic_buttons.scene.name,"Scene");
+});
+
+test("house widget/provider settings are committed atomically and undoable", async () => {
+  const {configService,editor,getWrites}=setup();
+  await configService.load();
+  editor.enter();
+  const added=editor.addWidget("widget.house-quick",{config:{buttons:[]}});
+  const id=added.elements.at(-1).ref_id;
+  const change={
+    instanceConfig:{buttons:[{id:"lights",type:"lights"}]},
+    moduleSettings:{"provider.house-lighting":{lights:[],ambient_lights:[]}},
+  };
+  editor.configureHouseQuick(id,change);
+  assert.equal(getWrites(),0);
+  editor.undo();
+  assert.deepEqual(editor.workingConfig().widget_instances[id].config.buttons,[]);
+  editor.configureHouseQuick(id,change);
+  await editor.save();
+  assert.equal(getWrites(),1);
+  assert.equal(configService.snapshot().widget_instances[id].config.buttons[0].type,"lights");
+  assert.deepEqual(configService.snapshot().module_settings["provider.house-lighting"],{lights:[],ambient_lights:[]});
+});
