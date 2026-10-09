@@ -32,6 +32,14 @@ export function buildDashboardButtonChange({ instanceId, instanceConfig, definit
   };
 }
 
+export function removeDashboardButtonUse(instanceConfig, buttonId) {
+  const config = validateDynamicButtonInstanceConfig(instanceConfig);
+  if (!config.buttons.some(button => button.button_id === buttonId)) throw new TypeError("Button nicht im Widget");
+  return validateDynamicButtonInstanceConfig({
+    buttons: config.buttons.filter(button => button.button_id !== buttonId),
+  });
+}
+
 export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
   if (!document?.createElement || typeof onSave !== "function") throw new TypeError("Button settings require document and onSave");
   const root = document.createElement("section");
@@ -62,10 +70,18 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
     mode.appendChild(option);
   }
   root.appendChild(mode);
+  const picker = document.createElement("select");
+  picker.setAttribute("aria-label", "Vorhandenen Button auswählen");
+  root.appendChild(picker);
+  const remove = document.createElement("button");
+  remove.setAttribute("type", "button");
+  remove.textContent = "Button aus Widget entfernen";
+  root.appendChild(remove);
   const createNew = document.createElement("button");
   createNew.setAttribute("type", "button");
   createNew.textContent = "Neuen Button hinzufügen";
   createNew.addEventListener("click", () => {
+    picker.value = "";
     fields.id.value = "";
     fields.name.value = "";
     fields.entityId.value = "";
@@ -77,6 +93,30 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
   error.setAttribute("role","alert");
   root.appendChild(error);
   let context = null, saving = false;
+  function selectButton(id) {
+    const definition = context?.definitions[id];
+    fields.id.value = id;
+    fields.name.value = definition?.name ?? "";
+    fields.entityId.value = definition?.mode === "trigger"
+      ? definition.action?.entity_id ?? "" : definition?.activate_action?.target?.entity_id ?? "";
+    mode.value = definition?.mode ?? "trigger";
+  }
+  picker.addEventListener("change", () => selectButton(picker.value));
+  remove.addEventListener("click", async () => {
+    if (!context || saving || !picker.value) return;
+    saving = true;
+    remove.disabled = true;
+    try {
+      const next = removeDashboardButtonUse(context.instanceConfig, picker.value);
+      await onSave(context.instanceId, { instanceConfig: next });
+      close();
+    } catch (cause) {
+      error.textContent = String(cause?.message ?? cause);
+    } finally {
+      saving = false;
+      remove.disabled = false;
+    }
+  });
   const cancel = document.createElement("button");
   cancel.setAttribute("type","button");
   cancel.textContent = "Abbrechen";
@@ -109,14 +149,19 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
     root, close,
     open({ instanceId, instanceConfig, definitions }) {
       context = { instanceId, instanceConfig: structuredClone(instanceConfig), definitions: structuredClone(definitions) };
-      const first = instanceConfig?.buttons?.[0]?.button_id;
-      const existing = first ? definitions[first] : null;
-      fields.id.value = first ?? "";
-      fields.name.value = existing?.name ?? "";
-      fields.entityId.value = existing?.mode === "trigger"
-        ? existing.action?.entity_id ?? ""
-        : existing?.activate_action?.target?.entity_id ?? "";
-      mode.value = existing?.mode ?? "trigger";
+      picker.replaceChildren();
+      const blank = document.createElement("option");
+      blank.value = "";
+      blank.textContent = "Neuen Button anlegen";
+      picker.appendChild(blank);
+      for (const use of instanceConfig?.buttons ?? []) {
+        const option = document.createElement("option");
+        option.value = use.button_id;
+        option.textContent = definitions[use.button_id]?.name ?? use.button_id;
+        picker.appendChild(option);
+      }
+      picker.value = instanceConfig?.buttons?.[0]?.button_id ?? "";
+      selectButton(picker.value);
       error.textContent = "";
       root.hidden = false;
     },
