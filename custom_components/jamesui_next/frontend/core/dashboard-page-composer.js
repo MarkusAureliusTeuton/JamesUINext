@@ -1,3 +1,4 @@
+import { createDashboardButtonSettingsDialog } from "../modules/dashboard-button-settings-dialog.js";
 import { createWeatherSettingsDialog } from "../modules/dashboard-weather-settings-dialog.js";
 import { createWidgetSettingsDialog } from "../modules/dashboard-widget-settings-dialog.js";
 import { buildAgendaInstanceConfig } from "../modules/dashboard-widget-configuration.js";
@@ -21,7 +22,10 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
 
   const withWidgetKeys = (elements, config) => elements.map((item) => ({
     ...item,
-    config_key: item.kind === "widget" ? JSON.stringify(config.widget_instances?.[item.ref_id] ?? null) : null,
+    config_key: item.kind === "widget" ? JSON.stringify({
+      instance: config.widget_instances?.[item.ref_id] ?? null,
+      definitions: config.widget_instances?.[item.ref_id]?.module_id === "widget.dynamic-buttons" ? config.dynamic_buttons : null,
+    }) : null,
   }));
   let target = null;
   let layout = null;
@@ -29,10 +33,13 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
   let hero = null;
   let pageId = null;
   let generation = 0;
-  let editor = null, toolbar = null, touch = null, unbindTouch = null, gridRoot = null, catalogView = null, settingsDialog = null, weatherSettings = null;
+  let editor = null, toolbar = null, touch = null, unbindTouch = null, gridRoot = null, catalogView = null, settingsDialog = null, weatherSettings = null, buttonSettings = null;
 
   function destroy() {
     generation += 1;
+    buttonSettings?.close();
+    if (buttonSettings?.root?.parentNode) buttonSettings.root.parentNode.removeChild(buttonSettings.root);
+    buttonSettings = null;
     weatherSettings?.close();
     if (weatherSettings?.root?.parentNode) weatherSettings.root.parentNode.removeChild(weatherSettings.root);
     weatherSettings = null;
@@ -119,7 +126,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     const hosts = createDashboardWidgetHosts({
       moduleLoader,
       getConfig: (id) => (editor?.active ? editor.workingConfig() : getConfig()).widget_instances[id],
-      getButtonDefinitions: () => getConfig().dynamic_buttons,
+      getButtonDefinitions: () => (editor?.active ? editor.workingConfig() : getConfig()).dynamic_buttons,
     });
     grid = createDashboardGrid({ document, createItemHost: hosts });
     gridRoot = grid.mount(gridHost);
@@ -154,13 +161,18 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
         const elementId = element.getAttribute("data-jui-dashboard-item");
         const item = editor.snapshot().elements.find((entry) => entry.id === elementId);
         const definition = item?.kind === "widget" ? editor.workingConfig().widget_instances[item.ref_id] : null;
-        if (definition?.module_id === "widget.calendar-agenda") {
+        if (definition?.module_id === "widget.calendar-agenda" || definition?.module_id === "widget.dynamic-buttons") {
           const button = document.createElement("button");
           button.setAttribute("type", "button");
           button.setAttribute("data-jui-editor-settings", "");
           button.setAttribute("aria-label", "Widget-Einstellungen");
           button.textContent = "⚙";
-          button.addEventListener("click", () => settingsDialog?.open(item.ref_id, definition.config ?? {}));
+          button.addEventListener("click", () => {
+            if (definition.module_id === "widget.dynamic-buttons") {
+              const config = editor.workingConfig();
+              buttonSettings?.open({ instanceId: item.ref_id, instanceConfig: definition.config ?? { buttons: [] }, definitions: config.dynamic_buttons });
+            } else settingsDialog?.open(item.ref_id, definition.config ?? {});
+          });
           element.appendChild(button);
         }
       }
@@ -179,7 +191,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     toolbar = createDashboardEditorToolbar({
       document, session: editor, onChange: preview,
       onCommitted: async () => { if (onConfigCommitted) await onConfigCommitted(getConfig()); },
-      onFinished: () => { settingsDialog?.close(); showHandles(); },
+      onFinished: () => { settingsDialog?.close(); buttonSettings?.close(); showHandles(); },
       onAdd: () => catalogView?.open(),
     });
     target.appendChild(toolbar.root);
@@ -206,6 +218,26 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
       preview(next);
     } });
     target.appendChild(settingsDialog.root);
+    buttonSettings = createDashboardButtonSettingsDialog({
+      document,
+      onSave: async (id, change) => {
+        const current = editor.workingConfig();
+        const nextSources = (current.module_settings["provider.control-state"]?.sources ?? [])
+          .filter((source) => source.id !== change.stateSource?.id);
+        if (change.stateSource) nextSources.push(change.stateSource);
+        editor.configureWidget(id, change.instanceConfig);
+        await configService.update((latest) => ({
+          ...latest,
+          dynamic_buttons: change.definitions,
+          module_settings: { ...latest.module_settings,
+            "provider.control-state": { sources: nextSources },
+          },
+        }));
+        if (onConfigCommitted) await onConfigCommitted(getConfig());
+        preview(editor.snapshot());
+      },
+    });
+    target.appendChild(buttonSettings.root);
     if (moduleRegistry) {
       catalogView = createDashboardCatalogView({ document, catalog: createDashboardCatalog({ moduleRegistry }), onSelect: (moduleId, sources) => {
         const config = moduleId === "widget.calendar-agenda"
