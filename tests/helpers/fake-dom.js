@@ -61,6 +61,10 @@ export class FakeElement {
     return child;
   }
 
+  remove() {
+    this.parentNode?.removeChild(this);
+  }
+
   removeChild(child) {
     const index = this.children.indexOf(child);
     if (index >= 0) {
