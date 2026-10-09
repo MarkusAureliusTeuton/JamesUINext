@@ -116,3 +116,10 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Trigger-Aktionen verwenden `entity.toggle`; Toggle-Buttons erzeugen `homeassistant.turn_on/turn_off` und `provider.control-state`-Statuszuordnung für `on/off`.
 - Buttondefinition, Control-State-Quelle und Widgetzuordnung werden **gemeinsam in der Dashboard-Editiersitzung** gespeichert: Undo und Abbrechen vor „Fertig“ sind dadurch möglich; parallele Änderungen an den betroffenen Bereichen werden erkannt.
 - Neue Validierungs- und Widget-Host-Tests erfolgreich; weiterhin offen: vollständige freie HA-Aktionsauswahl, vorhandene Buttons gezielt auswählen/entfernen, individuelle Zustandsdarstellung und Bedien-/HA-End-to-End-Test. Diese Teilimplementierung erfüllt noch nicht sämtliche Block-13-Kriterien.
+
+## Dynamic Buttons – Auswahldialog und einzelne Zuordnungen (2026-10-09)
+
+- Bereits zugewiesene Buttons lassen sich im Dialog nun gezielt auswählen und bearbeiten; der Dialog kann ebenso neue Buttons anlegen.
+- Ein Button kann einzeln aus der aktuellen Widgetinstanz entfernt werden. Gemeinsame Definitionen anderer Instanzen bleiben erhalten; Undo und das Speichern über „Fertig“ nutzen die Dashboard-Editiersitzung.
+- Korrektur: Bei mehreren Buttons wird die Statusquelle anhand der tatsächlich bearbeiteten Button-ID statt anhand des letzten Listenelements geändert. Regressionstests für Entfernen, Bearbeiten und unabhängige Nachbarbuttons ergänzt.
+- Offen bleiben universelle Aktionsauswahl, individuelle Status-/Darstellungsparameter, Entfernung unbenutzter globaler Definitionen und vollständige HA-/Tablet-Abnahme.
