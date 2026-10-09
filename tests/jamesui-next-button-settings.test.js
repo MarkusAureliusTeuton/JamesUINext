@@ -99,3 +99,14 @@ test("service action validates domain and service before committing", () => {
   });
   assert.throws(()=>buildDashboardButtonChange({...base,serviceDomain:"light",serviceName:"turn on"}),/Service/);
 });
+
+test("toggle buttons preserve independently configured active and inactive labels", () => {
+  const changed = buildDashboardButtonChange({
+    instanceId:"panel", instanceConfig:{buttons:[]}, definitions:{},
+    id:"heating", name:"Heizung", mode:"toggle", entityId:"switch.heating",
+    activeText:"Automatik an", inactiveText:"Automatik aus",
+  });
+  assert.equal(changed.definitions.heating.presentation.active.text,"Automatik an");
+  assert.equal(changed.definitions.heating.presentation.inactive.text,"Automatik aus");
+  assert.equal(changed.stateSource.entity_id,"switch.heating");
+});
