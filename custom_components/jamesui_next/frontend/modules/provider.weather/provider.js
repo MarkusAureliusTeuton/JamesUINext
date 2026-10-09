@@ -185,7 +185,7 @@ export function createWeatherProvider(initialContext, initialConfig, runtime) {
     for (const [type, bit] of FORECAST_TYPES) {
       if ((featureMask & bit) === 0) continue;
       const message = { type: "weather/subscribe_forecast", forecast_type: type, entity_id: sourceEntityId };
-      Promise.resolve(context.homeAssistant.subscribeMessage(
+      Promise.resolve().then(() => context.homeAssistant.subscribeMessage(
         (event) => handleForecastEvent(type, event, eventGeneration, sourceEntityId),
         message,
       )).then((unsubscribe) => {
@@ -335,6 +335,11 @@ export function createWeatherProvider(initialContext, initialConfig, runtime) {
     if (!mounted || destroyed) return;
     publishCalculatedMoonFromCache();
     publishCurrentFromCache();
+    // Reconnect/retry failed forecast streams at the normal refresh cadence.
+    if (Object.values(forecastFailures).some(Boolean)) {
+      forecastKey = null;
+      reconcile();
+    }
   };
 
   return Object.freeze({
