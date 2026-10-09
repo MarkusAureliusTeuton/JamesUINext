@@ -170,7 +170,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
           button.addEventListener("click", () => {
             if (definition.module_id === "widget.dynamic-buttons") {
               const config = editor.workingConfig();
-              buttonSettings?.open({ instanceId: item.ref_id, instanceConfig: definition.config ?? { buttons: [] }, definitions: config.dynamic_buttons });
+              buttonSettings?.open({ instanceId: item.ref_id, instanceConfig: definition.config ?? { buttons: [] }, definitions: config.dynamic_buttons, sources: config.module_settings["provider.control-state"]?.sources ?? [] });
             } else settingsDialog?.open(item.ref_id, definition.config ?? {});
           });
           element.appendChild(button);
