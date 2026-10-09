@@ -166,3 +166,10 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 ## Verbindliche Soll-/Ist-Bestandsaufnahme nach Block 13
 
 Die quellcodebasierte Matrix befindet sich unter [docs/DASHBOARD_1_0_ACTUAL_STATUS_AUDIT.md](docs/DASHBOARD_1_0_ACTUAL_STATUS_AUDIT.md). Bereits implementierte Module werden nicht pauschal wieder geöffnet. **Konkrete P0-Lücken:** Aktionsmodul `task.update` im Next-Bootstrap nicht registriert/gestartet; keine UI-Konfiguration der Haus-Quickinfos und ihrer Provider; kein nachgewiesenes Löschen kompletter Dashboard-Elemente im Editor; Navigation nicht implementierter Unterseiten muss korrekt gekennzeichnet/deaktiviert werden. Wetter-WebP vollständig vorhanden (alter Blocker überholt). P1 sind automatisierte Gesamtintegration, reale HA-/HACS-Installation und OnePlus-Pad-2-Abnahme. Letzte geprüfte funktionale CI grün, keine Freigabe behauptet.
+
+## Audit-Punkte 1–3 umgesetzt (2026-10-09)
+
+- `action.task-update` im Next-Preview-Bootstrap registriert/gemountet; Teardown bei Fehler und beim Schließen der Anwendung ergänzt.
+- Für Haus-Quickinfos ist der Widget-Einstellungsdialog jetzt mit allen vorhandenen Hausprovidern verbunden, inklusive Schema-Validierung, Energie-Schwellen, Quellenbeziehungen und atomarer Editier-/Undo-Speicherung. Die Eingabe erfolgt in der ersten Version über validierte JSON-Felder; feldbasierte Komfortoberfläche und echte Home-Assistant-Verifikation bleiben offen.
+- Gesamte Dashboard-Elemente können im Editiermodus entfernt, rückgängig gemacht und mit „Fertig“ gespeichert werden; nur nachweislich unbenutzte Widget-Instanzen werden aus der Konfiguration entfernt. Cross-Page-Referenzschutz korrigiert.
+- Neue Integrations-/Regressionstests erfolgreich; GitHub Actions grün. Offener Audit-Punkt Nr. 4: Navigation in noch nicht implementierte Seiten; außerdem HACS/HA/Tablet-Praxistest. Siehe `docs/DASHBOARD_1_0_ACTUAL_STATUS_AUDIT.md`.
