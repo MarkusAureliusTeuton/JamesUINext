@@ -66,7 +66,7 @@ def _send_not_configured(connection: websocket_api.ActiveConnection, msg_id: int
 
 
 # Temporary r11 compatibility API. Remove with the old runtime in Block 20/21.
-@websocket_api.websocket_command({vol.Required("type"): "jamesui/config"})
+@websocket_api.websocket_command({vol.Required("type"): "jamesui_next/config"})
 @callback
 def websocket_get_config(
     hass: HomeAssistant,
@@ -87,7 +87,7 @@ def websocket_get_config(
 @websocket_api.require_admin
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): "jamesui_next_next/config/update",
+        vol.Required("type"): "jamesui_next/config/update",
         vol.Optional("weather_entity"): vol.Any(str, None),
         vol.Optional("outdoor_temperature_entity"): vol.Any(str, None),
         vol.Optional("moon_entity"): vol.Any(str, None),
@@ -170,7 +170,7 @@ async def websocket_update_config(
     connection.send_result(msg["id"], {"options": project_legacy_options(config)})
 
 
-@websocket_api.websocket_command({vol.Required("type"): "jamesui_next_next/config/get"})
+@websocket_api.websocket_command({vol.Required("type"): "jamesui_next/config/get"})
 @callback
 def websocket_get_structured_config(
     hass: HomeAssistant,
@@ -188,7 +188,7 @@ def websocket_get_structured_config(
 @websocket_api.require_admin
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): "jamesui_next_next/config/replace",
+        vol.Required("type"): "jamesui_next/config/replace",
         vol.Required("config"): dict,
     }
 )
