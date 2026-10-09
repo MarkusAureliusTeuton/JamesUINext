@@ -11,7 +11,7 @@ Stand: 2026-10-09. Dies ist eine **Zwischenprüfung**, keine Produktivfreigabe.
 - 28 Wettersymbol-SVGs im Next-Namensraum ergänzt, wetterbezogener Asset-Root von der alten Integration getrennt.
 
 ## Offene Abnahmekriterien (blockierend)
-1. **Provider-Bootstrap:** `jamesui-next-preview.js` registriert nur vier Widgets. Wetter-, Kalender-, Aufgaben-, Haus- und Kontrollzustandsprovider sowie erforderliche Actions werden weder registriert noch gestartet. Widgetfähigkeiten sind damit im Livebetrieb nicht verlässlich verfügbar.
+1. **Provider-Bootstrap (teilweise behoben):** Provider-Registrierung und Start sind jetzt zentral umgesetzt. Wetter, Kalender und Aufgaben starten mit sicherer Standardkonfiguration; weitere Provider nur bei explizit gesetzten Moduleinstellungen. Start-/Rollback-Tests laufen in CI. Noch offen: vollständige Live-HA-Funktion, Action-Module, Provider-Konfigurationsoberfläche und dynamische Updates.
 2. **Layout/Navigation:** Der Preview-Composer mountet in die Core-Shell, aber die Shell ersetzt den Seiteninhalt beim Routenwechsel. Eine saubere Page-Lifecycle-Anbindung und die übrigen konfigurierten Seiten fehlen.
 3. **Grafiken:** Acht binäre WebP-Hintergründe aus dem Altrepository fehlen. Direkter GitHub-Binärdownload ist in der aktuellen Anbindung nicht verfügbar. Keine Abhängigkeit zur alten `/jamesui_static`-Route mehr zulassen; Assets entweder gesondert übertragen oder Funktion auf eine vollständig lokale, geprüfte Alternative umstellen.
 4. **Modulkonfiguration:** Ein neues Dashboard beginnt leer. Der Widget-Katalog erzeugt Standardinstanzen, aber konfigurierbare Datenquellen/Entitäten und Anbieter müssen in der Oberfläche anlegbar sein, bevor reale Widgets verlässlich Daten anzeigen.
