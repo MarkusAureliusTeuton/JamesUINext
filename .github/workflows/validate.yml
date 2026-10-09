@@ -43,6 +43,20 @@ jobs:
           PY
       - name: Validate JavaScript syntax
         run: find custom_components/jamesui_next/frontend -name '*.js' -print0 | xargs -0 -n1 node --check
+      - name: Test Next Block 14 dashboard interactions
+        run: |
+          node --experimental-default-type=module --test \
+            tests/jamesui-grid-placement.test.js \
+            tests/jamesui-dashboard-config.test.js \
+            tests/jamesui-dashboard-controller.test.js \
+            tests/jamesui-dashboard-grid.test.js \
+            tests/jamesui-dashboard-widget-hosts.test.js \
+            tests/jamesui-dashboard-page-composer.test.js \
+            tests/jamesui-dashboard-edit-session.test.js \
+            tests/jamesui-dashboard-editor-toolbar.test.js \
+            tests/jamesui-dashboard-touch-editor.test.js \
+            tests/jamesui-dashboard-touch-events.test.js \
+            tests/jamesui-dashboard-catalog.test.js
       - name: Smoke-test modular preview imports
         run: |
           node --experimental-default-type=module --input-type=module -e '
