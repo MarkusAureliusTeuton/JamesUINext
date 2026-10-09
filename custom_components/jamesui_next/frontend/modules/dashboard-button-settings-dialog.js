@@ -3,7 +3,7 @@ import { validateDynamicButtonDefinitions, validateDynamicButtonInstanceConfig }
 const ENTITY = /^[a-z0-9_]+\.[a-z0-9_]+$/;
 const ID = /^[a-z0-9_-]+$/;
 
-export function buildDashboardButtonChange({ instanceId, instanceConfig, definitions, id, name, mode, entityId, size = "normal", actionType = "entity.toggle", serviceDomain = "", serviceName = "", activeText = "", inactiveText = "" }) {
+export function buildDashboardButtonChange({ instanceId, instanceConfig, definitions, id, name, mode, entityId, size = "normal", actionType = "entity.toggle", serviceDomain = "", serviceName = "", activeText = "", inactiveText = "", warningValue = "", warningText = "" }) {
   if (!ID.test(id ?? "")) throw new TypeError("Button-ID muss aus Kleinbuchstaben, Zahlen, _ oder - bestehen");
   if (typeof name !== "string" || !name.trim()) throw new TypeError("Buttonname fehlt");
   if (!ENTITY.test(entityId ?? "")) throw new TypeError("Ungültige Home-Assistant-Entität");
@@ -23,6 +23,9 @@ export function buildDashboardButtonChange({ instanceId, instanceConfig, definit
       ...previous, name: name.trim(), mode, state_source_id: id,
       presentation: {
         ...previous?.presentation,
+        intermediate: warningValue.trim()
+          ? { ...previous?.presentation?.intermediate, warning: { ...previous?.presentation?.intermediate?.warning, ...(warningText.trim() ? { text: warningText.trim() } : {}) } }
+          : Object.fromEntries(Object.entries(previous?.presentation?.intermediate ?? {}).filter(([key]) => key !== "warning")),
         active: { ...previous?.presentation?.active, ...(activeText.trim() ? { text: activeText.trim() } : {}) },
         inactive: { ...previous?.presentation?.inactive, ...(inactiveText.trim() ? { text: inactiveText.trim() } : {}) },
       },
@@ -45,6 +48,7 @@ export function buildDashboardButtonChange({ instanceId, instanceConfig, definit
     buttonId: id,
     stateSource: mode === "toggle" ? {
       id, entity_id: entityId, active_values: ["on"], inactive_values: ["off"],
+      ...(warningValue.trim() ? { intermediate: [{ id: "warning", values: [warningValue.trim()] }] } : {}),
     } : null,
   };
 }
@@ -127,9 +131,23 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
     root.appendChild(label);
     statusFields[key] = input;
   }
+  const warningValueField = document.createElement("input");
+  warningValueField.setAttribute("aria-label", "Warnzustand HA-Wert");
+  const warningTextField = document.createElement("input");
+  warningTextField.setAttribute("aria-label", "Warnzustand Text");
+  const warningLabels = [];
+  for (const [input, caption] of [[warningValueField, "Warnzustand (HA-Wert)"], [warningTextField, "Warntext"]]) {
+    const label = document.createElement("label");
+    label.textContent = caption;
+    input.setAttribute("type", "text");
+    label.appendChild(input);
+    root.appendChild(label);
+    warningLabels.push(label);
+  }
   function updateStatusInputs() {
     const visible = mode.value === "toggle";
     for (const input of Object.values(statusFields)) input.parentNode.hidden = !visible;
+    for (const label of warningLabels) label.hidden = !visible;
   }
   mode.addEventListener("change", updateStatusInputs);
   const picker = document.createElement("select");
@@ -154,6 +172,8 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
     updateActionInputs();
     statusFields.active.value = "";
     statusFields.inactive.value = "";
+    warningValueField.value = "";
+    warningTextField.value = "";
     updateStatusInputs();
     error.textContent = "";
   });
@@ -175,6 +195,8 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
     updateActionInputs();
     statusFields.active.value = definition?.presentation?.active?.text ?? "";
     statusFields.inactive.value = definition?.presentation?.inactive?.text ?? "";
+    warningValueField.value = context?.sources?.find(source => source.id === id)?.intermediate?.find(item => item.id === "warning")?.values?.[0] ?? "";
+    warningTextField.value = definition?.presentation?.intermediate?.warning?.text ?? "";
     updateStatusInputs();
   }
   picker.addEventListener("change", () => selectButton(picker.value));
@@ -212,6 +234,8 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
         serviceName: serviceFields.service.value.trim(),
         activeText: statusFields.active.value,
         inactiveText: statusFields.inactive.value,
+        warningValue: warningValueField.value,
+        warningText: warningTextField.value,
       });
       saving = true;
       save.disabled = true;
@@ -228,8 +252,8 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
   function close() { context = null; root.hidden = true; error.textContent = ""; }
   return Object.freeze({
     root, close,
-    open({ instanceId, instanceConfig, definitions }) {
-      context = { instanceId, instanceConfig: structuredClone(instanceConfig), definitions: structuredClone(definitions) };
+    open({ instanceId, instanceConfig, definitions, sources = [] }) {
+      context = { instanceId, instanceConfig: structuredClone(instanceConfig), definitions: structuredClone(definitions), sources: structuredClone(sources) };
       picker.replaceChildren();
       const blank = document.createElement("option");
       blank.value = "";
