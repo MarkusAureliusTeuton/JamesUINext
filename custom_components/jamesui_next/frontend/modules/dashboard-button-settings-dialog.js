@@ -3,12 +3,19 @@ import { validateDynamicButtonDefinitions, validateDynamicButtonInstanceConfig }
 const ENTITY = /^[a-z0-9_]+\.[a-z0-9_]+$/;
 const ID = /^[a-z0-9_-]+$/;
 
-export function buildDashboardButtonChange({ instanceId, instanceConfig, definitions, id, name, mode, entityId, size = "normal" }) {
+export function buildDashboardButtonChange({ instanceId, instanceConfig, definitions, id, name, mode, entityId, size = "normal", actionType = "entity.toggle", serviceDomain = "", serviceName = "" }) {
   if (!ID.test(id ?? "")) throw new TypeError("Button-ID muss aus Kleinbuchstaben, Zahlen, _ oder - bestehen");
   if (typeof name !== "string" || !name.trim()) throw new TypeError("Buttonname fehlt");
   if (!ENTITY.test(entityId ?? "")) throw new TypeError("Ungültige Home-Assistant-Entität");
   if (!["trigger", "toggle"].includes(mode)) throw new TypeError("Unbekannter Button-Modus");
-  const action = { type: "entity.toggle", entity_id: entityId };
+  if (!["entity.toggle", "scene.activate", "ha.service"].includes(actionType)) throw new TypeError("Unbekannter Aktionstyp");
+  if (actionType === "scene.activate" && !entityId.startsWith("scene.")) throw new TypeError("Szene muss scene.* sein");
+  if (actionType === "ha.service" && (!/^[a-z0-9_]+$/.test(serviceDomain) || !/^[a-z0-9_]+$/.test(serviceName))) throw new TypeError("Ungültiger HA-Service");
+  const action = actionType === "entity.toggle"
+    ? { type: "entity.toggle", entity_id: entityId }
+    : actionType === "scene.activate"
+      ? { type: "scene.activate", entity_id: entityId }
+      : { type: "ha.service", domain: serviceDomain, service: serviceName, target: { entity_id: entityId } };
   const definition = mode === "trigger"
     ? { name: name.trim(), mode, action }
     : {
