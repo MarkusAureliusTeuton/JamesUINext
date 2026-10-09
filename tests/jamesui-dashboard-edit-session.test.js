@@ -129,3 +129,47 @@ test("Next edit session detects simultaneous modification of the same widget", a
   await assert.rejects(editor.save(), /configuration changed externally/);
   assert.equal(configService.snapshot().widget_instances.agenda.config.source, "external");
 });
+
+test("Block 13 dynamic button definition, source and widget assignment save atomically with undo", async () => {
+  const { configService, editor, getWrites } = setup();
+  await configService.load();
+  editor.enter();
+  const before = editor.addWidget("widget.dynamic-buttons", { config: { buttons: [] } });
+  const id = before.elements.at(-1).ref_id;
+  const change = {
+    buttonId: "hall",
+    instanceConfig: { buttons: [{ id: id + "-hall", button_id: "hall", size: "normal" }] },
+    definitions: { ...editor.workingConfig().dynamic_buttons,
+      hall: { name: "Flur", mode: "toggle", state_source_id: "hall",
+        activate_action: { type: "ha.service", domain: "homeassistant", service: "turn_on", target: { entity_id: "light.hall" } },
+        deactivate_action: { type: "ha.service", domain: "homeassistant", service: "turn_off", target: { entity_id: "light.hall" } } },
+    },
+    stateSource: { id: "hall", entity_id: "light.hall", active_values: ["on"], inactive_values: ["off"] },
+  };
+  editor.configureDynamicButtons(id, change);
+  assert.equal(getWrites(), 0);
+  assert.equal(editor.workingConfig().module_settings["provider.control-state"].sources[0].id, "hall");
+  editor.undo();
+  assert.equal(editor.workingConfig().dynamic_buttons.hall, undefined);
+  editor.configureDynamicButtons(id, change);
+  await editor.save();
+  assert.equal(getWrites(), 1);
+  const snapshot = configService.snapshot();
+  assert.equal(snapshot.dynamic_buttons.hall.name, "Flur");
+  assert.equal(snapshot.widget_instances[id].config.buttons[0].button_id, "hall");
+  assert.equal(snapshot.module_settings["provider.control-state"].sources[0].entity_id, "light.hall");
+});
+
+test("Block 13 button removal keeps shared definitions and state sources intact", async () => {
+  const { configService, editor } = setup();
+  await configService.load();
+  editor.enter();
+  const page = editor.addWidget("widget.dynamic-buttons", { config: {
+    buttons: [{ id: "button-one", button_id: "scene", size: "normal" }],
+  } });
+  const id = page.elements.at(-1).ref_id;
+  editor.configureDynamicButtons(id, { instanceConfig: { buttons: [] } });
+  await editor.save();
+  assert.deepEqual(configService.snapshot().widget_instances[id].config.buttons, []);
+  assert.ok(configService.snapshot().dynamic_buttons.scene);
+});
