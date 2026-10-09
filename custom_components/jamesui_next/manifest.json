@@ -1,12 +1,17 @@
 {
-  "domain": "jamesui",
-  "name": "JamesUI",
-  "version": "0.5.1",
-  "documentation": "https://github.com/MarkusAureliusTeuton/JamesUI",
-  "issue_tracker": "https://github.com/MarkusAureliusTeuton/JamesUI/issues",
-  "codeowners": ["@MarkusAureliusTeuton"],
+  "domain": "jamesui_next",
+  "name": "JamesUINext",
+  "version": "1.0.0b1",
+  "documentation": "https://github.com/MarkusAureliusTeuton/JamesUINext",
+  "issue_tracker": "https://github.com/MarkusAureliusTeuton/JamesUINext/issues",
+  "codeowners": [
+    "@MarkusAureliusTeuton"
+  ],
   "config_flow": true,
-  "dependencies": ["frontend", "http"],
+  "dependencies": [
+    "frontend",
+    "http"
+  ],
   "integration_type": "service",
   "iot_class": "local_push"
 }
