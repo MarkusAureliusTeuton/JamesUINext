@@ -89,3 +89,10 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Nach Übernahme aller 38 Assets ist die Zuordnung sämtlicher unterstützter HA-Wetterzustände für Tag, Golden Hour, Dämmerung und Nacht durch neue Tests abgesichert.
 - Der Wetter-Hero blendet das vorherige Bild beim Szenenwechsel aus, bis das neue geladen ist; dadurch bleiben keine veralteten Motive sichtbar.
 - Stand der letzten CI: erfolgreich. Noch offen: tatsächliche HA-Live-Daten, visuelle Tablet-Abnahme sowie umfassende Interaktionstests für die Vorhersage.
+
+## Wetterprovider und Prognose – Robustheit
+
+- Der Wetterprovider behandelt nun auch synchron ausgelöste WebSocket-Fehler bei Forecast-Abonnements kontrolliert als Abonnementfehler, statt beim Modulstart ungeprüft abzubrechen.
+- Fehlgeschlagene Forecast-Streams werden über den regulären 5-Minuten-Takt erneut abonniert; alte Abonnements werden beim Neuaufbau bereinigt.
+- Neue automatisierte Tests prüfen die Darstellung stündlicher und täglicher Prognoseeinträge sowie die Entfernung veralteter Zeilen bei Datenverlust.
+- Die zugehörige GitHub-CI ist grün. End-to-End mit echter HA-Verbindung und Tablet bleibt Pflicht vor Freigabe.
