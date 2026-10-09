@@ -94,6 +94,41 @@ export function createDashboardEditSession({ controller, configService, pageId, 
       };
       return page();
     },
+    configureHouseQuick(instanceId, change) {
+      ensureActive();
+      if (busy) throw new Error("Dashboard editor is saving");
+      const instance = working.widget_instances[instanceId];
+      if (instance?.module_id !== "widget.house-quick" ||
+          !working.pages[pageId].elements.some(item => item.kind === "widget" && item.ref_id === instanceId)) {
+        throw new TypeError("House widget does not belong to this dashboard");
+      }
+      history.push(working);
+      working = {
+        ...working,
+        module_settings: { ...working.module_settings, ...structuredClone(change.moduleSettings) },
+        widget_instances: { ...working.widget_instances,
+          [instanceId]: { ...instance, config: structuredClone(change.instanceConfig) } },
+      };
+      return page();
+    },
+    removeElement(elementId) {
+      ensureActive();
+      if (busy) throw new Error("Dashboard editor is saving");
+      const target = working.pages[pageId].elements.find(item => item.id === elementId);
+      if (!target) throw new TypeError("Unknown dashboard element: " + elementId);
+      history.push(working);
+      const elements = working.pages[pageId].elements.filter(item => item.id !== elementId);
+      const instances = { ...working.widget_instances };
+      if (target.kind === "widget") {
+        const usedElsewhere = Object.values(working.pages).some((other, id) =>
+          id !== pageId && other?.elements?.some(item => item.kind === "widget" && item.ref_id === target.ref_id));
+        const usedHere = elements.some(item => item.kind === "widget" && item.ref_id === target.ref_id);
+        if (!usedElsewhere && !usedHere && working.pages[pageId].hero_widget_id !== target.ref_id) delete instances[target.ref_id];
+      }
+      working = { ...working, widget_instances: instances,
+        pages: { ...working.pages, [pageId]: { ...working.pages[pageId], elements } } };
+      return page();
+    },
     configureDynamicButtons(instanceId, change) {
       ensureActive();
       if (busy) throw new Error("Dashboard editor is saving");
@@ -163,6 +198,15 @@ export function createDashboardEditSession({ controller, configService, pageId, 
           if (Object.keys(added).some((id) => id in latest.widget_instances)) {
             throw new Error("Widget instance ID changed externally");
           }
+          const houseKeys = ["provider.house-lighting", "provider.house-heating", "provider.house-energy", "provider.house-devices"];
+          const houseChanges = houseKeys.filter(key => JSON.stringify(working.module_settings[key]) !== JSON.stringify(baseline.module_settings[key]));
+          if (houseChanges.some(key => JSON.stringify(latest.module_settings[key]) !== JSON.stringify(baseline.module_settings[key]))) {
+            throw new Error("House provider settings changed externally");
+          }
+          const removedInstances = Object.keys(baseline.widget_instances).filter(id => !(id in working.widget_instances));
+          if (removedInstances.some(id => JSON.stringify(latest.widget_instances[id]) !== JSON.stringify(baseline.widget_instances[id]))) {
+            throw new Error("Removed widget changed externally");
+          }
           const buttonSectionsChanged =
             JSON.stringify(working.dynamic_buttons) !== JSON.stringify(baseline.dynamic_buttons) ||
             JSON.stringify(working.module_settings["provider.control-state"]) !==
@@ -175,10 +219,11 @@ export function createDashboardEditSession({ controller, configService, pageId, 
           return {
             ...latest,
             dynamic_buttons: buttonSectionsChanged ? structuredClone(working.dynamic_buttons) : latest.dynamic_buttons,
-            module_settings: buttonSectionsChanged
-              ? { ...latest.module_settings, "provider.control-state": structuredClone(working.module_settings["provider.control-state"]) }
-              : latest.module_settings,
-            widget_instances: { ...latest.widget_instances, ...added, ...modified },
+            module_settings: { ...latest.module_settings,
+              ...(buttonSectionsChanged ? { "provider.control-state": structuredClone(working.module_settings["provider.control-state"]) } : {}),
+              ...Object.fromEntries(houseChanges.map(key => [key, structuredClone(working.module_settings[key])])),
+            },
+            widget_instances: Object.fromEntries(Object.entries({ ...latest.widget_instances, ...added, ...modified }).filter(([id]) => !removedInstances.includes(id))),
             pages: { ...latest.pages,
               [pageId]: { ...latest.pages[pageId],
                 elements: structuredClone(working.pages[pageId].elements) } },
