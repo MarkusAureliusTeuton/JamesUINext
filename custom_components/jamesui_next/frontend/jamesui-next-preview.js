@@ -48,9 +48,10 @@ export function createJamesUINextPreview({ document = globalThis.document } = {}
     },
     destroy() {
       routes.destroy();
+      providerUpdater?.destroy();
+      providerUpdater = null;
       stopProviders?.();
       stopProviders = null;
-      providerUpdater = null;
       core.destroy();
       mounted = false;
     },
