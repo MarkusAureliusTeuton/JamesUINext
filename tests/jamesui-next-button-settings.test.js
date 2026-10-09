@@ -10,6 +10,7 @@ test("trigger button creates a validated HA action and widget assignment", () =>
   assert.equal(changed.definitions.light_hall.action.type,"entity.toggle");
   assert.equal(changed.definitions.light_hall.action.entity_id,"light.hall");
   assert.equal(changed.instanceConfig.buttons[0].button_id,"light_hall");
+  assert.equal(changed.buttonId,"light_hall");
   assert.equal(changed.stateSource,null);
 });
 
@@ -53,4 +54,24 @@ test("removing one button preserves other widget assignments", () => {
   assert.deepEqual(changed.buttons.map(button => button.button_id), ["b"]);
   assert.equal(instance.buttons.length, 2);
   assert.throws(() => removeDashboardButtonUse(instance, "missing"), /nicht im Widget/);
+});
+
+test("editing the first button preserves second button assignment", () => {
+  const initial = {
+    buttons: [
+      {id:"panel-first",button_id:"first",size:"normal"},
+      {id:"panel-second",button_id:"second",size:"wide"},
+    ],
+  };
+  const changes = buildDashboardButtonChange({
+    instanceId:"panel", instanceConfig:initial,
+    definitions:{
+      first:{name:"First",mode:"trigger",action:{type:"entity.toggle",entity_id:"light.first"}},
+      second:{name:"Second",mode:"trigger",action:{type:"entity.toggle",entity_id:"light.second"}},
+    },
+    id:"first",name:"Updated first",mode:"toggle",entityId:"switch.first",
+  });
+  assert.equal(changes.buttonId,"first");
+  assert.equal(changes.stateSource.id,"first");
+  assert.deepEqual(changes.instanceConfig.buttons.map(x=>x.button_id),["first","second"]);
 });
