@@ -175,6 +175,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     toolbar = createDashboardEditorToolbar({
       document, session: editor, onChange: preview,
       onCommitted: async () => { if (onConfigCommitted) await onConfigCommitted(getConfig()); },
+      onFinished: () => { settingsDialog?.close(); showHandles(); },
       onAdd: () => catalogView?.open(),
     });
     target.appendChild(toolbar.root);
