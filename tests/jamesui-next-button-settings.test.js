@@ -141,3 +141,26 @@ test("warning value configures intermediate control-state mapping and warning la
   assert.deepEqual(result.stateSource.intermediate,[{id:"warning",values:["fault"]}]);
   assert.equal(result.definitions.ventilation.presentation.intermediate.warning.text,"Störung");
 });
+
+test("HA service actions keep structured data intact", () => {
+  const updated = buildDashboardButtonChange({
+    instanceId:"test", instanceConfig:{buttons:[]}, definitions:{},
+    id:"volume", name:"Lautstärke", mode:"trigger", entityId:"media_player.receiver",
+    actionType:"ha.service", serviceDomain:"media_player", serviceName:"volume_set",
+    serviceData:'{"volume_level":0.35,"metadata":{"source":"dashboard"}}',
+  });
+  assert.deepEqual(updated.definitions.volume.action.data, {
+    volume_level:0.35, metadata:{source:"dashboard"},
+  });
+});
+
+test("HA service JSON rejects malformed values and non-object payloads", () => {
+  const options={
+    instanceId:"test",instanceConfig:{buttons:[]},definitions:{},
+    id:"volume",name:"Lautstärke",mode:"trigger",entityId:"media_player.receiver",
+    actionType:"ha.service",serviceDomain:"media_player",serviceName:"volume_set",
+  };
+  assert.throws(()=>buildDashboardButtonChange({...options,serviceData:"{broken"}),/JSON/);
+  assert.throws(()=>buildDashboardButtonChange({...options,serviceData:"[1,2]"}),/JSON-Objekt/);
+  assert.throws(()=>buildDashboardButtonChange({...options,serviceData:"null"}),/JSON-Objekt/);
+});
