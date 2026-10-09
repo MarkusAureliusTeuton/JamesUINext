@@ -109,3 +109,10 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - `widget.dynamic-buttons`-Instanzen erhalten beim Mounten nun korrekt aufgelöste Button-Definitionen aus `dynamic_buttons` (zuvor war diese Auflösung nur für direkte Grid-Button-Elemente vorhanden).
 - Neue Regressionstests prüfen das Laden mit einer zentralen HA-Aktionsdefinition und die Behandlung fehlender Definitionen; CI erfolgreich.
 - **Noch offen:** eine vollständige Oberfläche zum Erstellen/Bearbeiten zentraler Button-Definitionen und zur Zuordnung von Buttons zu Widgetinstanzen sowie echte HA-Aktions-/Status- und Tablet-Tests. Keine Tablet-Freigabe.
+
+## Dynamic Buttons – Dashboard-Konfiguration (laufender Stand)
+
+- Ein Dynamic-Buttons-Widget besitzt nun im Dashboard-Bearbeitungsmodus eine Einstellungsoberfläche für Button-ID, Anzeigename, HA-Entität und Modus (Aktion oder Ein/Aus-Status); mehrere Buttons je Instanz können hinzugefügt werden.
+- Trigger-Aktionen verwenden `entity.toggle`; Toggle-Buttons erzeugen `homeassistant.turn_on/turn_off` und `provider.control-state`-Statuszuordnung für `on/off`.
+- Buttondefinition, Control-State-Quelle und Widgetzuordnung werden **gemeinsam in der Dashboard-Editiersitzung** gespeichert: Undo und Abbrechen vor „Fertig“ sind dadurch möglich; parallele Änderungen an den betroffenen Bereichen werden erkannt.
+- Neue Validierungs- und Widget-Host-Tests erfolgreich; weiterhin offen: vollständige freie HA-Aktionsauswahl, vorhandene Buttons gezielt auswählen/entfernen, individuelle Zustandsdarstellung und Bedien-/HA-End-to-End-Test. Diese Teilimplementierung erfüllt noch nicht sämtliche Block-13-Kriterien.
