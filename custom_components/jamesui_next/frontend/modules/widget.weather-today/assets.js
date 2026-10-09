@@ -1,4 +1,4 @@
-const ROOT = "/jamesui_static/assets/alpine/";
+const ROOT = "/jamesui_next_static/assets/alpine/";
 
 export const ALPINE_SCENE_ASSETS = Object.freeze({
   "clear-day": `${ROOT}clear-day.webp`,
