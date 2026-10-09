@@ -52,3 +52,7 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Aufeinanderfolgende Änderungen sind serialisiert; fehlgeschlagene Starts werden bereinigt. Beim Entladen der Next-Oberfläche werden dynamisch gestartete Provider ebenfalls abgebaut.
 - Regressionstests für Live-Updates, Start, Stopp und fehlgeschlagene Mounts erfolgreich; GitHub Actions grün.
 - Offen: Bearbeitungsoberflächen für Haus-Provider, transparente Laufzeitfehler/Retry, umfassende Home-Assistant- und Tablet-Abnahme.
+
+## Verbindliche Freigabeentscheidung – Dashboard 1.0
+
+**Freigabe ausstehend, noch keine Tablet-Testversion.** Vor Weiterentwicklung anderer Funktionsseiten werden ausschließlich die Blöcke 1–13, die notwendige Block-14-Konfiguration und bereits vorgezogene Grundlagen zu einer abgeschlossenen Startseite konsolidiert. Pflichtumfang: kompletter HA-Core, Background-Anwendung, Wetter und lokale Szenengrafiken, Kalender/Aufgaben, Haus-Quickinfos, Dynamic Buttons, Grid, Editieroberfläche, Geräteeinstellungen und Modul-/Aktionsschnittstellen. Zusätzliche Licht-/Klima-/Tür-/Kamera-/Medien-Unterseiten sind explizit nicht Teil dieser Abnahme. Details und testbare Freigabekriterien: [docs/DASHBOARD_1_0_RELEASE_GATE.md](docs/DASHBOARD_1_0_RELEASE_GATE.md).
