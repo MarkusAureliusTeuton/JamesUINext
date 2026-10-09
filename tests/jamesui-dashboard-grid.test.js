@@ -68,3 +68,25 @@ test("Block 14 grid replaces a changed module reference and supports vertical la
   assert.equal(target.querySelector("[data-jui-dashboard-grid]").getAttribute("data-jui-scroll"), "vertical");
   grid.destroy();
 });
+
+test("Next grid remounts only modified widget configuration", () => {
+  const document = createFakeDocument();
+  const root = document.createElement("section");
+  const lifecycle = [];
+  const grid = createDashboardGrid({
+    document,
+    createItemHost(_node, element) {
+      lifecycle.push("mount:" + element.id);
+      return () => lifecycle.push("destroy:" + element.id);
+    },
+  });
+  grid.mount(root);
+  const a = { ...item("a", 0, 0), config_key: '{"source":"home"}' };
+  const b = { ...item("b", 6, 0), config_key: '{"source":"other"}' };
+  grid.render([a, b]);
+  const before = root.querySelector('[data-jui-dashboard-item="b"]');
+  grid.render([{...a,config_key:'{"source":"family"}'}, b]);
+  assert.deepEqual(lifecycle, ["mount:a","mount:b","destroy:a","mount:a"]);
+  assert.equal(root.querySelector('[data-jui-dashboard-item="b"]'), before);
+  grid.destroy();
+});
