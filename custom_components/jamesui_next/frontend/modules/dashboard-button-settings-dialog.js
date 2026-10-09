@@ -27,7 +27,7 @@ export function buildDashboardButtonChange({ instanceId, instanceConfig, definit
     ? { type: "entity.toggle", entity_id: entityId }
     : actionType === "scene.activate"
       ? { type: "scene.activate", entity_id: entityId }
-      : { type: "ha.service", domain: serviceDomain, service: serviceName, data: parsedServiceData, target: { entity_id: entityId } };
+      : { type: "ha.service", domain: serviceDomain, service: serviceName, ...(Object.keys(parsedServiceData).length ? { data: parsedServiceData } : {}), target: { entity_id: entityId } };
   const previous = definitions[id]?.mode === mode ? definitions[id] : null;
   const definition = mode === "trigger"
     ? { ...previous, name: name.trim(), mode, action }
