@@ -26,11 +26,30 @@ export function registerDashboardProviders(registry, baseUrl = import.meta.url) 
   }
 }
 
+export function resolveDashboardProviderSettings(config = {}) {
+  const settings = { ...(config.module_settings ?? {}) };
+  const calendars = new Set(settings["provider.calendar"]?.source_entity_ids ?? []);
+  const tasks = new Set(settings["provider.tasks"]?.source_entity_ids ?? []);
+  for (const instance of Object.values(config.widget_instances ?? {})) {
+    if (instance?.module_id !== "widget.calendar-agenda") continue;
+    const options = instance.config ?? {};
+    if (options.calendar_enabled !== false) {
+      for (const item of options.calendars ?? []) calendars.add(item.entity_id);
+    }
+    if (options.tasks_enabled !== false) {
+      for (const item of options.task_lists ?? []) tasks.add(item.entity_id);
+    }
+  }
+  settings["provider.calendar"] = { source_entity_ids: [...calendars] };
+  settings["provider.tasks"] = { source_entity_ids: [...tasks] };
+  return settings;
+}
+
 export async function startDashboardProviders(loader, config) {
   if (!loader || typeof loader.load !== "function" || typeof loader.mount !== "function") {
     throw new TypeError("Module loader is required");
   }
-  const settings = config?.module_settings ?? {};
+  const settings = resolveDashboardProviderSettings(config);
   const started = [];
   for (const [manifest] of PROVIDERS) {
     const id = manifest.id;
