@@ -131,3 +131,13 @@ test("editing status labels preserves existing presentation icons, timeout and s
   assert.equal(result.instanceConfig.buttons[0].size,"wide");
   assert.equal(definitions.lamp.presentation.active.text,"Alt");
 });
+
+test("warning value configures intermediate control-state mapping and warning label", () => {
+  const result = buildDashboardButtonChange({
+    instanceId:"panel",instanceConfig:{buttons:[]},definitions:{},
+    id:"ventilation",name:"Lüftung",mode:"toggle",entityId:"switch.ventilation",
+    warningValue:"fault",warningText:"Störung",
+  });
+  assert.deepEqual(result.stateSource.intermediate,[{id:"warning",values:["fault"]}]);
+  assert.equal(result.definitions.ventilation.presentation.intermediate.warning.text,"Störung");
+});
