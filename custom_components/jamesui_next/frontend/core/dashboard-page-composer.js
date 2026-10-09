@@ -34,6 +34,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
   let hero = null;
   let pageId = null;
   let generation = 0;
+  let previewEditor = null;
   let editor = null, toolbar = null, touch = null, unbindTouch = null, gridRoot = null, catalogView = null, settingsDialog = null, weatherSettings = null, buttonSettings = null, houseSettings = null;
 
   function destroy() {
@@ -53,7 +54,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     unbindTouch?.(); unbindTouch = null;
     touch?.destroy(); touch = null;
     if (toolbar?.root?.parentNode) toolbar.root.parentNode.removeChild(toolbar.root);
-    toolbar = null; editor = null; gridRoot = null;
+    toolbar = null; editor = null; gridRoot = null; previewEditor = null;
     if (catalogView?.root?.parentNode) catalogView.root.parentNode.removeChild(catalogView.root);
     catalogView = null;
     grid?.destroy();
@@ -177,7 +178,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
         button.addEventListener("click", (event) => {
           event.stopPropagation?.();
           const next = editor.removeElement(elementId);
-          preview(next);
+          previewEditor?.(next);
         });
         element.appendChild(button);
       }
@@ -216,6 +217,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
       showHandles();
       toolbar?.refresh();
     };
+    previewEditor = preview;
     toolbar = createDashboardEditorToolbar({
       document, session: editor, onChange: preview,
       onCommitted: async () => { if (onConfigCommitted) await onConfigCommitted(getConfig()); },
