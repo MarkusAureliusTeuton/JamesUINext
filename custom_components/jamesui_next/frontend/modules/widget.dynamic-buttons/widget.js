@@ -82,6 +82,7 @@ export function createDynamicButtonsWidget(initialContext, initialConfig) {
       button.setAttribute("data-jui-dynamic-mode", model.mode);
       button.setAttribute("data-jui-dynamic-size", model.size);
       button.setAttribute("data-jui-dynamic-real-status", model.real_status);
+      button.setAttribute("data-jui-dynamic-warning", sourceState?.status === "intermediate" && sourceState?.detail === "warning" ? "true" : "false");
       button.setAttribute("data-jui-dynamic-feedback", model.feedback);
       if (model.disabled) button.setAttribute("aria-disabled", "true");
       if (model.mode === "toggle") button.setAttribute("aria-pressed", model.active ? "true" : "false");
