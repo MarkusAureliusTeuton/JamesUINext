@@ -13,7 +13,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .api import async_register_websocket_commands
-from .config_schema import empty_config
+from .config_schema import initial_dashboard_config
 from .config_service import JamesUIConfigService
 from .config_store import JamesUIConfigStore
 from .const import (
@@ -44,14 +44,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     config_store = JamesUIConfigStore(hass)
     config_service = JamesUIConfigService(config_store)
-    initial = empty_config()
-    initial["layouts"]["main"] = {"kind": "hero-deck", "scroll": "fixed", "hero_ratio": 0.42}
-    initial["widget_instances"]["home_weather"] = {"module_id": "widget.weather-today", "config": {}}
-    initial["pages"]["home"] = {
-        "kind": "dashboard", "layout_id": "main",
-        "hero_widget_id": "home_weather", "elements": [],
-    }
-    await config_service.async_initialize(initial)
+    await config_service.async_initialize(initial_dashboard_config())
     domain_data[entry.entry_id]["config"] = config_service
 
     try:
