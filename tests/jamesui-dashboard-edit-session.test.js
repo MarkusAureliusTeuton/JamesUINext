@@ -21,8 +21,8 @@ function setup() {
   let writes = 0;
   const configService = createConfigService({ homeAssistant: {
     async callWS(request) {
-      if (request.type === "jamesui/config/get") return { config: structuredClone(remote) };
-      if (request.type === "jamesui/config/replace") {
+      if (request.type === "jamesui_next/config/get") return { config: structuredClone(remote) };
+      if (request.type === "jamesui_next/config/replace") {
         writes += 1;
         remote = structuredClone(request.config);
         return { config: structuredClone(remote) };
