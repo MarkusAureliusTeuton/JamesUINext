@@ -1,3 +1,4 @@
+import { registerDashboardProviders, startDashboardProviders } from "./modules/dashboard-providers.js";
 import { createJamesUICore } from "./core/index.js";
 import { createDashboardPageComposer } from "./core/dashboard-page-composer.js";
 import { MANIFEST as WEATHER } from "./modules/widget.weather-today/manifest.js";
@@ -23,6 +24,8 @@ export function createJamesUINextPreview({ document = globalThis.document } = {}
       entryUrl: new URL(relative, import.meta.url).href,
     });
   }
+  registerDashboardProviders(core.moduleRegistry);
+  let stopProviders = null;
   let mounted = false;
   return Object.freeze({
     async mount(target) {
@@ -32,6 +35,7 @@ export function createJamesUINextPreview({ document = globalThis.document } = {}
       if (!config?.pages?.home || config.pages.home.kind !== "dashboard") {
         throw new Error("No configured JamesUI 1.0 dashboard. Existing r11 data is not auto-migrated.");
       }
+      stopProviders = await startDashboardProviders(core.moduleLoader, config);
       core.mount(target);
       const page = target.querySelector('[data-role="page-region"]') ??
         target.querySelector("main");
@@ -43,6 +47,8 @@ export function createJamesUINextPreview({ document = globalThis.document } = {}
     },
     destroy() {
       composer.destroy();
+      stopProviders?.();
+      stopProviders = null;
       core.destroy();
       mounted = false;
     },
