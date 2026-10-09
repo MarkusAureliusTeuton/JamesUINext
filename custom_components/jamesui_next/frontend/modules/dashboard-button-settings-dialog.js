@@ -3,7 +3,7 @@ import { validateDynamicButtonDefinitions, validateDynamicButtonInstanceConfig }
 const ENTITY = /^[a-z0-9_]+\.[a-z0-9_]+$/;
 const ID = /^[a-z0-9_-]+$/;
 
-export function buildDashboardButtonChange({ instanceId, instanceConfig, definitions, id, name, mode, entityId, size = "normal", actionType = "entity.toggle", serviceDomain = "", serviceName = "" }) {
+export function buildDashboardButtonChange({ instanceId, instanceConfig, definitions, id, name, mode, entityId, size = "normal", actionType = "entity.toggle", serviceDomain = "", serviceName = "", activeText = "", inactiveText = "" }) {
   if (!ID.test(id ?? "")) throw new TypeError("Button-ID muss aus Kleinbuchstaben, Zahlen, _ oder - bestehen");
   if (typeof name !== "string" || !name.trim()) throw new TypeError("Buttonname fehlt");
   if (!ENTITY.test(entityId ?? "")) throw new TypeError("Ungültige Home-Assistant-Entität");
@@ -20,6 +20,10 @@ export function buildDashboardButtonChange({ instanceId, instanceConfig, definit
     ? { name: name.trim(), mode, action }
     : {
       name: name.trim(), mode, state_source_id: id,
+      presentation: {
+        active: activeText.trim() ? { text: activeText.trim() } : {},
+        inactive: inactiveText.trim() ? { text: inactiveText.trim() } : {},
+      },
       activate_action: { type: "ha.service", domain: "homeassistant", service: "turn_on", target: { entity_id: entityId } },
       deactivate_action: { type: "ha.service", domain: "homeassistant", service: "turn_off", target: { entity_id: entityId } },
     };
@@ -107,6 +111,22 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
   mode.addEventListener("change", updateActionInputs);
   actionType.addEventListener("change", updateActionInputs);
 
+  const statusFields = {};
+  for (const [key, labelText] of [["active", "Text bei eingeschaltet"], ["inactive", "Text bei ausgeschaltet"]]) {
+    const label = document.createElement("label");
+    label.textContent = labelText;
+    const input = document.createElement("input");
+    input.setAttribute("type", "text");
+    input.setAttribute("aria-label", labelText);
+    label.appendChild(input);
+    root.appendChild(label);
+    statusFields[key] = input;
+  }
+  function updateStatusInputs() {
+    const visible = mode.value === "toggle";
+    for (const input of Object.values(statusFields)) input.parentNode.hidden = !visible;
+  }
+  mode.addEventListener("change", updateStatusInputs);
   const picker = document.createElement("select");
   picker.setAttribute("aria-label", "Vorhandenen Button auswählen");
   root.appendChild(picker);
@@ -127,6 +147,9 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
     serviceFields.domain.value = "";
     serviceFields.service.value = "";
     updateActionInputs();
+    statusFields.active.value = "";
+    statusFields.inactive.value = "";
+    updateStatusInputs();
     error.textContent = "";
   });
   root.appendChild(createNew);
@@ -145,6 +168,9 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
     serviceFields.domain.value = definition?.action?.domain ?? "";
     serviceFields.service.value = definition?.action?.service ?? "";
     updateActionInputs();
+    statusFields.active.value = definition?.presentation?.active?.text ?? "";
+    statusFields.inactive.value = definition?.presentation?.inactive?.text ?? "";
+    updateStatusInputs();
   }
   picker.addEventListener("change", () => selectButton(picker.value));
   remove.addEventListener("click", async () => {
@@ -179,6 +205,8 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
         actionType: actionType.value,
         serviceDomain: serviceFields.domain.value.trim(),
         serviceName: serviceFields.service.value.trim(),
+        activeText: statusFields.active.value,
+        inactiveText: statusFields.inactive.value,
       });
       saving = true;
       save.disabled = true;
