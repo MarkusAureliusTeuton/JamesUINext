@@ -33,8 +33,8 @@ function setup() {
   const adapter = {
     async callWS(message) {
       calls.push(message);
-      if (message.type === "jamesui/config/get") return { config: structuredClone(remote) };
-      if (message.type === "jamesui/config/replace") {
+      if (message.type === "jamesui_next/config/get") return { config: structuredClone(remote) };
+      if (message.type === "jamesui_next/config/replace") {
         remote = structuredClone(message.config);
         return { config: structuredClone(remote) };
       }
