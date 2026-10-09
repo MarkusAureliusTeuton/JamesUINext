@@ -4,7 +4,7 @@ import { validateDynamicButtonDefinitions, validateDynamicButtonInstanceConfig }
 const ENTITY = /^[a-z0-9_]+\.[a-z0-9_]+$/;
 const ID = /^[a-z0-9_-]+$/;
 
-export function buildDashboardButtonChange({ instanceId, instanceConfig, definitions, id, name, mode, entityId, size = "normal", actionType = "entity.toggle", serviceDomain = "", serviceName = "", activeText = "", inactiveText = "", warningValue = "", warningText = "", sources = [] }) {
+export function buildDashboardButtonChange({ instanceId, instanceConfig, definitions, id, name, mode, entityId, size = "normal", actionType = "entity.toggle", serviceDomain = "", serviceName = "", serviceData = "", activeText = "", inactiveText = "", warningValue = "", warningText = "", sources = [] }) {
   if (!ID.test(id ?? "")) throw new TypeError("Button-ID muss aus Kleinbuchstaben, Zahlen, _ oder - bestehen");
   if (typeof name !== "string" || !name.trim()) throw new TypeError("Buttonname fehlt");
   if (!ENTITY.test(entityId ?? "")) throw new TypeError("Ungültige Home-Assistant-Entität");
@@ -12,11 +12,22 @@ export function buildDashboardButtonChange({ instanceId, instanceConfig, definit
   if (!["entity.toggle", "scene.activate", "ha.service"].includes(actionType)) throw new TypeError("Unbekannter Aktionstyp");
   if (actionType === "scene.activate" && !entityId.startsWith("scene.")) throw new TypeError("Szene muss scene.* sein");
   if (actionType === "ha.service" && (!/^[a-z0-9_]+$/.test(serviceDomain) || !/^[a-z0-9_]+$/.test(serviceName))) throw new TypeError("Ungültiger HA-Service");
+  let parsedServiceData = {};
+  if (mode === "trigger" && actionType === "ha.service" && serviceData.trim()) {
+    try { parsedServiceData = JSON.parse(serviceData); }
+    catch { throw new TypeError("Service-Daten müssen gültiges JSON sein"); }
+    if (!parsedServiceData || Array.isArray(parsedServiceData) || typeof parsedServiceData !== "object") {
+      throw new TypeError("Service-Daten müssen ein JSON-Objekt sein");
+    }
+    if (Object.keys(parsedServiceData).some(key => ["__proto__", "constructor", "prototype"].includes(key))) {
+      throw new TypeError("Service-Daten enthalten einen unzulässigen Schlüssel");
+    }
+  }
   const action = actionType === "entity.toggle"
     ? { type: "entity.toggle", entity_id: entityId }
     : actionType === "scene.activate"
       ? { type: "scene.activate", entity_id: entityId }
-      : { type: "ha.service", domain: serviceDomain, service: serviceName, target: { entity_id: entityId } };
+      : { type: "ha.service", domain: serviceDomain, service: serviceName, data: parsedServiceData, target: { entity_id: entityId } };
   const previous = definitions[id]?.mode === mode ? definitions[id] : null;
   const definition = mode === "trigger"
     ? { ...previous, name: name.trim(), mode, action }
@@ -120,11 +131,19 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
     root.appendChild(label);
     serviceFields[key] = input;
   }
+  const serviceDataLabel = document.createElement("label");
+  serviceDataLabel.textContent = "Service-Daten (JSON)";
+  const serviceDataInput = document.createElement("textarea");
+  serviceDataInput.setAttribute("aria-label", "Service-Daten (JSON)");
+  serviceDataInput.setAttribute("rows", "3");
+  serviceDataLabel.appendChild(serviceDataInput);
+  root.appendChild(serviceDataLabel);
   function updateActionInputs() {
     const trigger = mode.value === "trigger";
     actionType.hidden = !trigger;
     serviceFields.domain.parentNode.hidden = !trigger || actionType.value !== "ha.service";
     serviceFields.service.parentNode.hidden = !trigger || actionType.value !== "ha.service";
+    serviceDataLabel.hidden = !trigger || actionType.value !== "ha.service";
   }
   mode.addEventListener("change", updateActionInputs);
   actionType.addEventListener("change", updateActionInputs);
@@ -178,6 +197,7 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
     actionType.value = "entity.toggle";
     serviceFields.domain.value = "";
     serviceFields.service.value = "";
+    serviceDataInput.value = "";
     updateActionInputs();
     statusFields.active.value = "";
     statusFields.inactive.value = "";
@@ -201,6 +221,7 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
     actionType.value = definition?.action?.type ?? "entity.toggle";
     serviceFields.domain.value = definition?.action?.domain ?? "";
     serviceFields.service.value = definition?.action?.service ?? "";
+    serviceDataInput.value = definition?.action?.type === "ha.service" && definition.action.data ? JSON.stringify(definition.action.data, null, 2) : "";
     updateActionInputs();
     statusFields.active.value = definition?.presentation?.active?.text ?? "";
     statusFields.inactive.value = definition?.presentation?.inactive?.text ?? "";
@@ -241,6 +262,7 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
         actionType: actionType.value,
         serviceDomain: serviceFields.domain.value.trim(),
         serviceName: serviceFields.service.value.trim(),
+        serviceData: serviceDataInput.value,
         activeText: statusFields.active.value,
         inactiveText: statusFields.inactive.value,
         warningValue: warningValueField.value,
