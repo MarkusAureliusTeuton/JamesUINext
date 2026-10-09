@@ -123,3 +123,9 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Ein Button kann einzeln aus der aktuellen Widgetinstanz entfernt werden. Gemeinsame Definitionen anderer Instanzen bleiben erhalten; Undo und das Speichern über „Fertig“ nutzen die Dashboard-Editiersitzung.
 - Korrektur: Bei mehreren Buttons wird die Statusquelle anhand der tatsächlich bearbeiteten Button-ID statt anhand des letzten Listenelements geändert. Regressionstests für Entfernen, Bearbeiten und unabhängige Nachbarbuttons ergänzt.
 - Offen bleiben universelle Aktionsauswahl, individuelle Status-/Darstellungsparameter, Entfernung unbenutzter globaler Definitionen und vollständige HA-/Tablet-Abnahme.
+
+## Block 13 – Native Home-Assistant-Aktionsauswahl
+
+- Trigger-Buttons können in der Dashboard-Oberfläche `entity.toggle`, `scene.activate` und `ha.service` auswählen. Für HA-Services werden Domain, Servicename und Ziel-Entität erfasst; Szenen müssen `scene.*` verwenden.
+- Die Aktionstypen nutzen die bereits registrierten zentralen HA-Aktionsprovider. Eingaben werden vor der Übernahme validiert; Tests für gültige und ungültige Szenen-/Serviceaktionen ergänzen die vorhandenen Dynamic-Buttons-Tests. CI grün.
+- **Nicht vollständig**: Freie Aktionen jenseits dieser drei nativen Typen, komplexe Service-Daten, Zustands-/Farbkonfiguration, gezieltes Löschen unbenutzter zentraler Definitionen und HA-/Tablet-End-to-End-Abnahme sind noch offen.
