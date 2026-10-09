@@ -14,6 +14,8 @@ jobs:
         run: python -m compileall -q custom_components/jamesui_next
       - name: Test standalone Next first-run configuration
         run: python -m unittest discover -s tests -p 'test_next_bootstrap.py'
+      - name: Verify standalone Alpine scene image integrity
+        run: python scripts/verify_alpine_assets.py
       - name: Validate JSON manifests
         run: |
           python - <<'PY'
