@@ -78,6 +78,35 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
     mode.appendChild(option);
   }
   root.appendChild(mode);
+  const actionType = document.createElement("select");
+  actionType.setAttribute("aria-label", "HA-Aktionstyp");
+  for (const [value, label] of [["entity.toggle", "Entität umschalten"], ["scene.activate", "Szene aktivieren"], ["ha.service", "HA-Service ausführen"]]) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = label;
+    actionType.appendChild(option);
+  }
+  root.appendChild(actionType);
+  const serviceFields = {};
+  for (const [key, caption] of [["domain", "Service-Domain"], ["service", "Service-Name"]]) {
+    const label = document.createElement("label");
+    label.textContent = caption;
+    const input = document.createElement("input");
+    input.setAttribute("type", "text");
+    input.setAttribute("aria-label", caption);
+    label.appendChild(input);
+    root.appendChild(label);
+    serviceFields[key] = input;
+  }
+  function updateActionInputs() {
+    const trigger = mode.value === "trigger";
+    actionType.hidden = !trigger;
+    serviceFields.domain.parentNode.hidden = !trigger || actionType.value !== "ha.service";
+    serviceFields.service.parentNode.hidden = !trigger || actionType.value !== "ha.service";
+  }
+  mode.addEventListener("change", updateActionInputs);
+  actionType.addEventListener("change", updateActionInputs);
+
   const picker = document.createElement("select");
   picker.setAttribute("aria-label", "Vorhandenen Button auswählen");
   root.appendChild(picker);
@@ -94,6 +123,10 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
     fields.name.value = "";
     fields.entityId.value = "";
     mode.value = "trigger";
+    actionType.value = "entity.toggle";
+    serviceFields.domain.value = "";
+    serviceFields.service.value = "";
+    updateActionInputs();
     error.textContent = "";
   });
   root.appendChild(createNew);
@@ -108,6 +141,10 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
     fields.entityId.value = definition?.mode === "trigger"
       ? definition.action?.entity_id ?? "" : definition?.activate_action?.target?.entity_id ?? "";
     mode.value = definition?.mode ?? "trigger";
+    actionType.value = definition?.action?.type ?? "entity.toggle";
+    serviceFields.domain.value = definition?.action?.domain ?? "";
+    serviceFields.service.value = definition?.action?.service ?? "";
+    updateActionInputs();
   }
   picker.addEventListener("change", () => selectButton(picker.value));
   remove.addEventListener("click", async () => {
@@ -139,6 +176,9 @@ export function createDashboardButtonSettingsDialog({ document, onSave } = {}) {
       const change = buildDashboardButtonChange({
         ...context, id: fields.id.value.trim(), name: fields.name.value,
         entityId: fields.entityId.value.trim(), mode: mode.value,
+        actionType: actionType.value,
+        serviceDomain: serviceFields.domain.value.trim(),
+        serviceName: serviceFields.service.value.trim(),
       });
       saving = true;
       save.disabled = true;
