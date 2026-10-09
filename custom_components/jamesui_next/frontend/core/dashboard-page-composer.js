@@ -1,3 +1,4 @@
+import { createWeatherSettingsDialog } from "../modules/dashboard-weather-settings-dialog.js";
 import { createWidgetSettingsDialog } from "../modules/dashboard-widget-settings-dialog.js";
 import { buildAgendaInstanceConfig } from "../modules/dashboard-widget-configuration.js";
 import { createDashboardCatalog, createDashboardCatalogView } from "../modules/dashboard-catalog.js";
@@ -28,10 +29,13 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
   let hero = null;
   let pageId = null;
   let generation = 0;
-  let editor = null, toolbar = null, touch = null, unbindTouch = null, gridRoot = null, catalogView = null, settingsDialog = null;
+  let editor = null, toolbar = null, touch = null, unbindTouch = null, gridRoot = null, catalogView = null, settingsDialog = null, weatherSettings = null;
 
   function destroy() {
     generation += 1;
+    weatherSettings?.close();
+    if (weatherSettings?.root?.parentNode) weatherSettings.root.parentNode.removeChild(weatherSettings.root);
+    weatherSettings = null;
     settingsDialog?.close();
     if (settingsDialog?.root?.parentNode) settingsDialog.root.parentNode.removeChild(settingsDialog.root);
     settingsDialog = null;
@@ -179,6 +183,24 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
       onAdd: () => catalogView?.open(),
     });
     target.appendChild(toolbar.root);
+    weatherSettings = createWeatherSettingsDialog({
+      document,
+      onSave: async (next) => {
+        const saved = await configService.update((latest) => ({
+          ...latest,
+          module_settings: { ...latest.module_settings, "provider.weather": next },
+        }));
+        if (saved && onConfigCommitted) await onConfigCommitted(saved);
+      },
+    });
+    const weatherButton = document.createElement("button");
+    weatherButton.setAttribute("type", "button");
+    weatherButton.setAttribute("data-jui-weather-settings-trigger", "");
+    weatherButton.textContent = "Wetter-Datenquelle";
+    weatherButton.addEventListener("click", () =>
+      weatherSettings.open(getConfig().module_settings["provider.weather"] ?? {}));
+    toolbar.root.appendChild(weatherButton);
+    target.appendChild(weatherSettings.root);
     settingsDialog = createWidgetSettingsDialog({ document, onSave: (id, config) => {
       const next = editor.configureWidget(id, config);
       preview(next);
