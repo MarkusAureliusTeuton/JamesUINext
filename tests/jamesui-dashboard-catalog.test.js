@@ -24,7 +24,8 @@ test("Block 14 catalog selection emits module identity and closes", () => {
   assert.equal(view.root.hidden, true);
   view.open();
   assert.equal(view.root.hidden, false);
-  view.root.children[1].dispatchEvent("click");
+  const add = view.root.children.find((child) => child.getAttribute("data-jui-catalog-module") === "widget.calendar-agenda");
+  add.dispatchEvent("click");
   assert.deepEqual(selected, ["widget.calendar-agenda"]);
   assert.equal(view.root.hidden, true);
 });
