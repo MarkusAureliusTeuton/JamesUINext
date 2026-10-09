@@ -162,3 +162,7 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Geprüft: `homeassistant.turn_on/turn_off` mit korrekter Ziel-Entität, Pending bis zu einem neueren bestätigenden Status, Fehlerfeedback bei zurückgewiesenem HA-Service, Unterdrückung von Doppelklicks während Pending und Fehler bei unerwartetem Terminalzustand.
 - Shared Fake DOM um browserübliches `Element.remove()` erweitert; alle Tests und GitHub-CI nach dieser Korrektur erfolgreich (Run 37989288520).
 - Die Tests ersetzen **keine** echten HA-/Tablet-Praxistests. Aktuelle Freigabe weiterhin offen.
+
+## Verbindliche Soll-/Ist-Bestandsaufnahme nach Block 13
+
+Die quellcodebasierte Matrix befindet sich unter [docs/DASHBOARD_1_0_ACTUAL_STATUS_AUDIT.md](docs/DASHBOARD_1_0_ACTUAL_STATUS_AUDIT.md). Bereits implementierte Module werden nicht pauschal wieder geöffnet. **Konkrete P0-Lücken:** Aktionsmodul `task.update` im Next-Bootstrap nicht registriert/gestartet; keine UI-Konfiguration der Haus-Quickinfos und ihrer Provider; kein nachgewiesenes Löschen kompletter Dashboard-Elemente im Editor; Navigation nicht implementierter Unterseiten muss korrekt gekennzeichnet/deaktiviert werden. Wetter-WebP vollständig vorhanden (alter Blocker überholt). P1 sind automatisierte Gesamtintegration, reale HA-/HACS-Installation und OnePlus-Pad-2-Abnahme. Letzte geprüfte funktionale CI grün, keine Freigabe behauptet.
