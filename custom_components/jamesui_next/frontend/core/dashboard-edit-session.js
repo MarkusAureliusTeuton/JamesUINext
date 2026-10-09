@@ -102,6 +102,15 @@ export function createDashboardEditSession({ controller, configService, pageId, 
       if (!working.pages[pageId].elements.some((item) => item.kind === "widget" && item.ref_id === instanceId)) {
         throw new TypeError("Widget does not belong to this dashboard");
       }
+      if (!change.definitions) {
+        history.push(working);
+        working = {
+          ...working,
+          widget_instances: { ...working.widget_instances,
+            [instanceId]: { ...instance, config: structuredClone(change.instanceConfig) } },
+        };
+        return page();
+      }
       const sourceId = change.instanceConfig.buttons.at(-1)?.button_id;
       const sources = (working.module_settings["provider.control-state"]?.sources ?? [])
         .filter((source) => source.id !== sourceId);
