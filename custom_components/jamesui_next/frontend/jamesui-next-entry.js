@@ -18,7 +18,7 @@
       const host = document.createElement("div");
       host.style.minHeight = "100dvh";
       this.shadowRoot.replaceChildren(host);
-      import("./jamesui-next-preview.js").then(async ({ createJamesUINextPreview }) => {
+      import("/jamesui_next_static/jamesui-next-preview.js").then(async ({ createJamesUINextPreview }) => {
         if (generation !== this.generation) return;
         const instance = createJamesUINextPreview({ document });
         this.instance = instance;
