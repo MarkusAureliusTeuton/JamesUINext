@@ -16,22 +16,27 @@ export function buildDashboardButtonChange({ instanceId, instanceConfig, definit
     : actionType === "scene.activate"
       ? { type: "scene.activate", entity_id: entityId }
       : { type: "ha.service", domain: serviceDomain, service: serviceName, target: { entity_id: entityId } };
+  const previous = definitions[id]?.mode === mode ? definitions[id] : null;
   const definition = mode === "trigger"
-    ? { name: name.trim(), mode, action }
+    ? { ...previous, name: name.trim(), mode, action }
     : {
-      name: name.trim(), mode, state_source_id: id,
+      ...previous, name: name.trim(), mode, state_source_id: id,
       presentation: {
-        active: activeText.trim() ? { text: activeText.trim() } : {},
-        inactive: inactiveText.trim() ? { text: inactiveText.trim() } : {},
+        ...previous?.presentation,
+        active: { ...previous?.presentation?.active, ...(activeText.trim() ? { text: activeText.trim() } : {}) },
+        inactive: { ...previous?.presentation?.inactive, ...(inactiveText.trim() ? { text: inactiveText.trim() } : {}) },
       },
       activate_action: { type: "ha.service", domain: "homeassistant", service: "turn_on", target: { entity_id: entityId } },
       deactivate_action: { type: "ha.service", domain: "homeassistant", service: "turn_off", target: { entity_id: entityId } },
     };
+  for (const [field, text] of [["active", activeText], ["inactive", inactiveText]]) {
+    if (mode === "toggle" && !text.trim()) delete definition.presentation[field].text;
+  }
   const nextDefinitions = { ...definitions, [id]: definition };
   validateDynamicButtonDefinitions(nextDefinitions);
   const existing = instanceConfig?.buttons ?? [];
   const nextInstance = { buttons: existing.some(item => item.button_id === id)
-    ? existing.map(item => item.button_id === id ? { ...item, size } : item)
+    ? existing.map(item => item.button_id === id ? { ...item } : item)
     : [...existing, { id: `${instanceId}-${id}`, button_id: id, size }] };
   validateDynamicButtonInstanceConfig(nextInstance);
   return {
