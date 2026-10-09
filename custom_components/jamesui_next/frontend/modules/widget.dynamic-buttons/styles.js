@@ -40,6 +40,7 @@ export const DYNAMIC_BUTTON_STYLES = `
 [data-jui-dynamic-real-status="inactive"] { border-color: var(--jui-color-border); }
 [data-jui-dynamic-real-status="active"] { border-color: var(--jui-color-accent-strong); background: var(--jui-color-accent-soft); }
 [data-jui-dynamic-real-status="intermediate"] { border-color: var(--jui-color-border-strong); }
+[data-jui-dynamic-real-status="intermediate"][data-jui-dynamic-warning="true"] { border-color: var(--jui-color-status-warning); background: var(--jui-color-surface-soft); }
 [data-jui-dynamic-real-status="unavailable"] { border-color: var(--jui-color-status-unavailable); opacity: .62; }
 
 [data-jui-dynamic-feedback="pending"] { border-color: var(--jui-color-border-strong); }
