@@ -94,6 +94,28 @@ export function createDashboardEditSession({ controller, configService, pageId, 
       };
       return page();
     },
+    configureDynamicButtons(instanceId, change) {
+      ensureActive();
+      if (busy) throw new Error("Dashboard editor is saving");
+      const instance = working.widget_instances[instanceId];
+      if (instance?.module_id !== "widget.dynamic-buttons") throw new TypeError("Not a Dynamic Buttons widget");
+      if (!working.pages[pageId].elements.some((item) => item.kind === "widget" && item.ref_id === instanceId)) {
+        throw new TypeError("Widget does not belong to this dashboard");
+      }
+      const sourceId = change.instanceConfig.buttons.at(-1)?.button_id;
+      const sources = (working.module_settings["provider.control-state"]?.sources ?? [])
+        .filter((source) => source.id !== sourceId);
+      if (change.stateSource) sources.push(change.stateSource);
+      history.push(working);
+      working = {
+        ...working,
+        dynamic_buttons: structuredClone(change.definitions),
+        module_settings: { ...working.module_settings, "provider.control-state": { sources } },
+        widget_instances: { ...working.widget_instances,
+          [instanceId]: { ...instance, config: structuredClone(change.instanceConfig) } },
+      };
+      return page();
+    },
     undo() {
       ensureActive();
       if (busy) throw new Error("Dashboard editor is saving");
@@ -132,8 +154,21 @@ export function createDashboardEditSession({ controller, configService, pageId, 
           if (Object.keys(added).some((id) => id in latest.widget_instances)) {
             throw new Error("Widget instance ID changed externally");
           }
+          const buttonSectionsChanged =
+            JSON.stringify(working.dynamic_buttons) !== JSON.stringify(baseline.dynamic_buttons) ||
+            JSON.stringify(working.module_settings["provider.control-state"]) !==
+              JSON.stringify(baseline.module_settings["provider.control-state"]);
+          if (buttonSectionsChanged && (
+            JSON.stringify(latest.dynamic_buttons) !== JSON.stringify(baseline.dynamic_buttons) ||
+            JSON.stringify(latest.module_settings["provider.control-state"]) !==
+              JSON.stringify(baseline.module_settings["provider.control-state"])
+          )) throw new Error("Button settings changed externally");
           return {
             ...latest,
+            dynamic_buttons: buttonSectionsChanged ? structuredClone(working.dynamic_buttons) : latest.dynamic_buttons,
+            module_settings: buttonSectionsChanged
+              ? { ...latest.module_settings, "provider.control-state": structuredClone(working.module_settings["provider.control-state"]) }
+              : latest.module_settings,
             widget_instances: { ...latest.widget_instances, ...added, ...modified },
             pages: { ...latest.pages,
               [pageId]: { ...latest.pages[pageId],
