@@ -48,10 +48,10 @@ export function buildDashboardButtonChange({ instanceId, instanceConfig, definit
     ...previousSource, id, entity_id: entityId,
     active_values: previousSource?.active_values ?? ["on"],
     inactive_values: previousSource?.inactive_values ?? ["off"],
-    intermediate: [
+    ...((previousSource?.intermediate?.length || warningValue.trim()) ? { intermediate: [
       ...(previousSource?.intermediate ?? []).filter(entry => entry.id !== "warning"),
       ...(warningValue.trim() ? [{ id: "warning", values: [warningValue.trim()] }] : []),
-    ],
+    ] } : {}),
   } : null;
   if (stateSource) validateControlStateConfig({ sources: [stateSource] });
   return {
