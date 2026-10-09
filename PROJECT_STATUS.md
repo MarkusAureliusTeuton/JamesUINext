@@ -96,3 +96,10 @@ Next: install JamesUINext independently through HACS, test the panel, then fix c
 - Fehlgeschlagene Forecast-Streams werden über den regulären 5-Minuten-Takt erneut abonniert; alte Abonnements werden beim Neuaufbau bereinigt.
 - Neue automatisierte Tests prüfen die Darstellung stündlicher und täglicher Prognoseeinträge sowie die Entfernung veralteter Zeilen bei Datenverlust.
 - Die zugehörige GitHub-CI ist grün. End-to-End mit echter HA-Verbindung und Tablet bleibt Pflicht vor Freigabe.
+
+## Tablet-Readiness – HA-Panel-Startpfad abgesichert
+
+- Das Next-Panel wartet beim ersten Anhängen auf die von Home Assistant übergebene `hass`-Instanz, statt einen verfrühten Config-WebSocket-Aufruf auszulösen.
+- Async-Imports und verspätete Mounts werden bei Entfernung des Panels verworfen. Der Preview-Bootstrap bricht bei Modul-/Configfehlern sauber ab und räumt Provider, Shell und HA-Subscriptions auf.
+- Regressionstests für verspätete HA-Kontextübergabe und vorzeitiges Schließen des Panels sind grün; CI erfolgreich.
+- **Weiterhin keine Tablet-Freigabe:** Funktionsumfang des Dashboard-Editors, dynamische Buttons (Konfiguration und echte HA-Aktionen), HA-End-to-End-Tests und Tablet-Fully-Kiosk-Abnahme sind noch nicht vollständig nachgewiesen.
