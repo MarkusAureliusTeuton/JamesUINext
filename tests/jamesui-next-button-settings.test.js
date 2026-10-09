@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildDashboardButtonChange } from "../custom_components/jamesui_next/frontend/modules/dashboard-button-settings-dialog.js";
+import { buildDashboardButtonChange, removeDashboardButtonUse } from "../custom_components/jamesui_next/frontend/modules/dashboard-button-settings-dialog.js";
 
 test("trigger button creates a validated HA action and widget assignment", () => {
   const changed=buildDashboardButtonChange({
@@ -42,4 +42,15 @@ test("reject invalid entity identifiers and unrecognized mode", () => {
   const base={instanceId:"one",instanceConfig:{buttons:[]},definitions:{},id:"good",name:"Gültig",mode:"trigger"};
   assert.throws(()=>buildDashboardButtonChange({...base,entityId:"not valid"}),/Entität/);
   assert.throws(()=>buildDashboardButtonChange({...base,entityId:"light.hall",mode:"invalid"}),/Modus/);
+});
+
+test("removing one button preserves other widget assignments", () => {
+  const instance = { buttons: [
+    { id: "one-a", button_id: "a", size: "normal" },
+    { id: "one-b", button_id: "b", size: "wide" },
+  ] };
+  const changed = removeDashboardButtonUse(instance, "a");
+  assert.deepEqual(changed.buttons.map(button => button.button_id), ["b"]);
+  assert.equal(instance.buttons.length, 2);
+  assert.throws(() => removeDashboardButtonUse(instance, "missing"), /nicht im Widget/);
 });
