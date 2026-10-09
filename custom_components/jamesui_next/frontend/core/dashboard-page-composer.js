@@ -1,3 +1,4 @@
+import { createHouseSettingsDialog } from "../modules/dashboard-house-settings-dialog.js";
 import { createDashboardButtonSettingsDialog } from "../modules/dashboard-button-settings-dialog.js";
 import { createWeatherSettingsDialog } from "../modules/dashboard-weather-settings-dialog.js";
 import { createWidgetSettingsDialog } from "../modules/dashboard-widget-settings-dialog.js";
@@ -33,10 +34,13 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
   let hero = null;
   let pageId = null;
   let generation = 0;
-  let editor = null, toolbar = null, touch = null, unbindTouch = null, gridRoot = null, catalogView = null, settingsDialog = null, weatherSettings = null, buttonSettings = null;
+  let editor = null, toolbar = null, touch = null, unbindTouch = null, gridRoot = null, catalogView = null, settingsDialog = null, weatherSettings = null, buttonSettings = null, houseSettings = null;
 
   function destroy() {
     generation += 1;
+    houseSettings?.close();
+    if (houseSettings?.root?.parentNode) houseSettings.root.parentNode.removeChild(houseSettings.root);
+    houseSettings = null;
     buttonSettings?.close();
     if (buttonSettings?.root?.parentNode) buttonSettings.root.parentNode.removeChild(buttonSettings.root);
     buttonSettings = null;
@@ -141,9 +145,11 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     for (const element of gridRoot.querySelectorAll("[data-jui-dashboard-item]")) {
       const existing = element.querySelector("[data-jui-editor-resize]");
       const settings = element.querySelector("[data-jui-editor-settings]");
+      const remove = element.querySelector("[data-jui-editor-remove]");
       if (!editor?.active) {
         if (existing?.parentNode) existing.parentNode.removeChild(existing);
         if (settings?.parentNode) settings.parentNode.removeChild(settings);
+        if (remove?.parentNode) remove.parentNode.removeChild(remove);
       } else if (!existing) {
         const handle = document.createElement("button");
         handle.setAttribute("type", "button");
@@ -157,11 +163,29 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
         element.style.position = "relative";
         element.appendChild(handle);
       }
+      if (editor?.active && !remove) {
+        const elementId = element.getAttribute("data-jui-dashboard-item");
+        const button = document.createElement("button");
+        button.setAttribute("type", "button");
+        button.setAttribute("data-jui-editor-remove", "");
+        button.setAttribute("aria-label", "Element entfernen");
+        button.textContent = "×";
+        button.style.position = "absolute";
+        button.style.top = "0";
+        button.style.right = "0";
+        button.style.zIndex = "4";
+        button.addEventListener("click", (event) => {
+          event.stopPropagation?.();
+          const next = editor.removeElement(elementId);
+          preview(next);
+        });
+        element.appendChild(button);
+      }
       if (editor?.active && !settings) {
         const elementId = element.getAttribute("data-jui-dashboard-item");
         const item = editor.snapshot().elements.find((entry) => entry.id === elementId);
         const definition = item?.kind === "widget" ? editor.workingConfig().widget_instances[item.ref_id] : null;
-        if (definition?.module_id === "widget.calendar-agenda" || definition?.module_id === "widget.dynamic-buttons") {
+        if (["widget.calendar-agenda", "widget.dynamic-buttons", "widget.house-quick"].includes(definition?.module_id)) {
           const button = document.createElement("button");
           button.setAttribute("type", "button");
           button.setAttribute("data-jui-editor-settings", "");
@@ -171,6 +195,9 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
             if (definition.module_id === "widget.dynamic-buttons") {
               const config = editor.workingConfig();
               buttonSettings?.open({ instanceId: item.ref_id, instanceConfig: definition.config ?? { buttons: [] }, definitions: config.dynamic_buttons, sources: config.module_settings["provider.control-state"]?.sources ?? [] });
+            } else if (definition.module_id === "widget.house-quick") {
+              const config = editor.workingConfig();
+              houseSettings?.open(item.ref_id, definition.config ?? { buttons: [] }, config.module_settings);
             } else settingsDialog?.open(item.ref_id, definition.config ?? {});
           });
           element.appendChild(button);
@@ -192,7 +219,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     toolbar = createDashboardEditorToolbar({
       document, session: editor, onChange: preview,
       onCommitted: async () => { if (onConfigCommitted) await onConfigCommitted(getConfig()); },
-      onFinished: () => { settingsDialog?.close(); buttonSettings?.close(); showHandles(); },
+      onFinished: () => { settingsDialog?.close(); buttonSettings?.close(); houseSettings?.close(); showHandles(); },
       onAdd: () => catalogView?.open(),
     });
     target.appendChild(toolbar.root);
@@ -227,6 +254,11 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
       },
     });
     target.appendChild(buttonSettings.root);
+    houseSettings = createHouseSettingsDialog({ document, onSave: (id, change) => {
+      const next = editor.configureHouseQuick(id, change);
+      preview(next);
+    } });
+    target.appendChild(houseSettings.root);
     if (moduleRegistry) {
       catalogView = createDashboardCatalogView({ document, catalog: createDashboardCatalog({ moduleRegistry }), onSelect: (moduleId, sources) => {
         const config = moduleId === "widget.calendar-agenda"
