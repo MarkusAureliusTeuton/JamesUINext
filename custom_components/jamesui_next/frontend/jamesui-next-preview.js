@@ -37,6 +37,7 @@ export function createJamesUINextPreview({ document = globalThis.document } = {}
         target.querySelector("main");
       if (!page) throw new Error("Preview shell has no page host");
       await composer.mount(page, "home");
+      if (config.pages.home.elements.length === 0) composer.enterEdit();
       mounted = true;
       return true;
     },
