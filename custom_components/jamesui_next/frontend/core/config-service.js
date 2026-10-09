@@ -86,7 +86,7 @@ export function createConfigService({ homeAssistant } = {}) {
     async load() {
       requireActive();
       const requestGeneration = ++operationGeneration;
-      const response = await homeAssistant.callWS({ type: "jamesui/config/get" });
+      const response = await homeAssistant.callWS({ type: "jamesui_next/config/get" });
       requireActive();
       if (requestGeneration !== operationGeneration) return current === null ? null : cloneValue(current);
       return commitResponse(response);
@@ -101,7 +101,7 @@ export function createConfigService({ homeAssistant } = {}) {
       const requestConfig = validateAndCloneConfig(config);
       const requestGeneration = ++operationGeneration;
       const response = await homeAssistant.callWS({
-        type: "jamesui/config/replace",
+        type: "jamesui_next/config/replace",
         config: requestConfig,
       });
       requireActive();
