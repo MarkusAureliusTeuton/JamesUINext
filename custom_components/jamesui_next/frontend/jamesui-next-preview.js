@@ -8,7 +8,7 @@ import { MANIFEST as HOUSE } from "./modules/widget.house-quick/manifest.js";
 import { MANIFEST as TASK_UPDATE } from "./modules/action.task-update/manifest.js";
 import { MANIFEST as BUTTONS } from "./modules/widget.dynamic-buttons/manifest.js";
 
-// Explicit opt-in preview. Neither the r11 panel nor its bootstrap imports this.
+// JamesUI Next application composition for the independent HA integration.
 export function createJamesUINextPreview({ document = globalThis.document } = {}) {
   const core = createJamesUICore({ document });
   let providerUpdater = null;
@@ -48,7 +48,7 @@ export function createJamesUINextPreview({ document = globalThis.document } = {}
         assertCurrent(token);
         const config = core.config.snapshot();
         if (!config?.pages?.home || config.pages.home.kind !== "dashboard") {
-          throw new Error("No configured JamesUI Next dashboard. Existing r11 data is not auto-migrated.");
+          throw new Error("Keine gültige Startseiten-Konfiguration vorhanden. Bitte Integration prüfen.");
         }
         if (!await core.moduleLoader.load(TASK_UPDATE.id, { config: {} }) || !core.moduleLoader.mount(TASK_UPDATE.id, null)) {
           throw new Error("Task action failed to start");
