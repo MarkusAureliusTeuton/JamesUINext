@@ -5,18 +5,18 @@ Eigenständige, modulare Tablet-Oberfläche für Home Assistant, entwickelt für
 ## Installation über HACS
 
 1. Vor einer Testinstallation ein Home-Assistant-Backup erstellen.
-2. In **HACS → Drei Punkte → Benutzerdefinierte Repositories** die Adresse \`https://github.com/MarkusAureliusTeuton/JamesUINext\` mit Typ **Integration** hinzufügen.
-3. **JamesUI Next** in HACS herunterladen (für die Testversion gegebenenfalls „Beta-Versionen anzeigen“ auswählen).
+2. In **HACS → Drei Punkte → Benutzerdefinierte Repositories** die Adresse `https://github.com/MarkusAureliusTeuton/JamesUINext` mit Typ **Integration** hinzufügen.
+3. **JamesUI Next** öffnen, gegebenenfalls **Beta-Versionen anzeigen** aktivieren und die geprüfte **v1.0.0b2** herunterladen.
 4. **Home Assistant neu starten.**
 5. Unter **Einstellungen → Geräte & Dienste → Integration hinzufügen** nach **JamesUI Next** suchen und die Integration hinzufügen.
-6. Im Browser das eigene Panel über \`/jamesui-next\` öffnen.
+6. Im Browser das eigene Panel über `/jamesui-next` öffnen.
 
-Die installierte Integration heißt \`jamesui_next\`, liegt unter \`/config/custom_components/jamesui_next\`, verwaltet ihre Konfiguration unter \`.storage/jamesui_next.config\` und nutzt eigene WebSocket-Kommandos.
+Die installierte Integration heißt `jamesui_next`, liegt unter `/config/custom_components/jamesui_next`, verwaltet ihre Konfiguration unter `.storage/jamesui_next.config` und nutzt eigene WebSocket-Kommandos.
 
 ## Erste Einrichtung
 
 - Der Erststart erzeugt eine Startseite mit Wetter-Hero und einem zunächst leeren Widget-Raster, das direkt in den Editiermodus wechselt.
-- Unter **Wetter-Datenquelle** die reale \`weather.*\`-Entität und optional Temperatur-, Mond- und Helligkeitssensoren auswählen.
+- Unter **Wetter-Datenquelle** die reale `weather.*`-Entität und optional Temperatur-, Mond- und Helligkeitssensoren auswählen.
 - Über **+ Hinzufügen** Agenda, Hausstatus und dynamische Buttons anlegen. Kalender und Todo-Listen werden je Agenda-Instanz konfiguriert.
 - Die Hausstatus-Datenquellen sind momentan über einen validierten technischen JSON-Dialog einstellbar; hier ist vor der Tablet-Abnahme auf Lesbarkeit und praktische Bedienung zu achten.
 - Mit **Fertig** speichern. Bei einem Konflikt zwischen Clients wird das Speichern abgelehnt und eine Fehlermeldung angezeigt.
