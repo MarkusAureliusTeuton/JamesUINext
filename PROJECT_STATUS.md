@@ -10,12 +10,12 @@ Eigenständige Home-Assistant-Integration und Tablet-Oberfläche, zugeschnitten 
 
 ## Verbindliche Projektidentität
 
-- Repository: \`MarkusAureliusTeuton/JamesUINext\` – nur dieses Repository bearbeiten.
-- HA-Domain/Ordner: \`jamesui_next\` / \`custom_components/jamesui_next\`
-- Panel: \`/jamesui-next\`; Assets: \`/jamesui_next_static\`
-- Speicherung: \`.storage/jamesui_next.config\`
-- Konfigurations-API: \`jamesui_next/config/get\` und \`jamesui_next/config/replace\`
-- Hauptdateien: \`frontend/jamesui-next-entry.js\`, \`frontend/jamesui-next-preview.js\`, modularer Core und Widget-/Provider-Module.
+- Repository: `MarkusAureliusTeuton/JamesUINext` – nur dieses Repository bearbeiten.
+- HA-Domain/Ordner: `jamesui_next` / `custom_components/jamesui_next`
+- Panel: `/jamesui-next`; Assets: `/jamesui_next_static`
+- Speicherung: `.storage/jamesui_next.config`
+- Konfigurations-API: `jamesui_next/config/get` und `jamesui_next/config/replace`
+- Hauptdateien: `frontend/jamesui-next-entry.js`, `frontend/jamesui-next-preview.js`, modularer Core und Widget-/Provider-Module.
 - Alle acht lokalen Alpine-WebP-Hintergründe und die Wettersymbol-SVGs liegen bereits hier und werden in CI geprüft.
 - Keine externen Asset-Importe, keine zusätzlichen Repositories und keine Branchwechsel ohne sachlichen Grund.
 
@@ -33,20 +33,32 @@ Eigenständige Home-Assistant-Integration und Tablet-Oberfläche, zugeschnitten 
 | Konfigurationssicherheit | Serverseitige Revision, compare-and-swap, atomare Speicherung, sichtbare Speicherfehler | Konfliktversuch mit zwei echten Browsern |
 | Qualitätsprüfungen | Python-/JS-Tests, SHA-Assetcheck, Importgrenzen, Chromium-Hochformat-Browser-Smoketest mit simuliertem HA | Reale Home-Assistant- und Langzeitprüfung |
 
-**Letzter vollständig grüner Integrationsstand:** GitHub Actions **[38160301534](https://github.com/MarkusAureliusTeuton/JamesUINext/actions/runs/38160301534)**: \`validate\` und \`browser-smoke\` erfolgreich. Die grüne CI umfasst simulierte HA-Daten; keine Behauptung einer echten Hardwareabnahme.
+**Letzter vollständig grüner Integrations- und Veröffentlichungsstand:** GitHub Actions **[38160643782](https://github.com/MarkusAureliusTeuton/JamesUINext/actions/runs/38160643782)**: `verify / validate`, `verify / browser-smoke` und `publish` erfolgreich. Die [HACS-Testversion v1.0.0b2](https://github.com/MarkusAureliusTeuton/JamesUINext/releases/tag/v1.0.0b2) wurde am 11.10.2026 aus dem verifizierten Code-Commit `d42cc1025f6ee708576bc1eed7c545d8510d4d75` veröffentlicht. Die grüne CI umfasst simulierte HA-Daten; keine Behauptung einer echten Hardwareabnahme.
 
 Ein realer Browserfehler (untere Navigation blockierte Editor-Schaltfläche) wurde anhand des Chromium-Tests entdeckt und behoben. Zusätzlich sind neue Tests für konkurrierende Speichervorgänge vorhanden.
 
+## Installationsbereite HACS-Testversion
+
+**Bereit:** `v1.0.0b2` im [eigenen GitHub-Repository](https://github.com/MarkusAureliusTeuton/JamesUINext/releases/tag/v1.0.0b2).
+
+1. Home Assistant sichern. In HACS das Custom-Repository `https://github.com/MarkusAureliusTeuton/JamesUINext` als **Integration** hinzufügen.
+2. **JamesUI Next → Erneut herunterladen**: Beta-Versionen anzeigen und `v1.0.0b2` auswählen.
+3. Home Assistant neu starten und unter **Einstellungen → Geräte & Dienste** die Integration **JamesUI Next** hinzufügen.
+4. Am PC `/jamesui-next` öffnen, Wetter-Entität zuweisen, weitere Widgets einrichten, speichern, Browser neu laden und die Live-Aktionen prüfen.
+5. Erst danach das OnePlus Pad 2 mit Fully Kiosk im Hochformat prüfen.
+
+**Noch nicht durch Nutzer bestätigt:** Die tatsächliche HA-Installation, reale KNX-/Todo-Aktionen, visuelle Tablet-Abnahme, Offline- und Neustart-Stabilität. Siehe `docs/LIVE_TEST.md`.
+
 ## Noch zu tun – keine neue Feature-Roadmap
 
-1. HACS-Beta des **eigenständigen** \`JamesUINext\` bereitstellen und anhand der vollständigen CI verifizieren.
-2. Installation unter Home Assistant mit Backup, Integration und Panel \`/jamesui-next\` prüfen. Im PC-Browser vier Widgets mit realen HA-Entitäten konfigurieren und Aktionen prüfen.
+1. **Erledigt:** Eigene HACS-Testversion `v1.0.0b2` nach vollständiger CI veröffentlicht.
+2. Installation unter Home Assistant mit Backup, Integration und Panel `/jamesui-next` prüfen. Im PC-Browser vier Widgets mit realen HA-Entitäten konfigurieren und Aktionen prüfen.
 3. Auf dem OnePlus Pad 2 in Fully Kiosk Hochformat, Wetterbilder, Navigation, Long-Press, Layout, Dialoge, Reload, Offline/Reconnect und Neustart praktisch testen.
 4. **Nur tatsächlich reproduzierbare Probleme** beheben und Tests dazu ergänzen. Erst nach erfolgreicher Praxis-Abnahme Dashboard 1.0 freigeben.
 
 ## Arbeitsweise in Folgechats
 
-1. Zuerst \`PROJECT_STATUS.md\`, \`README.md\`, \`docs/DASHBOARD_1_0_RELEASE_GATE.md\` und die relevanten Quellcodedateien im aktuellen GitHub-HEAD lesen.
+1. Zuerst `PROJECT_STATUS.md`, `README.md`, `docs/DASHBOARD_1_0_RELEASE_GATE.md` und die relevanten Quellcodedateien im aktuellen GitHub-HEAD lesen.
 2. Kurz technische Ergebnisse und konkrete Restpunkte nennen; GitHub direkt bearbeiten, CI prüfen, Projektstatus aktualisieren.
 3. Keine endlosen Fragebögen, keine Wiederholung abgeschlossener Blöcke, keine Erweiterung der Seiten außerhalb der Startseite.
 4. Behandle Simulation und Live-HA-/Tablet-Abnahme als **verschiedene Nachweise**; keine Behauptungen ohne Test.
