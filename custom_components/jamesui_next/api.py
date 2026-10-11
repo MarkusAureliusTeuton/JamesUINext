@@ -8,7 +8,7 @@ from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
 
 from .config_schema import ConfigValidationError
-from .config_service import JamesUIConfigService
+from .config_service import ConfigConflictError, JamesUIConfigService
 from .const import DOMAIN
 
 
@@ -28,13 +28,14 @@ def websocket_get_config(hass, connection, msg):
     if service is None:
         connection.send_error(msg["id"], "not_configured", "JamesUI Next is not configured")
         return
-    connection.send_result(msg["id"], {"config": service.snapshot()})
+    connection.send_result(msg["id"], {"config": service.snapshot(), "revision": service.revision})
 
 
 @websocket_api.require_admin
 @websocket_api.websocket_command({
     vol.Required("type"): "jamesui_next/config/replace",
     vol.Required("config"): dict,
+    vol.Required("expected_revision"): vol.All(str, vol.Length(min=64, max=64)),
 })
 async def websocket_replace_config(hass, connection, msg):
     service = _service(hass)
@@ -42,11 +43,14 @@ async def websocket_replace_config(hass, connection, msg):
         connection.send_error(msg["id"], "not_configured", "JamesUI Next is not configured")
         return
     try:
-        next_config = await service.async_replace(msg["config"])
+        next_config = await service.async_replace(msg["config"], expected_revision=msg["expected_revision"])
+    except ConfigConflictError as error:
+        connection.send_error(msg["id"], "config_conflict", str(error))
+        return
     except ConfigValidationError as error:
         connection.send_error(msg["id"], "invalid_config", str(error))
         return
-    connection.send_result(msg["id"], {"config": next_config})
+    connection.send_result(msg["id"], {"config": next_config, "revision": service.revision})
 
 
 def async_register_websocket_commands(hass: HomeAssistant) -> None:
