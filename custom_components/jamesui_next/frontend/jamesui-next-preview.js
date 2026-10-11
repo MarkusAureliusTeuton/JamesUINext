@@ -62,7 +62,7 @@ export function createJamesUINextPreview({ document = globalThis.document } = {}
         stopProviders = stop;
         providerUpdater = createDashboardProviderUpdater(core.moduleLoader, config);
         core.mount(target);
-        await routes.mount(target);
+        if (!await routes.mount(target)) throw new Error("Startdashboard konnte nicht angezeigt werden");
         assertCurrent(token);
         mounted = true;
         return true;
