@@ -4,7 +4,7 @@
 
 ## Pflichtumfang
 
-- Home-Assistant-Integration \`jamesui_next\`: ConfigFlow, eigener Speicher und WebSocket, HACS-Installation, Rollen/Berechtigungen, Upgrade und Wiederherstellung.
+- Home-Assistant-Integration `jamesui_next`: ConfigFlow, eigener Speicher und WebSocket, HACS-Installation, Rollen/Berechtigungen, Upgrade und Wiederherstellung.
 - Modul/Core: Registry, Provider-Lebenszyklen, HA-Adapter, Actions, Overlay/Health und sauberes Teardown.
 - Startseite: Wetter-Hero (Uhr, Datum, Wetter, Prognose, Tages-/Nachtzustände, Mond, lokale Bilder), 12-Spalten-Raster, feste untere Navigation.
 - Agenda: unterschiedliche Kalender-/Todo-Quellen je Instanz, Erledigen/Bearbeiten, Rückgängig und Fehlerdarstellung.
@@ -36,4 +36,4 @@ Vollständige eigene Unterseiten für Haus, Klima, Medien und Tür. Diese ersche
 | Tablet | Portrait/Fully, gute Darstellung, keine verdeckten Bedienelemente | Offen |
 | Ausdauer | HA-Neustart, Browserreload, Verbindungsverlust/Erholung | Offen |
 
-Erst nach Bestehen dieser Praxisabnahme wird Dashboard 1.0 freigegeben. Tests mit simulierten Daten sind eine Voraussetzung, ersetzen die reale Abnahme aber nicht. Maßgebliche Kurzfassung: \`PROJECT_STATUS.md\`.
+Erst nach Bestehen dieser Praxisabnahme wird Dashboard 1.0 freigegeben. Tests mit simulierten Daten sind eine Voraussetzung, ersetzen die reale Abnahme aber nicht. Maßgebliche Kurzfassung: `PROJECT_STATUS.md`.
