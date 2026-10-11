@@ -224,7 +224,29 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
       onFinished: () => { settingsDialog?.close(); buttonSettings?.close(); houseSettings?.close(); showHandles(); },
       onAdd: () => catalogView?.open(),
     });
+    // Editor controls and dialogs overlay the page region; a full-height
+    // hero must never push them below the navigation into an invisible area.
+    toolbar.root.style.position = "absolute";
+    toolbar.root.style.right = "12px";
+    toolbar.root.style.bottom = "12px";
+    toolbar.root.style.zIndex = "25";
+    toolbar.root.style.display = "flex";
+    toolbar.root.style.flexWrap = "wrap";
+    toolbar.root.style.gap = "8px";
+    toolbar.root.style.padding = "10px";
+    toolbar.root.style.borderRadius = "12px";
+    toolbar.root.style.background = "var(--jui-color-surface-raised, #222)";
     target.appendChild(toolbar.root);
+    const placeEditorDialog = (root) => {
+      root.style.position = "absolute";
+      root.style.inset = "12px";
+      root.style.zIndex = "35";
+      root.style.overflowY = "auto";
+      root.style.padding = "18px";
+      root.style.borderRadius = "12px";
+      root.style.background = "var(--jui-color-surface-raised, #222)";
+      target.appendChild(root);
+    };
     weatherSettings = createWeatherSettingsDialog({
       document,
       onSave: async (next) => {
@@ -242,12 +264,12 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     weatherButton.addEventListener("click", () =>
       weatherSettings.open(getConfig().module_settings["provider.weather"] ?? {}));
     toolbar.root.appendChild(weatherButton);
-    target.appendChild(weatherSettings.root);
+    placeEditorDialog(weatherSettings.root);
     settingsDialog = createWidgetSettingsDialog({ document, onSave: (id, config) => {
       const next = editor.configureWidget(id, config);
       preview(next);
     } });
-    target.appendChild(settingsDialog.root);
+    placeEditorDialog(settingsDialog.root);
     buttonSettings = createDashboardButtonSettingsDialog({
       document,
       onSave: async (id, change) => {
@@ -255,12 +277,12 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
         preview(next);
       },
     });
-    target.appendChild(buttonSettings.root);
+    placeEditorDialog(buttonSettings.root);
     houseSettings = createHouseSettingsDialog({ document, onSave: (id, change) => {
       const next = editor.configureHouseQuick(id, change);
       preview(next);
     } });
-    target.appendChild(houseSettings.root);
+    placeEditorDialog(houseSettings.root);
     if (moduleRegistry) {
       catalogView = createDashboardCatalogView({ document, catalog: createDashboardCatalog({ moduleRegistry }), onSelect: (moduleId, sources) => {
         const config = moduleId === "widget.calendar-agenda"
@@ -270,7 +292,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
         const next = editor.addWidget(moduleId, { config });
         if (next) preview(next);
       } });
-      target.appendChild(catalogView.root);
+      placeEditorDialog(catalogView.root);
     }
     touch = createDashboardTouchEditor({ session: editor, onPreview: preview });
     unbindTouch = bindDashboardTouchEvents({
