@@ -155,9 +155,19 @@ export function createAppShell({ document, router, overlays, health, getContext,
       if (!iconId) throw new Error(`Missing navigation icon for route: ${route.id}`);
       button.prepend(createIcon(document, iconId, { size: "md" }));
       button.dataset.routeId = route.id;
-      const listener = () => router.navigate(route.id);
-      button.addEventListener("click", listener);
-      navBindings.push({ button, listener });
+      // This candidate implements only Start; do not present unfinished
+      // sections as working navigation. Their icons remain visible as a preview.
+      const available = route.id === "home";
+      if (!available) {
+        button.disabled = true;
+        button.setAttribute("aria-disabled", "true");
+        button.setAttribute("title", "Dieser Bereich folgt in einer späteren Version");
+        button.style.opacity = "0.42";
+      } else {
+        const listener = () => router.navigate(route.id);
+        button.addEventListener("click", listener);
+        navBindings.push({ button, listener });
+      }
       navigation.appendChild(button);
     }
 
