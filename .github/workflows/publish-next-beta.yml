@@ -1,0 +1,79 @@
+name: Publish JamesUINext beta
+
+# Release only after a deliberate Home Assistant manifest version update.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "custom_components/jamesui_next/manifest.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jamesui-next-beta
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    uses: ./.github/workflows/validate.yml
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify independent Next beta version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(python - <<'PY'
+          import json, re
+          from pathlib import Path
+          manifest = json.loads(Path("custom_components/jamesui_next/manifest.json").read_text(encoding="utf-8"))
+          constants = Path("custom_components/jamesui_next/const.py").read_text(encoding="utf-8")
+          version = manifest["version"]
+          if manifest["domain"] != "jamesui_next" or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+b[0-9]+", version):
+              raise SystemExit("Release requires the own Next domain and a beta version")
+          if not re.search(r'^VERSION = "' + re.escape(version) + r'"$', constants, re.MULTILINE):
+              raise SystemExit("Manifest and Python version must match")
+          print(version)
+          PY
+          )
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Publish immutable GitHub prerelease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          TAG="v${VERSION}"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Refusing to overwrite existing release: $TAG"
+            exit 1
+          fi
+          cat > "$RUNNER_TEMP/notes.md" <<'NOTES'
+          JamesUINext – unabhängige Home-Assistant-Testversion.
+
+          Installieren über HACS: eigenes Repository MarkusAureliusTeuton/JamesUINext
+          als Integration hinzufügen, Beta-Version auswählen, Home Assistant neu starten,
+          unter Geräte & Dienste die Integration JamesUI Next hinzufügen,
+          Panel /jamesui-next öffnen.
+
+          Testumfang: Startseite mit Wetter, Kalender/Todo, Hausstatus, Buttons
+          und Dashboard-Editor. Andere Seiten sind deaktiviert.
+          Alle automatisierten Prüfungen inklusive Chromium-Browsertest bestanden.
+
+          Die reale Home-Assistant-/KNX- und OnePlus-Pad-2-/Fully-Kiosk-Abnahme
+          steht noch aus. Bitte zuvor ein Home-Assistant-Backup erstellen.
+          NOTES
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --title "JamesUINext ${VERSION} (Testversion)" \
+            --notes-file "$RUNNER_TEMP/notes.md"
