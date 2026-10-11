@@ -18,14 +18,18 @@ const initial = () => ({
 
 function setup() {
   let remote = initial();
+  let revisionIndex = 0;
+  const currentRevision = () => String(revisionIndex).padStart(64, "0");
   let writes = 0;
   const configService = createConfigService({ homeAssistant: {
     async callWS(request) {
-      if (request.type === "jamesui_next/config/get") return { config: structuredClone(remote) };
+      if (request.type === "jamesui_next/config/get") return { config: structuredClone(remote), revision: currentRevision() };
       if (request.type === "jamesui_next/config/replace") {
         writes += 1;
+        if (request.expected_revision !== currentRevision()) throw new Error("config_conflict");
         remote = structuredClone(request.config);
-        return { config: structuredClone(remote) };
+        revisionIndex += 1;
+        return { config: structuredClone(remote), revision: currentRevision() };
       }
     },
   } });
