@@ -1,10 +1,10 @@
 # JamesUINext – aktueller Soll-/Ist-Abgleich
 
-**Stand: 11.10.2026.** Verbindliches Testziel: die Startseite. Der genaue GitHub-HEAD und die letzte grüne Prüfung stehen in \`PROJECT_STATUS.md\`.
+**Stand: 11.10.2026.** Verbindliches Testziel: die Startseite. Der genaue GitHub-HEAD und die letzte grüne Prüfung stehen in `PROJECT_STATUS.md`.
 
 | Modul | Tatsächlich implementiert und verdrahtet | Einschränkung / nächster realer Test |
 | --- | --- | --- |
-| Integration | Eigene Domain, Panel \`/jamesui-next\`, WS, ConfigFlow, getrennte Persistenz | Installation und HA-Neustart |
+| Integration | Eigene Domain, Panel `/jamesui-next`, WS, ConfigFlow, getrennte Persistenz | Installation und HA-Neustart |
 | Startansicht | Hero, 12-Spalten-Grid, reservierte Navigation, Editor-Overlay | Tablet-Hochformat im Fully Kiosk |
 | Wetter | Wetterprovider, Prognose, Sonne/Mond, acht lokale WebP-Hintergründe und SVG-Icons, Datenquellen-Dialog | Echte HA-Daten und Bildwechsel |
 | Kalender/Aufgaben | Agenda-Widget, Quellen je Instanz, Task-Update-Aktion registriert/gemountet | Reale Kalender/Todo-Rechte, Undo |
