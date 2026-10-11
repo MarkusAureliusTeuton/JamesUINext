@@ -128,13 +128,22 @@ export function createAppShell({ document, router, overlays, health, getContext,
 
     root = document.createElement("div");
     root.dataset.role = "app-shell";
-    root.style.minHeight = "100vh";
+    // Size the tablet shell to its viewport. The navigation owns a real
+    // layout row, so no editor controls can be hidden under sticky buttons.
+    root.style.height = "100dvh";
+    root.style.minHeight = "0";
+    root.style.width = "100%";
     root.style.display = "grid";
-    root.style.gridTemplateRows = "1fr auto";
+    root.style.gridTemplateRows = "minmax(0, 1fr) auto";
+    root.style.overflow = "hidden";
     designSystem.mount(root);
 
     pageRegion = document.createElement("main");
     pageRegion.dataset.role = "page-region";
+    pageRegion.style.position = "relative";
+    pageRegion.style.minHeight = "0";
+    pageRegion.style.minWidth = "0";
+    pageRegion.style.overflow = "hidden";
 
     overlayRoot = document.createElement("div");
     overlayRoot.dataset.role = "overlay-root";
@@ -146,8 +155,12 @@ export function createAppShell({ document, router, overlays, health, getContext,
 
     navigation = document.createElement("nav");
     navigation.dataset.role = "bottom-navigation";
-    navigation.style.position = "sticky";
-    navigation.style.bottom = "0";
+    navigation.style.position = "relative";
+    navigation.style.display = "flex";
+    navigation.style.justifyContent = "space-around";
+    navigation.style.gap = "4px";
+    navigation.style.padding = "6px 8px";
+    navigation.style.zIndex = "5";
 
     for (const route of CORE_ROUTES) {
       const button = createButton(document, { label: route.label, variant: "ghost", size: "md" });
