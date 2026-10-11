@@ -49,6 +49,14 @@ Ein realer Browserfehler (untere Navigation blockierte Editor-Schaltfläche) wur
 
 **Noch nicht durch Nutzer bestätigt:** Die tatsächliche HA-Installation, reale KNX-/Todo-Aktionen, visuelle Tablet-Abnahme, Offline- und Neustart-Stabilität. Siehe `docs/LIVE_TEST.md`.
 
+## Erster echter Installationsbefund – 11.10.2026
+
+**Anwenderbefund:** Nach Installation/Öffnen von `v1.0.0b2` wird die Seite schwarz dargestellt. Ursache **nicht verifiziert**; die simulierten HA-Browsertests deckten die reale Initialisierung nicht ab.
+
+**Im Quellcode bereits verbessert (noch nicht als HACS-Version veröffentlicht):** Das Next-Panel zeigt nun explizit lesbaren Warte- und Fehlertext, protokolliert Startfehler in der Browserkonsole, meldet einen WebSocket-/Initialisierungstimeout nach 15 Sekunden und behandelt eine nicht erfolgreich gemountete Startseite als Fehler. Dazu Regressionstests. [Prüfung 38161583712](https://github.com/MarkusAureliusTeuton/JamesUINext/actions/runs/38161583712) vollständig grün.
+
+**Vor dem nächsten Release:** Fehler aus der echten Browserkonsole nach Reload der bestehenden Beta einholen; prüfen, ob `JamesUI Next` in HA als Integration eingerichtet ist. Keine weiteren Installationen nach Vermutung. Erst die identifizierte Ursache beheben, dann neue Beta mit Nachweis veröffentlichen.
+
 ## Noch zu tun – keine neue Feature-Roadmap
 
 1. **Erledigt:** Eigene HACS-Testversion `v1.0.0b2` nach vollständiger CI veröffentlicht.
