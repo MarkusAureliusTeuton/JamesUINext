@@ -29,14 +29,18 @@ function initial() {
 
 function setup() {
   let remote = initial();
+  let revisionIndex = 0;
+  const currentRevision = () => String(revisionIndex).padStart(64, "0");
   const calls = [];
   const adapter = {
     async callWS(message) {
       calls.push(message);
-      if (message.type === "jamesui_next/config/get") return { config: structuredClone(remote) };
+      if (message.type === "jamesui_next/config/get") return { config: structuredClone(remote), revision: currentRevision() };
       if (message.type === "jamesui_next/config/replace") {
+        if (message.expected_revision !== currentRevision()) throw new Error("config_conflict");
         remote = structuredClone(message.config);
-        return { config: structuredClone(remote) };
+        revisionIndex += 1;
+        return { config: structuredClone(remote), revision: currentRevision() };
       }
       throw new Error("unexpected WS command");
     },
