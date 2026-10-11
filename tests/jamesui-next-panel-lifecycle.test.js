@@ -74,9 +74,10 @@ test("waiting for Home Assistant always renders a readable status", () => {
   const { panel } = harness();
   panel.isConnected = true;
   panel.connectedCallback();
-  const status = panel.shadowRoot.querySelector('[role="status"]');
-  // Fake DOM supports attributes but not CSS selectors for role in all cases.
-  assert.ok(panel.shadowRoot.children.some(node => node.textContent.includes("wartet auf Home Assistant")));
+  const status = panel.host.children[0];
+  assert.ok(status, "status must be visible before hass arrives");
+  assert.equal(status.getAttribute("role"), "status");
+  assert.match(status.textContent, /wartet auf Home Assistant/);
   assert.equal(panel.host.style.color, "#f2eee7");
   panel.disconnectedCallback();
 });
