@@ -1,30 +1,35 @@
-# JamesUINext – Architektur- und Qualitätsaudit
+# JamesUINext – technische Architekturübersicht
 
-Stand: 2026-10-09. Dies ist eine **Zwischenprüfung**, keine Produktivfreigabe.
+**Aktive Implementierung:** \`MarkusAureliusTeuton/JamesUINext\`, Branch \`main\`. Diese Datei beschreibt ausschließlich den aktuellen Source-Tree.
 
-## Bestätigt
-- Eigenständiger Integrationsordner `custom_components/jamesui_next`; Home-Assistant-Domain `jamesui_next`.
-- Separater Konfigurationsspeicher `jamesui_next.config`, separate API `jamesui_next/config/*`, Panel `/jamesui-next`.
-- Keine r11-Paneleinstiegsdateien im Repository.
-- Die Kernmodule, das Dashboard und die Block-14-Tests wurden übernommen. Die vorhandene CI prüft Python/JS-Syntax, wesentliche Trennmerkmale und Block-14-Regressionen.
-- Relativer Modulimport im HA-Panel korrigiert zu `/jamesui_next_static/jamesui-next-preview.js`.
-- 28 Wettersymbol-SVGs im Next-Namensraum ergänzt, wetterbezogener Asset-Root von der alten Integration getrennt.
+## Home Assistant
 
-## Offene Abnahmekriterien (blockierend)
-1. **Provider-Bootstrap (teilweise behoben):** Provider-Registrierung und Start sind jetzt zentral umgesetzt. Wetter, Kalender und Aufgaben starten mit sicherer Standardkonfiguration; weitere Provider nur bei explizit gesetzten Moduleinstellungen. Start-/Rollback-Tests laufen in CI. Noch offen: vollständige Live-HA-Funktion, Action-Module, Provider-Konfigurationsoberfläche und dynamische Updates.
-2. **Layout/Navigation (teilweise behoben):** Der neue Dashboard-Route-Host verwaltet Montage und Teardown beim Seitenwechsel; konfigurierte Dashboard-Seiten können unabhängig geladen werden. Routing-Regressionstests sind grün. Noch offen: vollständige Seitentypen, längere asynchrone Wechsel und die echte Tablet-Abnahme.
-3. **Grafiken (Dateiübernahme erledigt):** Alle acht WebP-Hintergründe sind über den erfolgreichen GitHub-Actions-Import im eigenen Next-Assets-Verzeichnis vorhanden und per SHA-256 verifiziert. Weiter offen ist nur die visuelle Abnahme mit echten Wetterdaten auf dem Tablet.
-4. **Modulkonfiguration:** Ein neues Dashboard beginnt leer. Der Widget-Katalog erzeugt Standardinstanzen, aber konfigurierbare Datenquellen/Entitäten und Anbieter müssen in der Oberfläche anlegbar sein, bevor reale Widgets verlässlich Daten anzeigen.
-5. **Trennung prüfen:** Alle Module und Imports auf alte URLs, globale Namen, ungenutzte Dateien sowie verborgene Abhängigkeiten prüfen; unbenutzte `config_migrations.py` ist noch vorhanden, führt aber keinen Legacy-Migrationscode mehr aus.
-6. **Interaktion und Sicherheit:** Long-Press-Drag darf keine Home-Assistant-Schaltaktion auslösen; Pointer-Abbruch, Save/Undo, mehrfach genutzte Widgetinstanzen und Update/Rollback sind im Browser mit echten HA-Daten zu testen.
-7. **Tests:** Sämtliche Provider und Widgets, API, ConfigFlow und Shell-Lifecycle brauchen eigene automatisierte Integrations-/Regressionstests. Syntax und Block-14-Tests sind keine vollständige Qualitätsabnahme.
-8. **Tablet:** Portrait-Modus OnePlus Pad 2, Fully Kiosk, Fixed-/Scroll-Seiten, Raster-Breiten und Touch-Ziele real prüfen.
+- Python: \`custom_components/jamesui_next/\`
+- Integration \`jamesui_next\`, Panel \`/jamesui-next\`, statische Dateien \`/jamesui_next_static\`
+- ConfigFlow für eine Konfigurationsinstanz; eigener Store \`jamesui_next.config\`
+- API \`jamesui_next/config/get\` liefert Snapshot und Revision; \`jamesui_next/config/replace\` verlangt \`expected_revision\`.
+- API-Replace ist nur für Administratoren erlaubt. Backend validiert das Schema, vergleicht Revisionen und speichert atomar.
 
-## Vorgehensweise
-1. Startpfad, Navigation und Provider-Lifecycle vervollständigen, ohne Core-Module unkontrolliert zu koppeln.
-2. Assets und Modulkonfiguration abschließen.
-3. Kernarchitektur und Modulgrenzen systematisch auditieren, ungenutzte Kompatibilität entfernen.
-4. Automatische End-to-End-/Integrationstests ergänzen und vollständig grüne CI erreichen.
-5. Test in einer separaten Home-Assistant-Installation; erst danach „vorzeigbar“ bzw. „abgenommen“.
+## Frontend
 
-**Freigabe:** nicht erteilt. Die bestehende r11-Integration bleibt unverändert.
+- Panel-Entry: \`frontend/jamesui-next-entry.js\`
+- App/Komposition: \`frontend/jamesui-next-preview.js\`; dort Registrierung/Mount der Module und Datenprovider.
+- Module/Widgets: \`frontend/modules/\`; Core \`frontend/core/\`; HA-Adapter \`frontend/ha/\`; Design und Icons separat.
+- \`dashboard-route-host\` verwaltet Dashboard-Mount/Teardown; \`dashboard-page-composer\` Layout, Widget-Hosts und Editor.
+- Initiale Home-Konfiguration: Wetter-Hero, leeres Raster, das im Editiermodus startet.
+- Weitere Navigationsbereiche sind deaktiviert, bis sie wirklich implementiert werden.
+- Eingebundene Bilder stammen ausschließlich aus \`frontend/assets/\`.
+
+## Automatisierung
+
+- \`.github/workflows/validate.yml\`: Modul-, Backend- und Konfigurationstests sowie Chromium-Portrait-Smoke.
+- \`scripts/check_frontend_boundaries.py\`: erlaubte Modulimporte.
+- \`scripts/verify_alpine_assets.py\`: Integrität der Bilddateien.
+
+## Bewusste Grenzen vor der Praxisabnahme
+
+- Hausstatus-Einstellungen sind noch technische JSON-Felder.
+- Ein grüner Browsertest arbeitet mit simuliertem HA; Live-Berechtigungen, KNX, echte Wetter-/Todo-Daten sowie Fully-Kiosk-Eigenheiten sind noch nicht abgenommen.
+- Priorität: echte Installation und nur bestätigte Fehler beheben; keine zusätzlichen Unterseiten.
+
+Aktueller Arbeitsstand und Freigabegrenze: \`PROJECT_STATUS.md\`, \`docs/DASHBOARD_1_0_RELEASE_GATE.md\`.
