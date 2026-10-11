@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 from collections.abc import Callable, Mapping
 from typing import Any, Protocol
 
@@ -17,6 +19,10 @@ class ConfigStorageBackend(Protocol):
 
     async def async_save(self, data: Mapping[str, Any]) -> None:
         """Persist a complete configuration snapshot."""
+
+
+class ConfigConflictError(RuntimeError):
+    """An editor attempted to overwrite a newer persisted configuration."""
 
 
 class JamesUIConfigService:
@@ -47,11 +53,21 @@ class JamesUIConfigService:
             raise RuntimeError("JamesUI Config Service is not initialized")
         return validate_config(self._config)
 
-    async def async_replace(self, config: Mapping[str, Any]) -> dict[str, Any]:
-        """Validate and atomically replace the full configuration."""
+    @property
+    def revision(self) -> str:
+        """Stable content-addressed revision across Home Assistant restarts."""
+        payload = json.dumps(self.snapshot(), ensure_ascii=True, sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+    async def async_replace(
+        self, config: Mapping[str, Any], *, expected_revision: str | None = None
+    ) -> dict[str, Any]:
+        """Atomically replace only the configuration revision seen by the editor."""
         validated = validate_config(config)
         async with self._write_lock:
             self._require_initialized()
+            if expected_revision is not None and expected_revision != self.revision:
+                raise ConfigConflictError("Konfiguration wurde andernorts geändert; bitte neu laden")
             await self._storage.async_save(validated)
             self._config = validated
             return self.snapshot()
