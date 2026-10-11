@@ -89,3 +89,17 @@ jobs:
             const value=createDashboardPageConfig({pageId:"home",layoutId:"main"});
             validateDashboardPage({pages:{home:value.page},layouts:{main:value.layout},widget_instances:{},dynamic_buttons:{}}, "home");
           '
+
+  browser-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install pinned Chromium test environment
+        run: |
+          npm install --no-save --no-package-lock playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Test Next browser portrait startup and editor persistence
+        run: node tests/next-browser-smoke.mjs
