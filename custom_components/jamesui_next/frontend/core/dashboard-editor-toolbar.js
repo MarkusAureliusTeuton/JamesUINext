@@ -29,7 +29,6 @@ export function createDashboardEditorToolbar({ document, session, onChange, onAd
   failure.setAttribute("data-jui-editor-error-message", "");
   failure.setAttribute("role", "alert");
   failure.hidden = true;
-  root.appendChild(failure);
   const finish = createAction("Fertig", async () => {
     if (saving) return;
     saving = true;
@@ -56,6 +55,7 @@ export function createDashboardEditorToolbar({ document, session, onChange, onAd
       refresh();
     }
   });
+  root.appendChild(failure);
   let saving = false;
   const refresh = () => {
     root.hidden = !session.active;
