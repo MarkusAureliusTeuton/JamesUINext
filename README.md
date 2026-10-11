@@ -1,21 +1,30 @@
 # JamesUINext
 
-Eigenständige, modulare JamesUI-1.0-Integration für Home Assistant. Sie läuft **parallel** zur bisherigen Integration `jamesui`, ohne deren Dateien, Panelpfad oder Konfigurationsspeicher zu überschreiben.
+Eigenständige, modulare Tablet-Oberfläche für Home Assistant, entwickelt für das **OnePlus Pad 2 im Hochformat**. Aktuell umfasst die Testversion den Core und das Startdashboard: Wetter, Kalender/Aufgaben, Hausstatus, dynamische Buttons sowie den Dashboard-Editor.
 
-## Entwicklungsstand
+## Installation über HACS
 
-Die modulare Basis umfasst Core, Designsystem, Wetter, Kalender, Hausstatus, Dynamic Buttons, Dashboard und Editor. Die Komponenten sind noch **nicht vollständig integriert und nicht zur Tablet-Abnahme freigegeben**. Es fehlen insbesondere Hintergrundbilder, vollständige Einstellungen sowie Live-/HA-Integrationstests. Freigabekriterien: [Dashboard 1.0 Release Gate](docs/DASHBOARD_1_0_RELEASE_GATE.md).
+1. Vor einer Testinstallation ein Home-Assistant-Backup erstellen.
+2. In **HACS → Drei Punkte → Benutzerdefinierte Repositories** die Adresse \`https://github.com/MarkusAureliusTeuton/JamesUINext\` mit Typ **Integration** hinzufügen.
+3. **JamesUI Next** in HACS herunterladen (für die Testversion gegebenenfalls „Beta-Versionen anzeigen“ auswählen).
+4. **Home Assistant neu starten.**
+5. Unter **Einstellungen → Geräte & Dienste → Integration hinzufügen** nach **JamesUI Next** suchen und die Integration hinzufügen.
+6. Im Browser das eigene Panel über \`/jamesui-next\` öffnen.
 
-## Geplante Installation nach Dashboard-Freigabe
+Die installierte Integration heißt \`jamesui_next\`, liegt unter \`/config/custom_components/jamesui_next\`, verwaltet ihre Konfiguration unter \`.storage/jamesui_next.config\` und nutzt eigene WebSocket-Kommandos.
 
-**Noch nicht installieren: Die folgenden Schritte sind erst für die freigegebene Dashboard-Version vorgesehen.**
+## Erste Einrichtung
 
-1. In HACS das Repository `https://github.com/MarkusAureliusTeuton/JamesUINext` als **benutzerdefiniertes Repository** vom Typ **Integration** hinzufügen.
-2. `JamesUI Next` über HACS herunterladen.
-3. Home Assistant neu starten.
-4. Unter **Einstellungen → Geräte & Dienste** die Integration **JamesUI Next** hinzufügen.
-5. Das getrennte Dashboard über `/jamesui-next` öffnen (auf diesem Home Assistant z. B. `http://192.168.178.54/jamesui-next`).
+- Der Erststart erzeugt eine Startseite mit Wetter-Hero und einem zunächst leeren Widget-Raster, das direkt in den Editiermodus wechselt.
+- Unter **Wetter-Datenquelle** die reale \`weather.*\`-Entität und optional Temperatur-, Mond- und Helligkeitssensoren auswählen.
+- Über **+ Hinzufügen** Agenda, Hausstatus und dynamische Buttons anlegen. Kalender und Todo-Listen werden je Agenda-Instanz konfiguriert.
+- Die Hausstatus-Datenquellen sind momentan über einen validierten technischen JSON-Dialog einstellbar; hier ist vor der Tablet-Abnahme auf Lesbarkeit und praktische Bedienung zu achten.
+- Mit **Fertig** speichern. Bei einem Konflikt zwischen Clients wird das Speichern abgelehnt und eine Fehlermeldung angezeigt.
 
-Die r11-Installation unter `/jamesui` wird nicht verändert. Die Next-Integration nutzt `custom_components/jamesui_next`, den Bereich `/jamesui_next_static`, den Speicher `jamesui_next.config` und eigene WebSocket-Kommandos `jamesui_next/config/*`.
+Erst im PC-Browser mit echten HA-Entitäten prüfen, danach auf dem OnePlus Pad 2 über Fully Kiosk. Nur Start ist aktuell ausführbar; die übrigen Navigationsbereiche sind deaktiviert.
 
-**Nicht für den Produktiveinsatz freigeben, bevor die vollständigen Integrationstests und die Tablet-Abnahme erfolgreich sind.**
+## Stand und Sicherheit
+
+Automatisierte Python-/JavaScript-Modultests, Asset-Prüfungen, Konfigurations-Konflikttests und ein Chromium-Browsertest mit simuliertem HA sind eingerichtet. **Echte HA-/KNX- und Tablet-Tests stehen noch aus.** Eine Betaversion ist ausdrücklich keine Produktivabnahme.
+
+Weiterarbeiten: [PROJECT_STATUS.md](PROJECT_STATUS.md), [Freigabeumfang](docs/DASHBOARD_1_0_RELEASE_GATE.md), [neuer Chat](docs/NEXT_CHAT.md).
