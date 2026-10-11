@@ -25,6 +25,11 @@ export function createDashboardEditorToolbar({ document, session, onChange, onAd
     if (page) onChange(page);
     refresh();
   });
+  const failure = document.createElement("p");
+  failure.setAttribute("data-jui-editor-error-message", "");
+  failure.setAttribute("role", "alert");
+  failure.hidden = true;
+  root.appendChild(failure);
   const finish = createAction("Fertig", async () => {
     if (saving) return;
     saving = true;
@@ -37,9 +42,14 @@ export function createDashboardEditorToolbar({ document, session, onChange, onAd
       }
       session.finish();
       onFinished?.();
+      failure.textContent = "";
+      failure.hidden = true;
+      root.removeAttribute("data-jui-editor-save-error");
       root.hidden = true;
-    } catch {
-      // Keep editing and the unsaved layout intact for an explicit retry.
+    } catch (error) {
+      // Keep unsaved edits intact, surface conflict/permissions/connection errors.
+      failure.textContent = String(error?.message || "Speichern fehlgeschlagen");
+      failure.hidden = false;
       root.setAttribute("data-jui-editor-save-error", "");
     } finally {
       saving = false;
@@ -55,7 +65,7 @@ export function createDashboardEditorToolbar({ document, session, onChange, onAd
   };
   return Object.freeze({
     root,
-    open() { session.enter(); root.removeAttribute("data-jui-editor-save-error"); refresh(); onChange(session.snapshot()); },
+    open() { session.enter(); root.removeAttribute("data-jui-editor-save-error"); failure.hidden = true; failure.textContent = ""; refresh(); onChange(session.snapshot()); },
     refresh,
   });
 }
