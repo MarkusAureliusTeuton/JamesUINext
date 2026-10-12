@@ -140,6 +140,8 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     }
 
     const gridHost = layout.getSlot("content");
+    // Empty-state guidance lives inside the deck rather than obscuring the weather hero.
+    gridHost.style.position = "relative";
     const hosts = createDashboardWidgetHosts({
       moduleLoader,
       getConfig: (id) => (editor?.active ? editor.workingConfig() : getConfig()).widget_instances[id],
