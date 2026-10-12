@@ -157,9 +157,13 @@ export function createAppShell({ document, router, overlays, health, getContext,
     navigation.dataset.role = "bottom-navigation";
     navigation.style.position = "relative";
     navigation.style.display = "flex";
+    navigation.style.alignItems = "stretch";
     navigation.style.justifyContent = "space-around";
-    navigation.style.gap = "4px";
-    navigation.style.padding = "6px 8px";
+    navigation.style.gap = "clamp(6px, 1vw, 18px)";
+    navigation.style.padding = "10px clamp(10px, 2vw, 28px) max(10px, env(safe-area-inset-bottom))";
+    navigation.style.minHeight = "70px";
+    navigation.style.background = "rgba(13, 15, 17, .97)";
+    navigation.style.borderTop = "1px solid var(--jui-color-border-strong)";
     navigation.style.zIndex = "5";
 
     for (const route of CORE_ROUTES) {
@@ -168,6 +172,15 @@ export function createAppShell({ document, router, overlays, health, getContext,
       if (!iconId) throw new Error(`Missing navigation icon for route: ${route.id}`);
       button.prepend(createIcon(document, iconId, { size: "md" }));
       button.dataset.routeId = route.id;
+      button.style.display = "flex";
+      button.style.flexDirection = "column";
+      button.style.flex = "1";
+      button.style.gap = "4px";
+      button.style.minHeight = "52px";
+      button.style.fontSize = "clamp(13px, 1.15vw, 16px)";
+      button.style.fontWeight = "500";
+      button.style.padding = "8px 10px";
+      button.style.borderRadius = "12px";
       // This candidate implements only Start; do not present unfinished
       // sections as working navigation. Their icons remain visible as a preview.
       const available = route.id === "home";
