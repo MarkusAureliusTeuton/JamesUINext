@@ -1,4 +1,4 @@
-export const DASHBOARD_EDITOR_STYLES = \`
+export const DASHBOARD_EDITOR_STYLES = `
 [data-jui-dashboard-empty]:not([hidden]) {
   position: absolute; inset: 16px 16px 92px;
   display: grid; place-items: center; text-align: center;
@@ -88,4 +88,4 @@ export const DASHBOARD_EDITOR_STYLES = \`
   [data-jui-editor-dialog]:not([hidden]) { inset: 8px; max-height: calc(100% - 16px); }
   [data-jui-dashboard-empty]:not([hidden]) { inset: 12px 12px 105px; }
 }
-\`;\n
+`;
