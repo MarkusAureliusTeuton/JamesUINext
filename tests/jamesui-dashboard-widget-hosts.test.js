@@ -76,7 +76,10 @@ test("Block 14 widget host rejects missing definitions instead of showing fake c
     getConfig: () => null,
   });
   const document = createFakeDocument();
-  assert.throws(() => host(document.createElement("div"), item("unknown", "missing", 0)), /Missing widget/);
+  const node = document.createElement("div");
+  const dispose = host(node, item("unknown", "missing", 0));
+  assert.match(node.querySelector("[data-jui-widget-error]").textContent, /Missing widget/);
+  dispose();
 });
 
 
@@ -118,7 +121,10 @@ test("Block 14 rejects missing button definitions without mounting a fake contro
     getConfig: () => null,
     getButtonDefinitions: () => ({}),
   });
-  assert.throws(() => host(createFakeDocument().createElement("div"), {
+  const node = createFakeDocument().createElement("div");
+  const dispose = host(node, {
     id: "missing", kind: "button", ref_id: "not-found",
-  }), /definition is missing/);
+  });
+  assert.match(node.querySelector("[data-jui-widget-error]").textContent, /definition is missing/);
+  dispose();
 });
