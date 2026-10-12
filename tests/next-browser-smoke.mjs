@@ -115,8 +115,40 @@ try {
   assert.equal(saved.pages.home.elements.length, 1);
   assert.equal(saved.pages.home.elements[0].kind, "widget");
   assert.equal(saved.widget_instances[saved.pages.home.elements[0].ref_id].module_id, "widget.dynamic-buttons");
+
+  // A populated dashboard must remain editable after "Fertig". Earlier
+  // builds entered edit mode only on an empty page and stranded users here.
+  const editAgain = root.locator("[data-jui-open-editor]");
+  await editAgain.waitFor({ state: "visible" });
+  await page.waitForFunction(() => {
+    const toolbar = document.querySelector("jamesui-next-panel")?.shadowRoot?.querySelector("[data-jui-editor-toolbar]");
+    return toolbar && getComputedStyle(toolbar).display === "none";
+  });
+  await editAgain.click();
+  await root.locator('[data-jui-editor-toolbar] button').filter({ hasText: "+ Hinzufügen" }).click();
+  const catalog = root.locator("[data-jui-dashboard-catalog]");
+  await catalog.locator('input[aria-label="Kalender-Entitäten"]').fill("calendar.family");
+  await catalog.locator('[data-jui-catalog-module="widget.calendar-agenda"]').click();
+  await root.locator('[data-jui-editor-toolbar] button').filter({ hasText: "Fertig" }).click();
+  await page.waitForFunction(() => window.__nextTest?.writes === 2);
+  let configured = await page.evaluate(() => structuredClone(window.__nextTest.config));
+  const agenda = configured.pages.home.elements.find(item =>
+    configured.widget_instances[item.ref_id]?.module_id === "widget.calendar-agenda");
+  assert.ok(agenda, "Agenda widget must persist after the second save");
+  assert.equal(configured.widget_instances[agenda.ref_id].config.calendars[0].entity_id, "calendar.family");
+
+  // The same widget must be independently configurable on the next edit.
+  await editAgain.click();
+  await root.locator('[data-jui-dashboard-item="' + agenda.id + '"] [data-jui-editor-settings]').click();
+  await root.locator('[data-jui-widget-settings] input[aria-label="Aufgaben-Entitäten"]').fill("todo.shopping");
+  await root.locator('[data-jui-widget-settings] button').filter({ hasText: "Übernehmen" }).click();
+  await root.locator('[data-jui-editor-toolbar] button').filter({ hasText: "Fertig" }).click();
+  await page.waitForFunction(() => window.__nextTest?.writes === 3);
+  configured = await page.evaluate(() => structuredClone(window.__nextTest.config));
+  assert.equal(configured.widget_instances[agenda.ref_id].config.task_lists[0].entity_id, "todo.shopping");
+  await editAgain.waitFor({ state: "visible" });
   assert.deepEqual(errors, [], "Unexpected browser errors");
-  console.log("JamesUI Next Chromium portrait boot, editor and revisioned save: PASS");
+  console.log("JamesUI Next Chromium portrait boot, re-edit, add, settings and three durable saves: PASS");
 } finally {
   await browser.close();
   await new Promise((done) => server.close(done));
