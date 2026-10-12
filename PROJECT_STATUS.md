@@ -49,6 +49,18 @@ Ein realer Browserfehler (untere Navigation blockierte Editor-Schaltfläche) wur
 
 **Noch nicht durch Nutzer bestätigt:** Die tatsächliche HA-Installation, reale KNX-/Todo-Aktionen, visuelle Tablet-Abnahme, Offline- und Neustart-Stabilität. Siehe `docs/LIVE_TEST.md`.
 
+## Reale Bedienungsprobleme – 12.10.2026
+
+**Anwenderbefund:** Wetter und Hintergrund erscheinen auf dem Tablet, andere Widget-Aktionen, Hinzufügen und Konfiguration funktionieren nicht zuverlässig; PC zeigt schwarze Seite, Notebook startet extrem langsam. **Die vorherige Beta `v1.0.0b2` ist ausdrücklich nicht abgenommen.** Keine neue Release-Freigabe auf Basis der bisherigen simulierten CI allein.
+
+**Ursächlich im Code nachgewiesen:** Bei befüllter Startseite gab es keinen permanenten Einstieg zurück in den Editor. Nach dem ersten Speichern konnte die Startseite somit nicht mehr regulär bearbeitet werden. Behoben durch stets verfügbaren `Bearbeiten`-Knopf im Ansichtsmodus und korrektes Ausblenden der Toolbar.
+
+**Weitere Korrektur:** Fehlerhaft konfigurierte oder nicht ladende Widgets hatten Fehler geschluckt oder den Aufbau anderer Elemente blockiert. Sie zeigen nun eigene sichtbare Fehlermeldungen, während andere Widgets weiterlaufen.
+
+**Prüfung:** Browser-Smoke wurde von „leeres Button-Widget speichern“ auf mehrfache Änderungen an einer befüllten Seite erweitert: erneutes Bearbeiten, Agenda hinzufügen, Aufgabenquelle ändern, nach jedem Schritt speichern, echte Widget-DOM-Inhalte und Remount im Tablet- und Desktop-Viewport. Modultests prüfen sichtbare Fehlerfälle und Isolation.
+
+**Noch ungeklärt:** Ursache des extrem langsamen Notebook-Starts und der schwarzen PC-Seite sowie die tatsächliche HA-Anbindung/Interaktion und gestalterische Qualität am Tablet. Keine Behauptung, diese Punkte seien repariert, solange echte Befunde fehlen. **Nächste Beta erst nach den erweiterten Tests und gezielter Prüfung der noch offenen realen Fehler.**
+
 ## Erster echter Installationsbefund – 11.10.2026
 
 **Anwenderbefund:** Nach Installation/Öffnen von `v1.0.0b2` wird die Seite schwarz dargestellt. Ursache **nicht verifiziert**; die simulierten HA-Browsertests deckten die reale Initialisierung nicht ab.
