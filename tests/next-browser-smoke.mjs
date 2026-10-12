@@ -147,6 +147,7 @@ try {
   assert.equal(saved.pages.home.elements[0].kind, "widget");
   assert.equal(saved.widget_instances[saved.pages.home.elements[0].ref_id].module_id, "widget.dynamic-buttons");
   await root.locator('[data-jui-widget="dynamic-buttons"]').waitFor({ state: "visible", timeout: 10000 });
+  await root.locator('[data-jui-dynamic-empty]').waitFor({ state: "visible", timeout: 10000 });
 
   // A populated dashboard must remain editable after "Fertig". Earlier
   // builds entered edit mode only on an empty page and stranded users here.
@@ -169,6 +170,17 @@ try {
   assert.ok(agenda, "Agenda widget must persist after the second save");
   assert.equal(configured.widget_instances[agenda.ref_id].config.calendars[0].entity_id, "calendar.family");
   await root.locator('[data-jui-widget="calendar-agenda"]').waitFor({ state: "visible", timeout: 10000 });
+  const agendaBounds = await root.locator('[data-jui-widget="calendar-agenda"]').boundingBox();
+  assert.ok(agendaBounds && agendaBounds.height >= 250,
+    "A newly added Agenda must have enough room to display entries");
+  assert.equal(await root.locator('[data-jui-agenda-too-small]').count(), 0,
+    "Default Agenda size must never render the 'Nicht genug Platz' warning");
+  const buttonItem = configured.pages.home.elements.find(item =>
+    configured.widget_instances[item.ref_id]?.module_id === "widget.dynamic-buttons");
+  assert.ok(buttonItem);
+  assert.equal(agenda.row, buttonItem.row, "New widgets should occupy an available neighboring column");
+  assert.equal(agenda.column, buttonItem.column + buttonItem.column_span,
+    "New widget must fill the gap to the right, not stack on the left");
 
   // The same widget must be independently configurable on the next edit.
   await editAgain.click();
@@ -201,6 +213,8 @@ try {
 
   // The same persisted app must also remain usable at a desktop viewport.
   await page.setViewportSize({ width: 1366, height: 768 });
+  assert.equal(await root.locator('[data-jui-agenda-too-small]').count(), 0,
+    "Agenda should remain usable at desktop height");
   await editAgain.click();
   await root.locator('[data-jui-editor-toolbar] button').filter({ hasText: "Fertig" }).click();
   await editAgain.waitFor({ state: "visible" });
