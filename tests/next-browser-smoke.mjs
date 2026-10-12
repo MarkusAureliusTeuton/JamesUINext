@@ -115,6 +115,7 @@ try {
   assert.equal(saved.pages.home.elements.length, 1);
   assert.equal(saved.pages.home.elements[0].kind, "widget");
   assert.equal(saved.widget_instances[saved.pages.home.elements[0].ref_id].module_id, "widget.dynamic-buttons");
+  await root.locator('[data-jui-widget="dynamic-buttons"]').waitFor({ state: "visible", timeout: 10000 });
 
   // A populated dashboard must remain editable after "Fertig". Earlier
   // builds entered edit mode only on an empty page and stranded users here.
@@ -136,6 +137,7 @@ try {
     configured.widget_instances[item.ref_id]?.module_id === "widget.calendar-agenda");
   assert.ok(agenda, "Agenda widget must persist after the second save");
   assert.equal(configured.widget_instances[agenda.ref_id].config.calendars[0].entity_id, "calendar.family");
+  await root.locator('[data-jui-widget="calendar-agenda"]').waitFor({ state: "visible", timeout: 10000 });
 
   // The same widget must be independently configurable on the next edit.
   await editAgain.click();
@@ -146,6 +148,7 @@ try {
   await page.waitForFunction(() => window.__nextTest?.writes === 3);
   configured = await page.evaluate(() => structuredClone(window.__nextTest.config));
   assert.equal(configured.widget_instances[agenda.ref_id].config.task_lists[0].entity_id, "todo.shopping");
+  assert.equal(await root.locator('[data-jui-widget="calendar-agenda"]').count(), 1);
   await editAgain.waitFor({ state: "visible" });
   assert.deepEqual(errors, [], "Unexpected browser errors");
   console.log("JamesUI Next Chromium portrait boot, re-edit, add, settings and three durable saves: PASS");
