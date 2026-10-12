@@ -64,4 +64,14 @@ export const DYNAMIC_BUTTON_STYLES = `
   [data-jui-dynamic-button] { transition: none; }
   [data-jui-dynamic-feedback="error"] { animation: none; box-shadow: 0 0 0 2px var(--jui-color-status-error), var(--jui-shadow-inset-highlight); }
 }
+
+[data-jui-dynamic-empty] {
+  width: 100%; min-height: 170px; padding: 24px;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; line-height: 1.5; font-size: 15px;
+  color: var(--jui-color-text-secondary);
+  border: 1px dashed var(--jui-color-border-strong);
+  border-radius: 16px;
+  background: rgba(18,20,23,.7);
+}
 `;

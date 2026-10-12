@@ -105,6 +105,15 @@ export function createHouseQuickWidget(initialContext, initialConfig) {
       if (item.navigation) button.addEventListener("click", () => dispatchNavigation(item.navigation));
       return button;
     });
+    if (nodes.length === 0) {
+      // Blank tiles look broken. Explain what the user needs to configure.
+      const empty = document.createElement("div");
+      empty.setAttribute("data-jui-house-empty", "");
+      empty.setAttribute("role", "status");
+      empty.textContent = "Noch kein Hausstatus eingerichtet. Bearbeiten → Zahnrad, um Statuskacheln und Datenquellen auszuwählen.";
+      root.replaceChildren(empty);
+      return;
+    }
     root.replaceChildren(...nodes);
   };
 

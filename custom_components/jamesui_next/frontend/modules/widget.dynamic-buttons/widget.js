@@ -99,6 +99,15 @@ export function createDynamicButtonsWidget(initialContext, initialConfig) {
       button.addEventListener("click", () => activate(use.id));
       return button;
     });
+    if (nodes.length === 0) {
+      // Blank tiles look broken. Explain what the user needs to configure.
+      const empty = document.createElement("div");
+      empty.setAttribute("data-jui-dynamic-empty", "");
+      empty.setAttribute("role", "status");
+      empty.textContent = "Noch keine Schaltflächen eingerichtet. Bearbeiten → Zahnrad, um Buttons zu konfigurieren.";
+      root.replaceChildren(empty);
+      return;
+    }
     root.replaceChildren(...nodes);
   };
 
