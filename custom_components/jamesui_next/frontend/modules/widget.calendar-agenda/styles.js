@@ -8,6 +8,9 @@ export const CALENDAR_AGENDA_STYLES = `
   min-height: 0;
   height: 100%;
   overflow: hidden;
+  padding: 14px;
+  border: 1px solid var(--jui-color-border);
+  border-radius: 16px;
   color: var(--jui-color-text-primary);
   background: var(--jui-color-surface);
 }
@@ -22,7 +25,7 @@ export const CALENDAR_AGENDA_STYLES = `
 
 [data-jui-widget="calendar-agenda"] [data-jui-agenda-header-label] {
   overflow: hidden;
-  font-size: var(--jui-font-size-sm);
+  font-size: clamp(15px, 1.1vw, 18px);
   font-weight: var(--jui-font-weight-semibold);
   text-overflow: ellipsis;
   white-space: nowrap;

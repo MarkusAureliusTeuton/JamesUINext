@@ -54,10 +54,27 @@ export function createDashboardEditSession({ controller, configService, pageId, 
              working.pages[pageId].elements.some((item) => item.id === base + "-" + i)) i += 1;
       const id = base + "-" + i;
       const elements = page().elements;
-      let row = 0;
-      while (elements.some((item) => item.column < columnSpan &&
-          item.row < row + rowSpan && item.row + item.row_span > row)) row += 1;
-      if (maxRows !== null && row + rowSpan > maxRows) return null;
+      // Fill horizontal gaps before stacking all widgets at column zero.
+      let row = 0, column = 0, found = false;
+      const finalRow = maxRows === null
+        ? Math.max(0, ...elements.map(item => item.row + item.row_span))
+        : maxRows - rowSpan;
+      for (let candidateRow = 0; candidateRow <= finalRow && !found; candidateRow++) {
+        for (let candidateColumn = 0; candidateColumn <= 12 - columnSpan; candidateColumn++) {
+          const overlaps = elements.some(item =>
+            item.column < candidateColumn + columnSpan &&
+            candidateColumn < item.column + item.column_span &&
+            item.row < candidateRow + rowSpan &&
+            candidateRow < item.row + item.row_span);
+          if (!overlaps) {
+            row = candidateRow;
+            column = candidateColumn;
+            found = true;
+            break;
+          }
+        }
+      }
+      if (!found) return null;
       const initialConfig = typeof config === "function" ? config(id) : config;
       if (!initialConfig || typeof initialConfig !== "object" || Array.isArray(initialConfig)) throw new TypeError("Widget config must be an object");
       history.push(working);
@@ -68,7 +85,7 @@ export function createDashboardEditSession({ controller, configService, pageId, 
         pages: { ...working.pages,
           [pageId]: { ...working.pages[pageId], elements: [
             ...working.pages[pageId].elements,
-            { id, kind: "widget", ref_id: id, column: 0, row,
+            { id, kind: "widget", ref_id: id, column, row,
               column_span: columnSpan, row_span: rowSpan },
           ] } },
       };

@@ -4,7 +4,8 @@ export const DASHBOARD_GRID_STYLES = `
 [data-jui-dashboard-grid] {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  grid-auto-rows: var(--jui-dashboard-row-height, 32px);
+  /* One third of a 32px row cannot display real Agenda content. */
+  grid-auto-rows: var(--jui-dashboard-row-height, clamp(64px, 6vh, 84px));
   gap: var(--jui-dashboard-gap, 8px);
   align-content: start;
   width: 100%;

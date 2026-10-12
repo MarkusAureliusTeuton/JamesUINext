@@ -354,7 +354,13 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
           ? (id) => buildAgendaInstanceConfig(id, sources)
           : moduleId === "widget.house-quick" || moduleId === "widget.dynamic-buttons"
             ? { buttons: [] } : {};
-        const next = editor.addWidget(moduleId, { config });
+        const preferred = {
+          "widget.calendar-agenda": { columnSpan: 6, rowSpan: 4 },
+          "widget.house-quick": { columnSpan: 6, rowSpan: 3 },
+          "widget.dynamic-buttons": { columnSpan: 6, rowSpan: 3 },
+          "widget.weather-today": { columnSpan: 6, rowSpan: 4 },
+        };
+        const next = editor.addWidget(moduleId, { config, ...(preferred[moduleId] ?? {}) });
         if (next) preview(next);
       } });
       placeEditorDialog(catalogView.root);
