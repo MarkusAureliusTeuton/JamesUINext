@@ -87,6 +87,7 @@ try {
         throw new Error("Unexpected HA WebSocket request: " + message.type);
       },
     };
+    window.__nextHass = hass;
     const panel = document.createElement("jamesui-next-panel");
     document.body.appendChild(panel);
     panel.hass = hass;
@@ -149,6 +150,27 @@ try {
   configured = await page.evaluate(() => structuredClone(window.__nextTest.config));
   assert.equal(configured.widget_instances[agenda.ref_id].config.task_lists[0].entity_id, "todo.shopping");
   assert.equal(await root.locator('[data-jui-widget="calendar-agenda"]').count(), 1);
+  await editAgain.waitFor({ state: "visible" });
+
+  // Simulate a real panel remount/reload: the application must reconstruct
+  // its widgets and retain edit controls from persisted HA configuration.
+  await page.evaluate(() => {
+    const oldPanel = document.querySelector("jamesui-next-panel");
+    oldPanel.remove();
+    const next = document.createElement("jamesui-next-panel");
+    document.body.appendChild(next);
+    next.hass = window.__nextHass;
+  });
+  await root.locator('[data-jui-widget="calendar-agenda"]').waitFor({ state: "visible", timeout: 15000 });
+  await root.locator('[data-jui-widget="dynamic-buttons"]').waitFor({ state: "visible", timeout: 15000 });
+  await editAgain.waitFor({ state: "visible", timeout: 15000 });
+  assert.equal(await root.locator('[data-jui-dashboard-item]').count(), 2);
+  assert.equal(await page.evaluate(() => window.__nextTest.writes), 3, "Reload must not create phantom config writes");
+
+  // The same persisted app must also remain usable at a desktop viewport.
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await editAgain.click();
+  await root.locator('[data-jui-editor-toolbar] button').filter({ hasText: "Fertig" }).click();
   await editAgain.waitFor({ state: "visible" });
   assert.deepEqual(errors, [], "Unexpected browser errors");
   console.log("JamesUI Next Chromium portrait boot, re-edit, add, settings and three durable saves: PASS");
