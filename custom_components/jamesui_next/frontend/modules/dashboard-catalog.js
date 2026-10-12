@@ -32,12 +32,19 @@ export function createDashboardCatalogView({ document, catalog, onSelect } = {})
   close.textContent = "Schließen";
   close.addEventListener("click", () => { root.hidden = true; });
   root.appendChild(close);
+  const heading = document.createElement("h3");
+  heading.textContent = "Widget hinzufügen";
+  const intro = document.createElement("p");
+  intro.setAttribute("data-jui-catalog-intro", "");
+  intro.textContent = "Wähle ein Modul. Kalender und Aufgaben benötigen mindestens eine Datenquelle. Andere Widgets richtest du anschließend über das Zahnrad ein.";
+  root.appendChild(heading);
+  root.appendChild(intro);
   root.appendChild(error);
   return Object.freeze({
     root,
     open() {
       error.textContent = "";
-      for (const child of [...root.children]) if (child !== close && child !== error) root.removeChild(child);
+      for (const child of [...root.children]) if (child !== close && child !== error && child !== heading && child !== intro) root.removeChild(child);
       for (const item of catalog.entries()) {
         const button = document.createElement("button");
         button.setAttribute("type", "button");
@@ -54,8 +61,14 @@ export function createDashboardCatalogView({ document, catalog, onSelect } = {})
             try { onSelect(item.module_id, { calendars: calendar.value, tasks: tasks.value }); root.hidden = true; }
             catch (cause) { error.textContent = cause.message; }
           });
-          root.appendChild(calendar);
-          root.appendChild(tasks);
+          const calendarLabel = document.createElement("label");
+          calendarLabel.textContent = "Kalender-Entitäten (optional)";
+          calendarLabel.appendChild(calendar);
+          const tasksLabel = document.createElement("label");
+          tasksLabel.textContent = "Aufgabenlisten (optional)";
+          tasksLabel.appendChild(tasks);
+          root.appendChild(calendarLabel);
+          root.appendChild(tasksLabel);
         } else {
           button.addEventListener("click", () => {
             try { onSelect(item.module_id, {}); root.hidden = true; }

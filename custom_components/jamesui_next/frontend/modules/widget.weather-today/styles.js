@@ -37,7 +37,7 @@ export const WEATHER_TODAY_STYLES = `
 
 [data-jui-widget="weather-today"] [data-jui-weather-date] {
   color: var(--jui-color-text-secondary);
-  font-size: var(--jui-font-size-sm);
+  font-size: clamp(13px, 1.05vw, 16px);
   font-weight: var(--jui-font-weight-medium);
   line-height: var(--jui-line-height-tight);
   text-transform: capitalize;
@@ -102,7 +102,9 @@ export const WEATHER_TODAY_STYLES = `
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   min-width: 0;
+  gap: 6px;
   padding-top: var(--jui-space-3);
+  padding-bottom: 4px;
   border-top: 1px solid var(--jui-color-border-strong);
 }
 
@@ -136,8 +138,8 @@ export const WEATHER_TODAY_STYLES = `
 [data-jui-widget="weather-today"] [data-jui-weather-fact-label] {
   display: block;
   color: var(--jui-color-text-muted);
-  font-size: var(--jui-font-size-xs);
-  line-height: var(--jui-line-height-tight);
+  font-size: clamp(12px, 1vw, 14px);
+  line-height: 1.3;
 }
 
 [data-jui-widget="weather-today"] [data-jui-weather-fact-value] {
@@ -145,7 +147,7 @@ export const WEATHER_TODAY_STYLES = `
   margin-top: var(--jui-space-1);
   overflow: hidden;
   color: var(--jui-color-text-primary);
-  font-size: var(--jui-font-size-xs);
+  font-size: clamp(13px, 1.1vw, 16px);
   font-weight: var(--jui-font-weight-medium);
   line-height: var(--jui-line-height-tight);
   text-overflow: ellipsis;
