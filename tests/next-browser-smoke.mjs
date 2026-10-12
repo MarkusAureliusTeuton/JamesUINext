@@ -11,7 +11,7 @@ const server = createServer(async (request, response) => {
   const url = new URL(request.url, "http://127.0.0.1");
   if (url.pathname === "/") {
     response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-    response.end('<!doctype html><html lang="de"><meta name="viewport" content="width=device-width, initial-scale=1"><script src="/jamesui_next_static/jamesui-next-entry.js"></script><body></body></html>');
+    response.end('<!doctype html><html lang="de"><meta name="viewport" content="width=device-width, initial-scale=1"><script src="/jamesui_next_static/jamesui-next-entry.js"></script><body style="margin:0;padding:0;height:100dvh;overflow:hidden"></body></html>');
     return;
   }
   const prefix = "/jamesui_next_static/";
@@ -111,7 +111,7 @@ try {
     "Empty state must fit the portrait viewport");
   const navBounds = await root.locator('[data-role="bottom-navigation"]').boundingBox();
   assert.ok(navBounds && navBounds.y + navBounds.height <= 1441 && navBounds.height >= 65,
-    "Navigation must be completely visible, legible and touchable");
+    "Navigation must be completely visible, legible and touchable: " + JSON.stringify(navBounds));
   const addBounds = await root.locator('[data-jui-editor-toolbar] button').filter({ hasText: "+ Hinzufügen" }).boundingBox();
   assert.ok(addBounds && addBounds.height >= 44, "Editor actions need a >=44px touch target");
   const factsFont = await root.locator('[data-jui-weather-fact-label]').first().evaluate(
