@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
+import { readFile, mkdir } from "node:fs/promises";
 import { resolve, sep, extname } from "node:path";
 import { chromium } from "playwright";
 
@@ -99,6 +99,27 @@ try {
     const toolbar = document.querySelector("jamesui-next-panel")?.shadowRoot?.querySelector("[data-jui-editor-toolbar]");
     return toolbar && !toolbar.hidden;
   });
+  // Geometry, not just existence: widget guidance and controls must occupy
+  // the visible deck and be reachable at native touch sizes.
+  const empty = root.locator("[data-jui-dashboard-empty]");
+  await empty.waitFor({ state: "visible" });
+  const heroBounds = await root.locator('[data-jui-layout-region="hero"]').boundingBox();
+  const emptyBounds = await empty.boundingBox();
+  assert.ok(emptyBounds && heroBounds && emptyBounds.y >= heroBounds.y + heroBounds.height - 35,
+    "Empty state must stay inside the widget deck, not cover weather");
+  assert.ok(emptyBounds.x >= 0 && emptyBounds.x + emptyBounds.width <= 960,
+    "Empty state must fit the portrait viewport");
+  const navBounds = await root.locator('[data-role="bottom-navigation"]').boundingBox();
+  assert.ok(navBounds && navBounds.y + navBounds.height <= 1441 && navBounds.height >= 65,
+    "Navigation must be completely visible, legible and touchable");
+  const addBounds = await root.locator('[data-jui-editor-toolbar] button').filter({ hasText: "+ Hinzufügen" }).boundingBox();
+  assert.ok(addBounds && addBounds.height >= 44, "Editor actions need a >=44px touch target");
+  const factsFont = await root.locator('[data-jui-weather-fact-label]').first().evaluate(
+    element => parseFloat(getComputedStyle(element).fontSize));
+  assert.ok(factsFont >= 12, "Weather details must not shrink below 12px");
+  assert.equal(await root.locator('[role="status"]').count(), 0,
+    "No startup/waiting message after dashboard is ready");
+
   const nav = await page.evaluate(() => [...document.querySelector("jamesui-next-panel").shadowRoot.querySelectorAll('[data-role="bottom-navigation"] button')]
     .map((button) => ({ route: button.dataset.routeId, disabled: button.disabled })));
   assert.deepEqual(nav, [
@@ -108,10 +129,16 @@ try {
     { route: "media", disabled: true },
     { route: "door", disabled: true },
   ]);
-  await root.locator('[data-jui-editor-toolbar] button').filter({ hasText: "+ Hinzufügen" }).click();
+  await root.locator('[data-jui-empty-add]').click();
+  const catalogDialog = root.locator("[data-jui-dashboard-catalog]");
+  await catalogDialog.waitFor({ state: "visible" });
+  const dialogBounds = await catalogDialog.boundingBox();
+  assert.ok(dialogBounds && dialogBounds.width >= 300 && dialogBounds.height >= 240,
+    "Widget catalog must open as a usable settings panel");
   await root.locator('[data-jui-catalog-module="widget.dynamic-buttons"]').click();
   await root.locator('[data-jui-editor-toolbar] button').filter({ hasText: "Fertig" }).click();
   await page.waitForFunction(() => window.__nextTest?.writes === 1);
+  assert.equal(await empty.isVisible(), false, "Onboarding must disappear when widgets exist");
   const saved = await page.evaluate(() => structuredClone(window.__nextTest.config));
   assert.equal(saved.pages.home.elements.length, 1);
   assert.equal(saved.pages.home.elements[0].kind, "widget");
@@ -172,6 +199,11 @@ try {
   await editAgain.click();
   await root.locator('[data-jui-editor-toolbar] button').filter({ hasText: "Fertig" }).click();
   await editAgain.waitFor({ state: "visible" });
+  const desktopNav = await root.locator('[data-role="bottom-navigation"]').boundingBox();
+  assert.ok(desktopNav && desktopNav.y + desktopNav.height <= 769,
+    "Desktop navigation must not disappear below the viewport");
+  await mkdir("test-results", { recursive: true });
+  await page.screenshot({ path: "test-results/jamesui-next-desktop.png", fullPage: true });
   assert.deepEqual(errors, [], "Unexpected browser errors");
   console.log("JamesUI Next Chromium portrait boot, re-edit, add, settings and three durable saves: PASS");
 } finally {
