@@ -216,7 +216,22 @@ try {
   assert.equal(await root.locator('[data-jui-agenda-too-small]').count(), 0,
     "Agenda should remain usable at desktop height");
   await editAgain.click();
+  // Configure a previously blank dynamic-buttons widget end-to-end.
+  await root.locator('[data-jui-dashboard-item="' + buttonItem.id + '"] [data-jui-editor-settings]').click();
+  const buttonDialog = root.locator("[data-jui-button-settings]");
+  await buttonDialog.waitFor({ state: "visible" });
+  await buttonDialog.locator('input[aria-label="Button-ID"]').fill("test_light");
+  await buttonDialog.locator('input[aria-label="Bezeichnung"]').fill("Testlicht");
+  await buttonDialog.locator('input[aria-label="HA-Entität"]').fill("light.test");
+  await buttonDialog.locator("button").filter({ hasText: "Button übernehmen" }).click();
   await root.locator('[data-jui-editor-toolbar] button').filter({ hasText: "Fertig" }).click();
+  await page.waitForFunction(() => window.__nextTest?.writes === 4);
+  await root.locator('[data-jui-dynamic-button-id="test_light"]').waitFor({ state: "visible", timeout: 12000 });
+  assert.equal(await root.locator('[data-jui-dynamic-empty]').count(), 0,
+    "Configured dynamic buttons must replace their initial placeholder");
+  const storedAfterButtons = await page.evaluate(() => structuredClone(window.__nextTest.config));
+  assert.equal(storedAfterButtons.dynamic_buttons.test_light.name, "Testlicht");
+  assert.equal(storedAfterButtons.widget_instances[buttonItem.ref_id].config.buttons[0].button_id, "test_light");
   await editAgain.waitFor({ state: "visible" });
   const desktopNav = await root.locator('[data-role="bottom-navigation"]').boundingBox();
   assert.ok(desktopNav && desktopNav.y + desktopNav.height <= 769,
