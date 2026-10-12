@@ -66,10 +66,23 @@ jobs:
 
           Testumfang: Startseite mit Wetter, Kalender/Todo, Hausstatus, Buttons
           und Dashboard-Editor. Andere Seiten sind deaktiviert.
-          Alle automatisierten Prüfungen inklusive Chromium-Browsertest bestanden.
 
-          Die reale Home-Assistant-/KNX- und OnePlus-Pad-2-/Fully-Kiosk-Abnahme
-          steht noch aus. Bitte zuvor ein Home-Assistant-Backup erstellen.
+          Verbesserungen dieser Beta:
+          - Sichtbarer Einrichtungszustand statt schwarzer leerer Widget-Fläche
+          - Größere Tablet-/PC-Bedienelemente, lesbarere Wetterdetails
+          - Dauerhafter Einstieg in den Editor und benutzbare Einstellungsdialoge
+          - Widgets in brauchbarer Standardgröße, nebeneinander statt nur untereinander
+          - Sichtbare Konfigurationshinweise für leere Haus- und Schaltflächen-Widgets
+          - Start-/Ladefehler klar sichtbar statt einer schwarzen Oberfläche
+
+          Automatisch geprüft: Widget hinzufügen, Agenda nachträglich konfigurieren,
+          Schaltfläche mit HA-Entität anlegen, mehrfach speichern und nach Reload
+          auf Tablet-/Desktop-Größen wiederherstellen. GitHub Actions enthält
+          Screenshots der simulierten Startseite.
+
+          Wichtig: Der Live-Start auf einigen PCs, echte HA-/KNX-Aktionen und
+          OnePlus Pad 2/Fully Kiosk sind noch NICHT abgenommen. Die simulierten
+          Tests ersetzen diese Prüfungen nicht. Bitte vorher HA-Backup erstellen.
           NOTES
           gh release create "$TAG" \
             --repo "$GITHUB_REPOSITORY" \
