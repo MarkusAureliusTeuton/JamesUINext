@@ -35,7 +35,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
   let pageId = null;
   let generation = 0;
   let previewEditor = null;
-  let editor = null, toolbar = null, touch = null, unbindTouch = null, gridRoot = null, catalogView = null, settingsDialog = null, weatherSettings = null, buttonSettings = null, houseSettings = null;
+  let editor = null, toolbar = null, editButton = null, touch = null, unbindTouch = null, gridRoot = null, catalogView = null, settingsDialog = null, weatherSettings = null, buttonSettings = null, houseSettings = null;
 
   function destroy() {
     generation += 1;
@@ -54,7 +54,10 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     unbindTouch?.(); unbindTouch = null;
     touch?.destroy(); touch = null;
     if (toolbar?.root?.parentNode) toolbar.root.parentNode.removeChild(toolbar.root);
-    toolbar = null; editor = null; gridRoot = null; previewEditor = null;
+    toolbar = null;
+    editButton?.remove();
+    editButton = null;
+    editor = null; gridRoot = null; previewEditor = null;
     if (catalogView?.root?.parentNode) catalogView.root.parentNode.removeChild(catalogView.root);
     catalogView = null;
     grid?.destroy();
@@ -85,7 +88,10 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
       unbindTouch?.(); unbindTouch = null;
       touch?.destroy(); touch = null;
       if (toolbar?.root?.parentNode) toolbar.root.parentNode.removeChild(toolbar.root);
-      toolbar = null; editor = null; gridRoot = null;
+      toolbar = null;
+      editButton?.remove();
+      editButton = null;
+      editor = null; gridRoot = null;
     if (catalogView?.root?.parentNode) catalogView.root.parentNode.removeChild(catalogView.root);
     catalogView = null;
       grid?.destroy();
@@ -142,6 +148,10 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
 
 
   function showHandles() {
+    if (editButton) {
+      editButton.hidden = Boolean(editor?.active);
+      editButton.style.display = editor?.active ? "none" : "inline-flex";
+    }
     if (!gridRoot) return;
     for (const element of gridRoot.querySelectorAll("[data-jui-dashboard-item]")) {
       const existing = element.querySelector("[data-jui-editor-resize]");
@@ -221,7 +231,14 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     toolbar = createDashboardEditorToolbar({
       document, session: editor, onChange: preview,
       onCommitted: async () => { if (onConfigCommitted) await onConfigCommitted(getConfig()); },
-      onFinished: () => { settingsDialog?.close(); buttonSettings?.close(); houseSettings?.close(); showHandles(); },
+      onFinished: () => {
+        settingsDialog?.close();
+        buttonSettings?.close();
+        houseSettings?.close();
+        weatherSettings?.close();
+        catalogView?.close();
+        showHandles();
+      },
       onAdd: () => catalogView?.open(),
     });
     // Editor controls and dialogs overlay the page region; a full-height
@@ -237,6 +254,34 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     toolbar.root.style.borderRadius = "12px";
     toolbar.root.style.background = "var(--jui-color-surface-raised, #222)";
     target.appendChild(toolbar.root);
+
+    // Permanently accessible edit entry: after the first "Fertig" the page
+    // is no longer empty and auto-enter does not run on reload. Without this
+    // control users could never edit, add or configure widgets again.
+    editButton = document.createElement("button");
+    editButton.setAttribute("type", "button");
+    editButton.setAttribute("data-jui-open-editor", "");
+    editButton.setAttribute("aria-label", "Startseite bearbeiten");
+    editButton.textContent = "Bearbeiten";
+    editButton.style.position = "absolute";
+    editButton.style.top = "12px";
+    editButton.style.right = "12px";
+    editButton.style.zIndex = "24";
+    editButton.style.padding = "10px 16px";
+    editButton.style.borderRadius = "12px";
+    editButton.style.border = "1px solid var(--jui-color-border-strong)";
+    editButton.style.background = "var(--jui-color-surface-raised, #222)";
+    editButton.style.color = "var(--jui-color-text-primary, #fff)";
+    editButton.style.cursor = "pointer";
+    editButton.addEventListener("click", () => {
+      if (!editor?.active) {
+        toolbar.open();
+        showHandles();
+      }
+    });
+    target.appendChild(editButton);
+    showHandles();
+
     const placeEditorDialog = (root) => {
       root.style.position = "absolute";
       root.style.inset = "12px";
