@@ -105,3 +105,11 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Test Next browser portrait startup and editor persistence
         run: node tests/next-browser-smoke.mjs
+      - name: Upload visual browser snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jamesui-next-browser-snapshots
+          path: test-results/*.png
+          if-no-files-found: ignore
+          retention-days: 7
