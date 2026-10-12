@@ -120,6 +120,9 @@ try {
   assert.equal(await root.locator('[role="status"]').count(), 0,
     "No startup/waiting message after dashboard is ready");
 
+  await mkdir("test-results", { recursive: true });
+  await page.screenshot({ path: "test-results/jamesui-next-empty-tablet.png", fullPage: true });
+
   const nav = await page.evaluate(() => [...document.querySelector("jamesui-next-panel").shadowRoot.querySelectorAll('[data-role="bottom-navigation"] button')]
     .map((button) => ({ route: button.dataset.routeId, disabled: button.disabled })));
   assert.deepEqual(nav, [
@@ -193,6 +196,8 @@ try {
   await editAgain.waitFor({ state: "visible", timeout: 15000 });
   assert.equal(await root.locator('[data-jui-dashboard-item]').count(), 2);
   assert.equal(await page.evaluate(() => window.__nextTest.writes), 3, "Reload must not create phantom config writes");
+
+  await page.screenshot({ path: "test-results/jamesui-next-widgets-tablet.png", fullPage: true });
 
   // The same persisted app must also remain usable at a desktop viewport.
   await page.setViewportSize({ width: 1366, height: 768 });
