@@ -16,3 +16,5 @@ Wir arbeiten am **eigenständigen GitHub-Repository `MarkusAureliusTeuton/JamesU
 **Zum Schluss jeder Arbeitsrunde:** Änderungen, grüner/fehlgeschlagener CI-Lauf, aktueller GitHub-Commit und die wirklich verbleibenden nächsten Schritte in `PROJECT_STATUS.md` aktualisieren. Kurze Zusammenfassung in der Antwort.
 
 **Wichtig:** Für einen neuen Chat zuerst GitHub-HEAD prüfen; diese Datei ist eine Wegbeschreibung, nicht Ersatz für den tatsächlichen Code.
+
+**Verifizierter Kandidat:** HACS-Beta `v1.0.0b3`, Release-Workflow [38211971308](https://github.com/MarkusAureliusTeuton/JamesUINext/actions/runs/38211971308) vollständig grün. Die UI/Editor-Layouts und Standard-Widgetgrößen sind überarbeitet; der Chromium-Smoke prüft Einrichten und Speichern von Agenda sowie dynamischem Button inklusive sichtbarer Darstellung und Reload. Reale HA-/KNX-/PC-/Tablet-Startprobleme bleiben offen. Keine Wiederholung abgeschlossener Grundlagen – beim nächsten Chat zuerst die tatsächlichen Live-Befunde prüfen.

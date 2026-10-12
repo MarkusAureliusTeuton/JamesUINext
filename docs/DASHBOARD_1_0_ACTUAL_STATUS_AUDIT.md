@@ -1,6 +1,6 @@
 # JamesUINext – aktueller Soll-/Ist-Abgleich
 
-**Stand: 11.10.2026.** Verbindliches Testziel: die Startseite. Der genaue GitHub-HEAD und die letzte grüne Prüfung stehen in `PROJECT_STATUS.md`.
+**Stand: 12.10.2026.** Verbindliches Testziel: die Startseite. Der genaue GitHub-HEAD und die letzte grüne Prüfung stehen in `PROJECT_STATUS.md`.
 
 | Modul | Tatsächlich implementiert und verdrahtet | Einschränkung / nächster realer Test |
 | --- | --- | --- |
@@ -18,3 +18,5 @@
 **Zuletzt konkret behoben:** Editor-Buttons werden nicht mehr durch die untere Navigation verdeckt; Einordnung in separate Layout-Zeilen, editor-lokale Dialoge und Browserregression. Zusätzlich verhindern Backend-Revisionsprüfungen verlustbehaftete Mehrclient-Updates. Kein neuer großer Plan nötig – ab hier nur echte Live-Befunde beheben.
 
 **Nicht erneut entwickeln:** Core, Grid, Assets, Wetter-, Kalender-, Hausstatus- und Button-Provider existieren. Vorhandene Funktionen im Live-Test verifizieren und zielgerichtet korrigieren.
+
+**Neuer geprüfter UI-Stand (12.10.2026):** Beta `v1.0.0b3`: nutzbare Standardgrößen/64–84px-Rasterzeilen, nebeneinander angeordnete Widgets, verständlicher Empty State und leere Widget-Hinweise, größere Editor-/Dialog- und Nav-Touchflächen. Chromium prüft Agenda und dynamische Buttons inklusive nachträglicher Konfiguration, Speicherung, DOM-Darstellung und Reload mit PC-/Tablet-Größen. Screenshots im GitHub-Action-Artefakt. Live- und Hardware-Einschränkungen gelten unverändert.

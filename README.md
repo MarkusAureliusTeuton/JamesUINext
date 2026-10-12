@@ -6,7 +6,7 @@ Eigenständige, modulare Tablet-Oberfläche für Home Assistant, entwickelt für
 
 1. Vor einer Testinstallation ein Home-Assistant-Backup erstellen.
 2. In **HACS → Drei Punkte → Benutzerdefinierte Repositories** die Adresse `https://github.com/MarkusAureliusTeuton/JamesUINext` mit Typ **Integration** hinzufügen.
-3. **JamesUI Next** öffnen, gegebenenfalls **Beta-Versionen anzeigen** aktivieren und die geprüfte **v1.0.0b2** herunterladen.
+3. **JamesUI Next** öffnen, gegebenenfalls **Beta-Versionen anzeigen** aktivieren und die geprüfte **v1.0.0b3** herunterladen.
 4. **Home Assistant neu starten.**
 5. Unter **Einstellungen → Geräte & Dienste → Integration hinzufügen** nach **JamesUI Next** suchen und die Integration hinzufügen.
 6. Im Browser das eigene Panel über `/jamesui-next` öffnen.
@@ -15,9 +15,9 @@ Die installierte Integration heißt `jamesui_next`, liegt unter `/config/custom_
 
 ## Erste Einrichtung
 
-- Der Erststart erzeugt eine Startseite mit Wetter-Hero und einem zunächst leeren Widget-Raster, das direkt in den Editiermodus wechselt.
+- Der Erststart erzeugt einen Wetter-Hero mit einer verständlichen Schaltfläche **„Erstes Widget hinzufügen“** und öffnet den Dashboard-Editor. Die neue Navigation bleibt am unteren Rand sichtbar.
 - Unter **Wetter-Datenquelle** die reale `weather.*`-Entität und optional Temperatur-, Mond- und Helligkeitssensoren auswählen.
-- Über **+ Hinzufügen** Agenda, Hausstatus und dynamische Buttons anlegen. Kalender und Todo-Listen werden je Agenda-Instanz konfiguriert.
+- Über **+ Hinzufügen** Agenda, Hausstatus und dynamische Buttons anlegen. Die Widgets erhalten passende Ausgangsgrößen und füllen freie Spalten. Kalender und Todo-Listen werden je Agenda-Instanz konfiguriert. Dynamische Buttons werden über **Bearbeiten → Zahnrad → Button übernehmen** mit einer HA-Entität eingerichtet.
 - Die Hausstatus-Datenquellen sind momentan über einen validierten technischen JSON-Dialog einstellbar; hier ist vor der Tablet-Abnahme auf Lesbarkeit und praktische Bedienung zu achten.
 - Mit **Fertig** speichern. Bei einem Konflikt zwischen Clients wird das Speichern abgelehnt und eine Fehlermeldung angezeigt.
 

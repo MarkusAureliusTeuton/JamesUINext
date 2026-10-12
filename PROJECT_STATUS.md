@@ -1,6 +1,6 @@
 # JamesUINext – Projektstatus
 
-**Stand: 11.10.2026 · Aktives Repository: [MarkusAureliusTeuton/JamesUINext](https://github.com/MarkusAureliusTeuton/JamesUINext) · Hauptbranch: main**
+**Stand: 12.10.2026 · Aktives Repository: [MarkusAureliusTeuton/JamesUINext](https://github.com/MarkusAureliusTeuton/JamesUINext) · Hauptbranch: main**
 
 Dieses Dokument ist die verbindliche Übergabe für die Fortsetzung. Es wird nach jeder zusammengehörigen Änderung fortgeschrieben. Maßgeblich sind immer GitHub-HEAD, Quellcode und der aktuelle CI-Lauf.
 
@@ -33,21 +33,29 @@ Eigenständige Home-Assistant-Integration und Tablet-Oberfläche, zugeschnitten 
 | Konfigurationssicherheit | Serverseitige Revision, compare-and-swap, atomare Speicherung, sichtbare Speicherfehler | Konfliktversuch mit zwei echten Browsern |
 | Qualitätsprüfungen | Python-/JS-Tests, SHA-Assetcheck, Importgrenzen, Chromium-Hochformat-Browser-Smoketest mit simuliertem HA | Reale Home-Assistant- und Langzeitprüfung |
 
-**Letzter vollständig grüner Integrations- und Veröffentlichungsstand:** GitHub Actions **[38160643782](https://github.com/MarkusAureliusTeuton/JamesUINext/actions/runs/38160643782)**: `verify / validate`, `verify / browser-smoke` und `publish` erfolgreich. Die [HACS-Testversion v1.0.0b2](https://github.com/MarkusAureliusTeuton/JamesUINext/releases/tag/v1.0.0b2) wurde am 11.10.2026 aus dem verifizierten Code-Commit `d42cc1025f6ee708576bc1eed7c545d8510d4d75` veröffentlicht. Die grüne CI umfasst simulierte HA-Daten; keine Behauptung einer echten Hardwareabnahme.
+**Letzter vollständig grüner Integrations- und Veröffentlichungsstand:** [GitHub Actions 38211971308](https://github.com/MarkusAureliusTeuton/JamesUINext/actions/runs/38211971308): `verify / validate`, `verify / browser-smoke` und `publish` erfolgreich. [HACS-Testversion v1.0.0b3](https://github.com/MarkusAureliusTeuton/JamesUINext/releases/tag/v1.0.0b3) am 12.10.2026 aus dem geprüften Code-Commit `fe58c69614411650d63c6751a9e0ea2361c4c062` veröffentlicht. Der Browser-Smoketest ist simuliert; reale HA-/KNX-/Fully-Kiosk-Abnahme weiterhin offen.
 
 Ein realer Browserfehler (untere Navigation blockierte Editor-Schaltfläche) wurde anhand des Chromium-Tests entdeckt und behoben. Zusätzlich sind neue Tests für konkurrierende Speichervorgänge vorhanden.
 
 ## Installationsbereite HACS-Testversion
 
-**Bereit:** `v1.0.0b2` im [eigenen GitHub-Repository](https://github.com/MarkusAureliusTeuton/JamesUINext/releases/tag/v1.0.0b2).
+**Bereit für kontrollierten Test:** `v1.0.0b3` im [eigenen GitHub-Repository](https://github.com/MarkusAureliusTeuton/JamesUINext/releases/tag/v1.0.0b3).
 
 1. Home Assistant sichern. In HACS das Custom-Repository `https://github.com/MarkusAureliusTeuton/JamesUINext` als **Integration** hinzufügen.
-2. **JamesUI Next → Erneut herunterladen**: Beta-Versionen anzeigen und `v1.0.0b2` auswählen.
+2. **JamesUI Next → Erneut herunterladen**: Beta-Versionen anzeigen und `v1.0.0b3` auswählen.
 3. Home Assistant neu starten und unter **Einstellungen → Geräte & Dienste** die Integration **JamesUI Next** hinzufügen.
 4. Am PC `/jamesui-next` öffnen, Wetter-Entität zuweisen, weitere Widgets einrichten, speichern, Browser neu laden und die Live-Aktionen prüfen.
 5. Erst danach das OnePlus Pad 2 mit Fully Kiosk im Hochformat prüfen.
 
 **Noch nicht durch Nutzer bestätigt:** Die tatsächliche HA-Installation, reale KNX-/Todo-Aktionen, visuelle Tablet-Abnahme, Offline- und Neustart-Stabilität. Siehe `docs/LIVE_TEST.md`.
+
+## UI-/Bedienungsbereinigung und verifizierte Testbeta – 12.10.2026
+
+**Behoben und durch Chromium sichtbar kontrolliert:** verständlicher Leerzustand mit Widget-Hinzufügen, responsive und besser lesbare Editor-/Dialogbedienung, größere Wetterbeschriftungen, sichtbar abgegrenztes unteres Menü und dauerhaftes „Bearbeiten“ auf einer befüllten Startseite. Widget-Raster hat jetzt brauchbare Zeilenhöhen (`64–84px`) und platziert neue Widgets in freien Spalten. Agenda bekommt ausreichend Höhe, leere Button-/Hausstatus-Widgets zeigen Konfigurationshinweise statt schwarzer Leerflächen.
+
+**Funktionsnachweis:** Chromium-Smoketest fügt Widgets hinzu, konfiguriert Agenda-Kalender und Aufgaben nachträglich, legt einen dynamischen HA-Button an, speichert mehrfach, prüft gerenderte Widgets und lädt die Anwendung im Tablet-/Desktop-Viewport erneut. Darüber hinaus prüft er Navigation, Geometrie, Mindesthöhen/Touchflächen und dass die Agenda nicht „Nicht genug Platz“ meldet. Screenshots sind als GitHub-Actions-Artefakte beigefügt. [Grüner Release-Lauf 38211971308](https://github.com/MarkusAureliusTeuton/JamesUINext/actions/runs/38211971308), [Beta v1.0.0b3](https://github.com/MarkusAureliusTeuton/JamesUINext/releases/tag/v1.0.0b3).
+
+**Noch offen:** Reale HA-Berechtigungen und Quellen, PC-Startprobleme/Ladezeiten, echte KNX-Schaltungen, Fully-Kiosk/OnePlus-Pad-2-Touch und Langzeitbetrieb. Hausstatus-Einstellungen verlangen teilweise noch technische JSON-Eingaben. Keine Produktivfreigabe und keine Aussage, dass diese Punkte durch den simulierten Browsertest gelöst wären.
 
 ## Reale Bedienungsprobleme – 12.10.2026
 
