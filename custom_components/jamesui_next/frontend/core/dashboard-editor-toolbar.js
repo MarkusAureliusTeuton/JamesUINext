@@ -59,6 +59,9 @@ export function createDashboardEditorToolbar({ document, session, onChange, onAd
   let saving = false;
   const refresh = () => {
     root.hidden = !session.active;
+    // The composer styles this bar with display:flex. An explicit inline
+    // display:none is necessary because that style can override [hidden].
+    root.style.display = session.active ? "flex" : "none";
     undo.disabled = saving || !session.canUndo;
     add.disabled = saving;
     finish.disabled = saving;
