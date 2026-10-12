@@ -13,6 +13,7 @@ import { createDashboardHeroLayout } from "../modules/dashboard-layout-factory.j
 import { createDashboardGrid } from "./dashboard-grid.js";
 import { createDashboardWidgetHosts } from "../modules/dashboard-widget-hosts.js";
 import { validateDashboardPage } from "./dashboard-config.js";
+import { DASHBOARD_EDITOR_STYLES } from "./dashboard-editor-styles.js";
 
 // Page composition owns one layout instance, one grid and the weather hero.
 // Its DOM is independent of the persistent Core shell and navigation.
@@ -35,10 +36,13 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
   let pageId = null;
   let generation = 0;
   let previewEditor = null;
+  let emptyState = null, editorStyles = null;
   let editor = null, toolbar = null, editButton = null, touch = null, unbindTouch = null, gridRoot = null, catalogView = null, settingsDialog = null, weatherSettings = null, buttonSettings = null, houseSettings = null;
 
   function destroy() {
     generation += 1;
+    emptyState?.remove(); emptyState = null;
+    editorStyles?.remove(); editorStyles = null;
     houseSettings?.close();
     if (houseSettings?.root?.parentNode) houseSettings.root.parentNode.removeChild(houseSettings.root);
     houseSettings = null;
@@ -85,6 +89,8 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     const token = ++generation;
     // A change of layout invalidates all previous element mounts.
     if (layout) {
+      emptyState?.remove(); emptyState = null;
+      editorStyles?.remove(); editorStyles = null;
       unbindTouch?.(); unbindTouch = null;
       touch?.destroy(); touch = null;
       if (toolbar?.root?.parentNode) toolbar.root.parentNode.removeChild(toolbar.root);
@@ -141,11 +147,46 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     });
     grid = createDashboardGrid({ document, createItemHost: hosts });
     gridRoot = grid.mount(gridHost);
+    editorStyles = document.createElement("style");
+    editorStyles.textContent = DASHBOARD_EDITOR_STYLES;
+    target.appendChild(editorStyles);
     grid.render(withWidgetKeys(page.elements, config), { scroll: page.layout.scroll });
-    if (configService) attachEditor();
+    if (configService) {
+      emptyState = document.createElement("section");
+      emptyState.setAttribute("data-jui-dashboard-empty", "");
+      const card = document.createElement("div");
+      card.setAttribute("data-jui-dashboard-empty-card", "");
+      const title = document.createElement("h2");
+      title.textContent = "Deine Startseite gestalten";
+      const note = document.createElement("p");
+      note.textContent = "Füge Kalender, Hausstatus oder Schaltflächen hinzu. Jedes Widget kannst du später individuell einrichten.";
+      const add = document.createElement("button");
+      add.setAttribute("type", "button");
+      add.setAttribute("data-jui-empty-add", "");
+      add.textContent = "+ Erstes Widget hinzufügen";
+      add.addEventListener("click", () => {
+        if (!editor?.active) toolbar?.open();
+        showHandles();
+        catalogView?.open();
+      });
+      card.appendChild(title);
+      card.appendChild(note);
+      card.appendChild(add);
+      emptyState.appendChild(card);
+      gridHost.appendChild(emptyState);
+      updateEmptyState(page.elements);
+      attachEditor();
+    }
     return true;
   }
 
+
+  function updateEmptyState(elements) {
+    if (!emptyState) return;
+    const empty = elements.length === 0;
+    emptyState.hidden = !empty;
+    emptyState.style.display = empty ? "grid" : "none";
+  }
 
   function showHandles() {
     if (editButton) {
@@ -224,6 +265,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     const preview = (next) => {
       const config = editor?.active ? editor.workingConfig() : getConfig();
       grid.render(withWidgetKeys(next.elements, config), { scroll: next.layout.scroll });
+      updateEmptyState(next.elements);
       showHandles();
       toolbar?.refresh();
     };
@@ -243,16 +285,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     });
     // Editor controls and dialogs overlay the page region; a full-height
     // hero must never push them below the navigation into an invisible area.
-    toolbar.root.style.position = "absolute";
-    toolbar.root.style.right = "12px";
-    toolbar.root.style.bottom = "12px";
-    toolbar.root.style.zIndex = "25";
-    toolbar.root.style.display = "flex";
-    toolbar.root.style.flexWrap = "wrap";
-    toolbar.root.style.gap = "8px";
-    toolbar.root.style.padding = "10px";
-    toolbar.root.style.borderRadius = "12px";
-    toolbar.root.style.background = "var(--jui-color-surface-raised, #222)";
+
     target.appendChild(toolbar.root);
 
     // Permanently accessible edit entry: after the first "Fertig" the page
@@ -263,16 +296,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     editButton.setAttribute("data-jui-open-editor", "");
     editButton.setAttribute("aria-label", "Startseite bearbeiten");
     editButton.textContent = "Bearbeiten";
-    editButton.style.position = "absolute";
-    editButton.style.top = "12px";
-    editButton.style.right = "12px";
-    editButton.style.zIndex = "24";
-    editButton.style.padding = "10px 16px";
-    editButton.style.borderRadius = "12px";
-    editButton.style.border = "1px solid var(--jui-color-border-strong)";
-    editButton.style.background = "var(--jui-color-surface-raised, #222)";
-    editButton.style.color = "var(--jui-color-text-primary, #fff)";
-    editButton.style.cursor = "pointer";
+
     editButton.addEventListener("click", () => {
       if (!editor?.active) {
         toolbar.open();
@@ -283,13 +307,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
     showHandles();
 
     const placeEditorDialog = (root) => {
-      root.style.position = "absolute";
-      root.style.inset = "12px";
-      root.style.zIndex = "35";
-      root.style.overflowY = "auto";
-      root.style.padding = "18px";
-      root.style.borderRadius = "12px";
-      root.style.background = "var(--jui-color-surface-raised, #222)";
+      root.setAttribute("data-jui-editor-dialog", "");
       target.appendChild(root);
     };
     weatherSettings = createWeatherSettingsDialog({
