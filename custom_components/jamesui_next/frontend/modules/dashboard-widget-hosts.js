@@ -14,7 +14,24 @@ export function createDashboardWidgetHosts({ moduleLoader, getConfig, getButtonD
   }
 
   return function createItemHost(node, element) {
+    let alive = true;
+    const showError = (message) => {
+      if (!alive) return;
+      const warning = node.ownerDocument.createElement("div");
+      warning.setAttribute("data-jui-widget-error", "");
+      warning.setAttribute("role", "alert");
+      warning.style.padding = "12px";
+      warning.style.border = "1px solid var(--jui-color-status-error, #c98989)";
+      warning.style.borderRadius = "12px";
+      warning.style.background = "var(--jui-color-surface-raised, #222)";
+      warning.style.color = "var(--jui-color-text-primary, white)";
+      warning.style.overflowWrap = "anywhere";
+      warning.textContent = "Widget nicht verfügbar: " + message;
+      node.replaceChildren(warning);
+    };
+    node.setAttribute("data-jui-widget-instance", element.ref_id);
     let definition;
+    try {
     if (element.kind === "widget") {
       definition = getConfig(element.ref_id);
       if (!definition || typeof definition.module_id !== "string" || !definition.module_id) {
@@ -42,21 +59,33 @@ export function createDashboardWidgetHosts({ moduleLoader, getConfig, getButtonD
     } else {
       throw new TypeError(`Unsupported dashboard element kind: ${element.kind}`);
     }
+    } catch (error) {
+      // A single invalid widget must not prevent its siblings from rendering.
+      showError(String(error?.message || error));
+      return () => { alive = false; };
+    }
     const instanceId = `dashboard:${element.id}`;
-    let alive = true;
     const ready = moduleLoader.load(definition.module_id, {
       instanceId, config: definition.config ?? {},
     }).then((success) => {
-      if (!success) return false;
+      if (!success) {
+        showError("Modul " + definition.module_id + " konnte nicht geladen werden");
+        return false;
+      }
       if (!alive) {
         moduleLoader.destroy(instanceId);
         return false;
       }
       const mounted = moduleLoader.mount(instanceId, node);
-      if (!mounted) moduleLoader.destroy(instanceId);
+      if (!mounted) {
+        moduleLoader.destroy(instanceId);
+        showError("Modul " + definition.module_id + " konnte nicht angezeigt werden");
+      }
       return mounted;
-    }).catch(() => false);
-    node.setAttribute("data-jui-widget-instance", element.ref_id);
+    }).catch((error) => {
+      showError(String(error?.message || error));
+      return false;
+    });
     // Keep async failures from turning unhandled; UI remains the owning grid host.
     void ready;
     return () => {
