@@ -38,7 +38,24 @@ test("widget instance rejects missing dynamic button definitions", () => {
     }}),
     getButtonDefinitions:()=>({}),
   });
-  assert.throws(()=>createHost(createFakeDocument().createElement("section"),{
+  const node = createFakeDocument().createElement("section");
+  const dispose = createHost(node, {
     id:"buttons",kind:"widget",ref_id:"buttons",
-  }),/definition is missing/);
+  });
+  assert.match(node.querySelector("[data-jui-widget-error]").textContent, /definition is missing/);
+  assert.equal(node.querySelector('[role="alert"]').getAttribute("data-jui-widget-error"), "");
+  dispose();
+});
+
+test("async widget load failure renders an isolated, visible error", async () => {
+  const loader={load:async()=>false,mount(){throw new Error("must not mount");},destroy(){}};
+  const createHost=createDashboardWidgetHosts({
+    moduleLoader:loader,
+    getConfig:()=>({module_id:"widget.house-quick",config:{buttons:[]}}),
+  });
+  const node=createFakeDocument().createElement("section");
+  const dispose=createHost(node,{id:"house",kind:"widget",ref_id:"house"});
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.match(node.querySelector("[data-jui-widget-error]").textContent, /nicht geladen werden/);
+  dispose();
 });
