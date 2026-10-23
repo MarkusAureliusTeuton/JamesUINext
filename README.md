@@ -23,6 +23,13 @@ Die installierte Integration heißt `jamesui_next`, liegt unter `/config/custom_
 
 Erst im PC-Browser mit echten HA-Entitäten prüfen, danach auf dem OnePlus Pad 2 über Fully Kiosk. Nur Start ist aktuell ausführbar; die übrigen Navigationsbereiche sind deaktiviert.
 
+
+## Seiten verwalten
+
+Das Zahnrad rechts oben öffnet die globalen **Einstellungen**. Unter **Seiten** lässt sich eine neue Seite anlegen (normales Dashboard oder Wetter-Hero), öffnen, in den Papierkorb verschieben und wiederherstellen. Zum **endgültigen Löschen** ist eine zusätzliche Bestätigung erforderlich. Die Startseite bleibt geschützt. Die Navigation verteilt aktive Seiten automatisch; bei vielen Seiten wird daraus eine horizontale Wischleiste. Andere globale Einstellungen können später dort ergänzt werden.
+
+Kalender-/Agenda-Widgets dürfen zunächst ohne Entitäts-ID hinzugefügt werden: anschließend über **Bearbeiten → Zahnrad** die Kalender und Aufgabenlisten eintragen. Neue Hausstatus- und dynamische Button-Widgets zeigen bis zur Konfiguration einen Hinweis an. Die Hausstatus-Einstellungen sind teilweise weiterhin technische JSON-Felder und noch nicht komfortabel genug für die abschließende Tablet-Abnahme.
+
 ## Stand und Sicherheit
 
 Automatisierte Python-/JavaScript-Modultests, Asset-Prüfungen, Konfigurations-Konflikttests und ein Chromium-Browsertest mit simuliertem HA sind eingerichtet. **Echte HA-/KNX- und Tablet-Tests stehen noch aus.** Eine Betaversion ist ausdrücklich keine Produktivabnahme.

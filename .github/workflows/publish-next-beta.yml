@@ -68,6 +68,12 @@ jobs:
           und Dashboard-Editor. Andere Seiten sind deaktiviert.
 
           Verbesserungen dieser Beta:
+          - Dynamisch verteilte Navigationsseiten mit horizontalem Wischslider
+          - Globales Einstellungszahnrad rechts oben
+          - Seiten anlegen, öffnen, in den Papierkorb verschieben,
+            wiederherstellen und nach Bestätigung endgültig löschen
+          - Alle drei Widgettypen lassen sich ohne vorherige Quellenangabe
+            platzieren und später konfigurieren
           - Sichtbarer Einrichtungszustand statt schwarzer leerer Widget-Fläche
           - Größere Tablet-/PC-Bedienelemente, lesbarere Wetterdetails
           - Dauerhafter Einstieg in den Editor und benutzbare Einstellungsdialoge

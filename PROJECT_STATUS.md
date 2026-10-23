@@ -1,8 +1,16 @@
 # JamesUINext – Projektstatus
 
-**Stand: 12.10.2026 · Aktives Repository: [MarkusAureliusTeuton/JamesUINext](https://github.com/MarkusAureliusTeuton/JamesUINext) · Hauptbranch: main**
+**Stand: 23.10.2026 · Aktives Repository: [MarkusAureliusTeuton/JamesUINext](https://github.com/MarkusAureliusTeuton/JamesUINext) · Hauptbranch: main**
 
 Dieses Dokument ist die verbindliche Übergabe für die Fortsetzung. Es wird nach jeder zusammengehörigen Änderung fortgeschrieben. Maßgeblich sind immer GitHub-HEAD, Quellcode und der aktuelle CI-Lauf.
+
+## Neue Seitenverwaltung und adaptive Navigation – 23.10.2026
+
+**Implementiert:** Die Hauptnavigation zeigt ausschließlich aktive, konfigurierte Seiten, verteilt wenige Einträge gleichmäßig und schaltet bei Platzmangel (Mindestbreite 144 px pro Eintrag) auf horizontalen Wischslider mit Einrastpunkten um. Über das rechts oben permanent sichtbare Zahnrad gelangt man zu **Einstellungen → Seiten**. Dort können unabhängige Seiten mit normalem oder Hero-Layout erstellt, geöffnet, in einen reversiblen Papierkorb verschoben, wiederhergestellt oder nach zusätzlicher Bestätigung endgültig entfernt werden. Die Startseite ist gegen Entfernen geschützt; Layouts und nicht mehr referenzierte Widget-Instanzen werden bei endgültiger Löschung bereinigt.
+
+**Widget-Hinzufügen korrigiert:** Eine Agenda kann jetzt zunächst ohne Kalender-/Todo-Entitäten angelegt und später über das Zahnrad eingerichtet werden. Das gilt ebenso für neue Hausstatus- und Button-Widgets, die ihre Einrichtungsanleitung sichtbar anzeigen. Platzierungs- und Konfigurationsfehler bleiben im Katalog sichtbar, statt das Dialogfenster wortlos zu schließen.
+
+**Automatisierte Abnahme:** Neue Unit-Tests prüfen Seitenerstellung, Papierkorb, Wiederherstellung, endgültige Löschung und Router-Fallback. Der Chromium-Browser prüft das Hinzufügen sämtlicher drei Widgettypen, Speichern, Öffnen, Papierkorb/Wiederherstellen, dynamische Navigationsbreiten und horizontales Scrollen bei vielen Seiten. Die Browser-Screenshots wurden visuell kontrolliert. [Grüner Testlauf 39944803466](https://github.com/MarkusAureliusTeuton/JamesUINext/actions/runs/39944803466). CI wurde auf Ubuntu 24.04/Node 22 stabilisiert. **Die reale HA-/KNX- und Tablet-Abnahme bleibt weiterhin offen.**
 
 ## Ziel / Scope
 
