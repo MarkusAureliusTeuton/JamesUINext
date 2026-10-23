@@ -234,6 +234,61 @@ try {
     "Desktop navigation must not disappear below the viewport");
   await mkdir("test-results", { recursive: true });
   await page.screenshot({ path: "test-results/jamesui-next-desktop.png", fullPage: true });
+  // Global settings must own real pages, not five hardwired disabled tabs.
+  const openGlobal = root.locator("[data-jui-open-settings]");
+  await openGlobal.click();
+  const pageSettings = root.locator("[data-jui-global-settings]");
+  await pageSettings.waitFor({state:"visible"});
+  await pageSettings.locator('[aria-label="Neue Seite"]').fill("Testseite");
+  await pageSettings.locator('[data-jui-page-create]').click();
+  await page.waitForFunction(()=>window.__nextTest.writes===5);
+  assert.equal(await root.locator('[data-role="bottom-navigation"] [data-route-id]').count(),2);
+  assert.equal(await root.locator('[data-role="bottom-navigation"]').getAttribute("data-jui-nav-mode"),"distributed");
+  await pageSettings.locator('[data-jui-page-row="testseite"] [data-jui-page-open]').click();
+  await root.locator('[data-jui-layout="fullscreen"]').waitFor({state:"visible"});
+  await root.locator("[data-jui-empty-add]").click();
+  await root.locator('[data-jui-catalog-module="widget.house-quick"]').click();
+  await root.locator('[data-jui-editor-toolbar] button').filter({hasText:"+ Hinzufügen"}).click();
+  await root.locator('[data-jui-catalog-module="widget.calendar-agenda"]').click();
+  // No sources yet: a blank Agenda must still be addable and editable.
+  await root.locator('[data-jui-editor-toolbar] button').filter({hasText:"+ Hinzufügen"}).click();
+  await root.locator('[data-jui-catalog-module="widget.dynamic-buttons"]').click();
+  await root.locator('[data-jui-editor-toolbar] button').filter({hasText:"Fertig"}).click();
+  await page.waitForFunction(()=>window.__nextTest.writes===6);
+  const second=await page.evaluate(()=>structuredClone(window.__nextTest.config));
+  assert.equal(second.pages.testseite.elements.length,3);
+  assert.deepEqual(second.pages.testseite.elements.map(x=>second.widget_instances[x.ref_id].module_id),
+    ["widget.house-quick","widget.calendar-agenda","widget.dynamic-buttons"]);
+  await root.locator("[data-jui-house-empty]").waitFor({state:"visible"});
+  await root.locator('[data-jui-widget="calendar-agenda"]').waitFor({state:"visible"});
+  await root.locator("[data-jui-dynamic-empty]").waitFor({state:"visible"});
+
+  // Trash and restore retain page contents and reconfigure the nav.
+  await openGlobal.click();
+  await pageSettings.locator('[data-jui-page-row="testseite"] [data-jui-page-trash-action]').click();
+  await page.waitForFunction(()=>window.__nextTest.writes===7);
+  assert.equal(await root.locator('[data-role="bottom-navigation"] [data-route-id]').count(),1);
+  await pageSettings.locator('[data-jui-page-row="testseite"] [data-jui-page-restore-action]').click();
+  await page.waitForFunction(()=>window.__nextTest.writes===8);
+  await pageSettings.locator('[data-jui-page-row="testseite"] [data-jui-page-open]').click();
+  await root.locator('[data-jui-widget="calendar-agenda"]').waitFor({state:"visible"});
+  assert.equal(await root.locator('[data-jui-dashboard-item]').count(),3);
+
+  // Lots of pages must switch to a horizontally swipable navigation strip.
+  await openGlobal.click();
+  for(let i=1;i<=9;i++){
+    await pageSettings.locator('[aria-label="Neue Seite"]').fill("Raum "+i);
+    await pageSettings.locator('[data-jui-page-create]').click();
+    await page.waitForFunction(index=>window.__nextTest.writes===8+index,i);
+  }
+  const bottomNav=root.locator('[data-role="bottom-navigation"]');
+  assert.equal(await bottomNav.getAttribute("data-jui-nav-mode"),"slider");
+  assert.ok(await bottomNav.evaluate(el=>el.scrollWidth>el.clientWidth),
+    "More navigation entries than available space must allow swipe/scroll");
+  await bottomNav.evaluate(el=>{el.scrollLeft=el.scrollWidth;});
+  assert.ok(await bottomNav.evaluate(el=>el.scrollLeft)>0);
+  await pageSettings.locator('[data-jui-settings-close]').click();
+  await page.screenshot({path:"test-results/jamesui-next-navigation-slider.png",fullPage:true});
   assert.deepEqual(errors, [], "Unexpected browser errors");
   console.log("JamesUI Next Chromium portrait boot, re-edit, add, settings and three durable saves: PASS");
 } finally {
