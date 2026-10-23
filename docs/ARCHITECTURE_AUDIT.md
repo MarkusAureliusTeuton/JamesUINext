@@ -17,7 +17,7 @@
 - Module/Widgets: `frontend/modules/`; Core `frontend/core/`; HA-Adapter `frontend/ha/`; Design und Icons separat.
 - `dashboard-route-host` verwaltet Dashboard-Mount/Teardown; `dashboard-page-composer` Layout, Widget-Hosts und Editor.
 - Initiale Home-Konfiguration: Wetter-Hero, leeres Raster, das im Editiermodus startet.
-- Weitere Navigationsbereiche sind deaktiviert, bis sie wirklich implementiert werden.
+- Beim Erststart ist nur Start vorhanden. Weitere reguläre Dashboard-Seiten lassen sich nun in Einstellungen anlegen und in der dynamischen Navigation öffnen; spezialisierte Haus-/Klima-/Medien-/Türmodule bleiben spätere Arbeiten.
 - Eingebundene Bilder stammen ausschließlich aus `frontend/assets/`.
 
 ## Automatisierung
@@ -33,3 +33,5 @@
 - Priorität: echte Installation und nur bestätigte Fehler beheben; keine zusätzlichen Unterseiten.
 
 Aktueller Arbeitsstand und Freigabegrenze: `PROJECT_STATUS.md`, `docs/DASHBOARD_1_0_RELEASE_GATE.md`.
+
+**Seitenverwaltung:** `frontend/core/page-management.js` hält den Lebenszyklus als reine Konfigurationstransformationen; `page-settings.js` stellt das globale Einstellungsmenü dar. `core/shell.js` reagiert auf Config-Service-Änderungen und verteilt/snap-scrollt die Navigation adaptiv. `core/router.js` übernimmt die Liste aktiver Seiten. Löschung der Startseite ist verboten. Zugehörige Tests: `tests/jamesui-next-page-management.test.js` und `tests/next-browser-smoke.mjs`.

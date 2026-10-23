@@ -37,3 +37,5 @@ Vollständige eigene Unterseiten für Haus, Klima, Medien und Tür. Diese ersche
 | Ausdauer | HA-Neustart, Browserreload, Verbindungsverlust/Erholung | Offen |
 
 Erst nach Bestehen dieser Praxisabnahme wird Dashboard 1.0 freigegeben. Tests mit simulierten Daten sind eine Voraussetzung, ersetzen die reale Abnahme aber nicht. Maßgebliche Kurzfassung: `PROJECT_STATUS.md`.
+
+**23.10.2026:** Neue globale Seitenverwaltung (Neuanlage, Papierkorb, Wiederherstellen, endgültiges Löschen), adaptive Navigation und hinzufügbare unkonfigurierte Widgets sind im Browser nachgewiesen. HACS-Beta `v1.0.0b4` / Actions 39945299089 geprüft. Live-HA/Tablet-Akzeptanz bleibt offen.

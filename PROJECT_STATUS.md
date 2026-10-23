@@ -4,6 +4,8 @@
 
 Dieses Dokument ist die verbindliche Übergabe für die Fortsetzung. Es wird nach jeder zusammengehörigen Änderung fortgeschrieben. Maßgeblich sind immer GitHub-HEAD, Quellcode und der aktuelle CI-Lauf.
 
+**Aktuelle HACS-Testversion:** [v1.0.0b4](https://github.com/MarkusAureliusTeuton/JamesUINext/releases/tag/v1.0.0b4) aus Commit `375d9dc6b63227dbf15c0c17803d9c5ebb1c6744`, automatische vollständige Freigabe einschließlich Chromium in [GitHub Actions #39945299089](https://github.com/MarkusAureliusTeuton/JamesUINext/actions/runs/39945299089) **erfolgreich**. Keine reale HA-/KNX-/Fully-Kiosk-Abnahme.
+
 ## Neue Seitenverwaltung und adaptive Navigation – 23.10.2026
 
 **Implementiert:** Die Hauptnavigation zeigt ausschließlich aktive, konfigurierte Seiten, verteilt wenige Einträge gleichmäßig und schaltet bei Platzmangel (Mindestbreite 144 px pro Eintrag) auf horizontalen Wischslider mit Einrastpunkten um. Über das rechts oben permanent sichtbare Zahnrad gelangt man zu **Einstellungen → Seiten**. Dort können unabhängige Seiten mit normalem oder Hero-Layout erstellt, geöffnet, in einen reversiblen Papierkorb verschoben, wiederhergestellt oder nach zusätzlicher Bestätigung endgültig entfernt werden. Die Startseite ist gegen Entfernen geschützt; Layouts und nicht mehr referenzierte Widget-Instanzen werden bei endgültiger Löschung bereinigt.
@@ -47,10 +49,10 @@ Ein realer Browserfehler (untere Navigation blockierte Editor-Schaltfläche) wur
 
 ## Installationsbereite HACS-Testversion
 
-**Bereit für kontrollierten Test:** `v1.0.0b3` im [eigenen GitHub-Repository](https://github.com/MarkusAureliusTeuton/JamesUINext/releases/tag/v1.0.0b3).
+**Bereit für kontrollierten Test:** `v1.0.0b4` im [eigenen GitHub-Repository](https://github.com/MarkusAureliusTeuton/JamesUINext/releases/tag/v1.0.0b4).
 
 1. Home Assistant sichern. In HACS das Custom-Repository `https://github.com/MarkusAureliusTeuton/JamesUINext` als **Integration** hinzufügen.
-2. **JamesUI Next → Erneut herunterladen**: Beta-Versionen anzeigen und `v1.0.0b3` auswählen.
+2. **JamesUI Next → Erneut herunterladen**: Beta-Versionen anzeigen und `v1.0.0b4` auswählen.
 3. Home Assistant neu starten und unter **Einstellungen → Geräte & Dienste** die Integration **JamesUI Next** hinzufügen.
 4. Am PC `/jamesui-next` öffnen, Wetter-Entität zuweisen, weitere Widgets einrichten, speichern, Browser neu laden und die Live-Aktionen prüfen.
 5. Erst danach das OnePlus Pad 2 mit Fully Kiosk im Hochformat prüfen.

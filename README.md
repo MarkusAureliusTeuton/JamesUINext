@@ -6,7 +6,7 @@ Eigenständige, modulare Tablet-Oberfläche für Home Assistant, entwickelt für
 
 1. Vor einer Testinstallation ein Home-Assistant-Backup erstellen.
 2. In **HACS → Drei Punkte → Benutzerdefinierte Repositories** die Adresse `https://github.com/MarkusAureliusTeuton/JamesUINext` mit Typ **Integration** hinzufügen.
-3. **JamesUI Next** öffnen, gegebenenfalls **Beta-Versionen anzeigen** aktivieren und die geprüfte **v1.0.0b3** herunterladen.
+3. **JamesUI Next** öffnen, gegebenenfalls **Beta-Versionen anzeigen** aktivieren und die geprüfte **v1.0.0b4** herunterladen.
 4. **Home Assistant neu starten.**
 5. Unter **Einstellungen → Geräte & Dienste → Integration hinzufügen** nach **JamesUI Next** suchen und die Integration hinzufügen.
 6. Im Browser das eigene Panel über `/jamesui-next` öffnen.
@@ -21,7 +21,7 @@ Die installierte Integration heißt `jamesui_next`, liegt unter `/config/custom_
 - Die Hausstatus-Datenquellen sind momentan über einen validierten technischen JSON-Dialog einstellbar; hier ist vor der Tablet-Abnahme auf Lesbarkeit und praktische Bedienung zu achten.
 - Mit **Fertig** speichern. Bei einem Konflikt zwischen Clients wird das Speichern abgelehnt und eine Fehlermeldung angezeigt.
 
-Erst im PC-Browser mit echten HA-Entitäten prüfen, danach auf dem OnePlus Pad 2 über Fully Kiosk. Nur Start ist aktuell ausführbar; die übrigen Navigationsbereiche sind deaktiviert.
+Erst im PC-Browser mit echten HA-Entitäten prüfen, danach auf dem OnePlus Pad 2 über Fully Kiosk. Beim ersten Start existiert die Startseite; weitere frei konfigurierbare Dashboard-Seiten können über das globale Zahnrad angelegt werden. Spezielle Funktionsseiten für Haus, Klima, Medien und Tür werden erst in späteren Modulen umgesetzt.
 
 
 ## Seiten verwalten

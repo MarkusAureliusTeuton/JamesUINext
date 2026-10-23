@@ -1,12 +1,12 @@
 # JamesUINext – Live- und Tablet-Test
 
-**Testversion:** [v1.0.0b3](https://github.com/MarkusAureliusTeuton/JamesUINext/releases/tag/v1.0.0b3). **Status:** Noch nicht praktisch abgenommen.
+**Testversion:** [v1.0.0b4](https://github.com/MarkusAureliusTeuton/JamesUINext/releases/tag/v1.0.0b4). **Status:** Noch nicht praktisch abgenommen.
 
 ## 1. Home Assistant / PC – einmal installieren
 
 1. Home Assistant Backup erstellen.
 2. In HACS → Benutzerdefinierte Repositories `https://github.com/MarkusAureliusTeuton/JamesUINext` als **Integration** hinzufügen.
-3. In HACS **JamesUI Next → Erneut herunterladen** → Beta-Versionen anzeigen → `v1.0.0b3` auswählen.
+3. In HACS **JamesUI Next → Erneut herunterladen** → Beta-Versionen anzeigen → `v1.0.0b4` auswählen.
 4. Home Assistant neu starten. Unter Einstellungen → Geräte & Dienste → Integration hinzufügen **JamesUI Next** einrichten.
 5. Im PC-Browser `http://<HA-IP>:8123/jamesui-next` öffnen (oder dieselbe HA-Basisadresse wie gewohnt verwenden).
 
