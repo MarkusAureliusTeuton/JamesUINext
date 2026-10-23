@@ -106,7 +106,7 @@ jobs:
       - name: Install pinned Chromium test environment
         run: |
           npm install --no-save --no-package-lock playwright@1.58.2
-          npx playwright install --with-deps chromium
+          npx playwright install chromium
       - name: Test Next browser portrait startup and editor persistence
         run: node tests/next-browser-smoke.mjs
       - name: Upload visual browser snapshots
