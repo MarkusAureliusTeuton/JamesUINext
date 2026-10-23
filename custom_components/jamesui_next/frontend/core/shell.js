@@ -1,6 +1,8 @@
 import { createButton } from "../design/primitives.js";
 import { createIcon } from "../icons/icon.js";
 import { CORE_ROUTES } from "./routes.js";
+import { activeDashboardPages } from "./page-management.js";
+import { createPageSettingsPanel } from "./page-settings.js";
 
 const NAV_ICON_IDS = Object.freeze({
   home: "nav.start",
@@ -14,7 +16,7 @@ function requireDependency(value, name) {
   if (!value) throw new TypeError(`createAppShell requires ${name}`);
 }
 
-export function createAppShell({ document, router, overlays, health, getContext, designSystem, renderPage = null } = {}) {
+export function createAppShell({ document, router, overlays, health, getContext, designSystem, renderPage = null, configService = null } = {}) {
   requireDependency(document, "document");
   requireDependency(router, "router");
   requireDependency(overlays, "overlays");
@@ -36,6 +38,7 @@ export function createAppShell({ document, router, overlays, health, getContext,
   let navigation = null;
   let overlayRoot = null;
   let healthSurface = null;
+  let settingsButton = null, pageSettings = null, unsubscribeConfig = null, navObserver = null;
   let unsubscribeRouter = null;
   let unsubscribeOverlay = null;
   let unsubscribeHealth = null;
@@ -48,6 +51,54 @@ export function createAppShell({ document, router, overlays, health, getContext,
       if (button.dataset.routeId === router.currentRouteId) button.setAttribute("aria-current", "page");
       else button.removeAttribute("aria-current");
     }
+  };
+
+  const resizeNavigation = () => {
+    if(!navigation) return;
+    const buttons=[...navigation.querySelectorAll("[data-route-id]")];
+    const width=navigation.clientWidth || 960;
+    const overflow=buttons.length * 152 > width - 28;
+    navigation.setAttribute("data-jui-nav-mode",overflow?"slider":"distributed");
+    navigation.style.overflowX=overflow?"auto":"hidden";
+    navigation.style.scrollSnapType=overflow?"x mandatory":"none";
+    navigation.style.overscrollBehaviorX="contain";
+    navigation.style.touchAction="pan-x";
+    for(const button of buttons) {
+      button.style.flex=overflow?"0 0 144px":"1 1 0";
+      button.style.scrollSnapAlign="start";
+    }
+  };
+
+  const renderNavigation = () => {
+    if(!navigation)return;
+    for(const {button,listener} of navBindings.splice(0)) button.removeEventListener("click",listener);
+    navigation.replaceChildren();
+    const pages=configService ? activeDashboardPages(configService.snapshot()) : CORE_ROUTES;
+    const routes=pages.length ? pages : [{id:"home",label:"Start"}];
+    if(configService) router.setRoutes(routes);
+    for(const route of routes) {
+      const button=createButton(document,{label:route.label,variant:"ghost",size:"md"});
+      const iconId=NAV_ICON_IDS[route.id] ?? "nav.house";
+      button.prepend(createIcon(document,iconId,{size:"md"}));
+      button.dataset.routeId=route.id;
+      button.style.display="flex";
+      button.style.flexDirection="column";
+      button.style.alignItems="center";
+      button.style.justifyContent="center";
+      button.style.gap="4px";
+      button.style.minWidth="0";
+      button.style.minHeight="54px";
+      button.style.fontSize="clamp(13px,1.15vw,16px)";
+      button.style.padding="8px 10px";
+      button.style.borderRadius="12px";
+      button.style.whiteSpace="nowrap";
+      const listener=()=>router.navigate(route.id);
+      button.addEventListener("click",listener);
+      navBindings.push({button,listener});
+      navigation.appendChild(button);
+    }
+    resizeNavigation();
+    updateNavigation();
   };
 
   const updateHealthSurface = () => {
@@ -110,6 +161,10 @@ export function createAppShell({ document, router, overlays, health, getContext,
     unsubscribeOverlay = null;
     unsubscribeHealth = null;
     for (const { button, listener } of navBindings.splice(0)) button.removeEventListener("click", listener);
+    unsubscribeConfig?.(); unsubscribeConfig = null;
+    navObserver?.disconnect?.(); navObserver = null;
+    pageSettings?.destroy(); pageSettings = null;
+    settingsButton?.remove(); settingsButton = null;
     designSystem.destroy();
     if (root?.parentNode) root.parentNode.removeChild(root);
     target = null;
@@ -133,6 +188,7 @@ export function createAppShell({ document, router, overlays, health, getContext,
     root.style.height = "100dvh";
     root.style.minHeight = "0";
     root.style.width = "100%";
+    root.style.position = "relative";
     root.style.display = "grid";
     root.style.gridTemplateRows = "minmax(0, 1fr) auto";
     root.style.overflow = "hidden";
@@ -166,41 +222,52 @@ export function createAppShell({ document, router, overlays, health, getContext,
     navigation.style.borderTop = "1px solid var(--jui-color-border-strong)";
     navigation.style.zIndex = "5";
 
-    for (const route of CORE_ROUTES) {
-      const button = createButton(document, { label: route.label, variant: "ghost", size: "md" });
-      const iconId = NAV_ICON_IDS[route.id];
-      if (!iconId) throw new Error(`Missing navigation icon for route: ${route.id}`);
-      button.prepend(createIcon(document, iconId, { size: "md" }));
-      button.dataset.routeId = route.id;
-      button.style.display = "flex";
-      button.style.flexDirection = "column";
-      button.style.flex = "1";
-      button.style.gap = "4px";
-      button.style.minHeight = "52px";
-      button.style.fontSize = "clamp(13px, 1.15vw, 16px)";
-      button.style.fontWeight = "500";
-      button.style.padding = "8px 10px";
-      button.style.borderRadius = "12px";
-      // This candidate implements only Start; do not present unfinished
-      // sections as working navigation. Their icons remain visible as a preview.
-      const available = route.id === "home";
-      if (!available) {
-        button.disabled = true;
-        button.setAttribute("aria-disabled", "true");
-        button.setAttribute("title", "Dieser Bereich folgt in einer späteren Version");
-        button.style.opacity = "0.42";
-      } else {
-        const listener = () => router.navigate(route.id);
-        button.addEventListener("click", listener);
-        navBindings.push({ button, listener });
-      }
-      navigation.appendChild(button);
+    // The navigation is based on persisted pages and recomputed on every
+    // configuration update. A small number of entries uses equal widths;
+    // overflowing entries use horizontal touch-scroll with snap.
+    renderNavigation();
+    if (configService) {
+      unsubscribeConfig=configService.subscribe(()=>{
+        renderNavigation();
+        pageSettings?.refresh();
+      },{emitCurrent:false});
     }
-
+    if(typeof globalThis.ResizeObserver==="function") {
+      navObserver=new globalThis.ResizeObserver(()=>resizeNavigation());
+      navObserver.observe(navigation);
+    }
+    
     root.appendChild(pageRegion);
     root.appendChild(overlayRoot);
     root.appendChild(healthSurface);
     root.appendChild(navigation);
+
+    if(configService) {
+      settingsButton=document.createElement("button");
+      settingsButton.setAttribute("type","button");
+      settingsButton.setAttribute("data-jui-open-settings","");
+      settingsButton.setAttribute("aria-label","JamesUI Einstellungen öffnen");
+      settingsButton.setAttribute("title","Einstellungen");
+      settingsButton.textContent="⚙";
+      settingsButton.style.position="absolute";
+      settingsButton.style.top="16px";
+      settingsButton.style.right="16px";
+      settingsButton.style.zIndex="55";
+      settingsButton.style.width="49px";
+      settingsButton.style.height="49px";
+      settingsButton.style.fontSize="29px";
+      settingsButton.style.lineHeight="1";
+      settingsButton.style.borderRadius="14px";
+      settingsButton.style.color="#fff";
+      settingsButton.style.border="1px solid rgba(240,220,190,.4)";
+      settingsButton.style.background="rgba(21,23,25,.74)";
+      settingsButton.style.backdropFilter="blur(12px)";
+      pageSettings=createPageSettingsPanel({document,configService,
+        onNavigate:(id)=>router.navigate(id)});
+      settingsButton.addEventListener("click",()=>pageSettings.open());
+      root.appendChild(settingsButton);
+      root.appendChild(pageSettings.root);
+    }
     target.appendChild(root);
 
     unsubscribeRouter = router.subscribe(() => renderCurrentPage());
