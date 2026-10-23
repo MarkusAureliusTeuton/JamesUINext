@@ -125,13 +125,9 @@ try {
 
   const nav = await page.evaluate(() => [...document.querySelector("jamesui-next-panel").shadowRoot.querySelectorAll('[data-role="bottom-navigation"] button')]
     .map((button) => ({ route: button.dataset.routeId, disabled: button.disabled })));
-  assert.deepEqual(nav, [
-    { route: "home", disabled: false },
-    { route: "house", disabled: true },
-    { route: "climate", disabled: true },
-    { route: "media", disabled: true },
-    { route: "door", disabled: true },
-  ]);
+  assert.deepEqual(nav, [{ route: "home", disabled: false }]);
+  assert.equal(await root.locator('[data-jui-open-settings]').count(), 1);
+  assert.equal(await root.locator('[data-role="bottom-navigation"]').getAttribute("data-jui-nav-mode"), "distributed");
   await root.locator('[data-jui-empty-add]').click();
   const catalogDialog = root.locator("[data-jui-dashboard-catalog]");
   await catalogDialog.waitFor({ state: "visible" });
