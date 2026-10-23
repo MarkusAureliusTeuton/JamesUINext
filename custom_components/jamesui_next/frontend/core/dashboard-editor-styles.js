@@ -18,7 +18,7 @@ export const DASHBOARD_EDITOR_STYLES = `
   background: var(--jui-color-accent-soft); color: var(--jui-color-text-primary);
   font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
 }
-[data-jui-open-editor] { position: absolute; top: 16px; right: 16px; z-index: 22; }
+[data-jui-open-editor] { position: absolute; top: 16px; right: 80px; z-index: 22; }
 [data-jui-editor-toolbar]:not([hidden]) {
   position: absolute; bottom: 18px; left: 50%; right: auto;
   transform: translateX(-50%); z-index: 25;

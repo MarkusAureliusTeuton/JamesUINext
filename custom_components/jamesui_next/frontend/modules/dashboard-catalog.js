@@ -58,8 +58,8 @@ export function createDashboardCatalogView({ document, catalog, onSelect } = {})
           tasks.placeholder = "todo.einkauf";
           tasks.setAttribute("aria-label", "Aufgaben-Entitäten");
           button.addEventListener("click", () => {
-            try { onSelect(item.module_id, { calendars: calendar.value, tasks: tasks.value }); root.hidden = true; }
-            catch (cause) { error.textContent = cause.message; }
+            try { if (onSelect(item.module_id, { calendars: calendar.value, tasks: tasks.value }) === false) throw new Error("Kein Platz für dieses Widget"); root.hidden = true; }
+            catch (cause) { error.textContent = String(cause?.message ?? cause); }
           });
           const calendarLabel = document.createElement("label");
           calendarLabel.textContent = "Kalender-Entitäten (optional)";
@@ -71,8 +71,8 @@ export function createDashboardCatalogView({ document, catalog, onSelect } = {})
           root.appendChild(tasksLabel);
         } else {
           button.addEventListener("click", () => {
-            try { onSelect(item.module_id, {}); root.hidden = true; }
-            catch (cause) { error.textContent = cause.message; }
+            try { if (onSelect(item.module_id, {}) === false) throw new Error("Kein Platz für dieses Widget"); root.hidden = true; }
+            catch (cause) { error.textContent = String(cause?.message ?? cause); }
           });
         }
         root.appendChild(button);

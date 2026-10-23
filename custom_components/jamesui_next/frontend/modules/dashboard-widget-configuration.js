@@ -13,9 +13,6 @@ export function buildAgendaInstanceConfig(instanceId, { calendars = "", tasks = 
   };
   const calendarList = parse(calendars, "calendar");
   const taskList = parse(tasks, "todo");
-  if (calendarList.length === 0 && taskList.length === 0) {
-    throw new TypeError("Select at least one calendar or task list");
-  }
   const config = {
     instance_id: instanceId,
     calendar_enabled: calendarList.length > 0,

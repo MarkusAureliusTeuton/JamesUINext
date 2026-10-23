@@ -388,7 +388,9 @@ function sourceNotices(config, calendarSnapshot, tasksSnapshot) {
 
 function emptyState(config) {
   if (config.calendar_enabled && config.tasks_enabled) return "Keine Termine oder Aufgaben";
-  return config.calendar_enabled ? "Keine Termine" : "Keine Aufgaben";
+  return !config.calendar_enabled && !config.tasks_enabled
+    ? "Kalender oder Aufgabenliste über Bearbeiten → Zahnrad konfigurieren"
+    : config.calendar_enabled ? "Keine Termine" : "Keine Aufgaben";
 }
 
 function enumerateDays(startDay, endDay) {

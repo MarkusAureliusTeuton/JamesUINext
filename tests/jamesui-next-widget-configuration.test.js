@@ -16,8 +16,10 @@ test("agenda selection supports tasks only", () => {
   assert.equal(value.tasks_enabled, true);
 });
 
-test("invalid, empty and duplicate sources are rejected", () => {
-  assert.throws(() => buildAgendaInstanceConfig("x", {}), /at least one/);
+test("new empty agendas can be configured later; invalid and duplicate sources are rejected", () => {
+  const empty = buildAgendaInstanceConfig("x", {});
+  assert.equal(empty.calendar_enabled, false);
+  assert.equal(empty.tasks_enabled, false);
   assert.throws(() => buildAgendaInstanceConfig("x", {calendars:"sensor.temp"}), /Invalid calendar/);
   assert.throws(() => buildAgendaInstanceConfig("x", {tasks:"todo.one todo.one"}), /Duplicate todo/);
 });

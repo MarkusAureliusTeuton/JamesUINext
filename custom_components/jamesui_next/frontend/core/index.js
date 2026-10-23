@@ -74,6 +74,7 @@ export function createJamesUICore({ document = globalThis.document, renderPage, 
     designSystem,
     getContext: () => hostContext.snapshot(),
     renderPage,
+    configService: config,
   });
 
   const core = {

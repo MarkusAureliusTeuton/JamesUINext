@@ -179,7 +179,7 @@ export function validateCalendarAgendaConfig(config) {
   const tasksEnabled = config.tasks_enabled === undefined
     ? true
     : requireBoolean(config.tasks_enabled, "tasks_enabled");
-  if (!calendarEnabled && !tasksEnabled) throw new TypeError("at least one Agenda domain must be enabled");
+  // Allow an unconfigured Agenda until sources are chosen in the widget editor.
 
   const calendarsInput = config.calendars ?? [];
   const taskListsInput = config.task_lists ?? [];

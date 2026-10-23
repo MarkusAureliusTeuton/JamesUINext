@@ -362,6 +362,7 @@ export function createDashboardPageComposer({ document, moduleLoader, getConfig,
         };
         const next = editor.addWidget(moduleId, { config, ...(preferred[moduleId] ?? {}) });
         if (next) preview(next);
+        return next !== null;
       } });
       placeEditorDialog(catalogView.root);
     }
