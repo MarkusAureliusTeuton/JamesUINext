@@ -72,6 +72,7 @@ jobs:
             tests/jamesui-next-weather-settings.test.js \
             tests/jamesui-next-widget-settings-dialog.test.js \
             tests/jamesui-next-widget-configuration.test.js \
+            tests/jamesui-next-page-management.test.js \
             tests/jamesui-next-route-host.test.js \
             tests/jamesui-next-providers.test.js \
             tests/jamesui-grid-placement.test.js \
